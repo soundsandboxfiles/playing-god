@@ -8,14 +8,16 @@ follow the vault slug `playing-god` until that is decided.
 
 ## Read these first, in this order
 
-1. **`SPEC.md`** (also `SPEC.pdf`) — the complete design specification. Every
+1. **`playing-god-spec.md`** (also `.pdf`) — the complete design specification. Every
    value in it is a decision, not a suggestion.
 2. **`docs/BUILD-ORDER.md`** — the stage sequence and its acceptance gates.
+   Also `docs/EXPORTING-LOGS.md` for getting run data back to a fresh
+   evaluating session, and `docs/HANDOVER-PROMPT.md` to start a build.
 3. The vault entity `Cowork/CONTEXT/projects/playing-god.md` in the parent
    Claude folder — holds the reasoning behind the constants, the decisions
    taken against Jon's stated instinct and why, and the standing caution.
 
-`SPEC.md` says *what*. The vault entity says *why*. A change that contradicts
+`playing-god-spec.md` says *what*. The vault entity says *why*. A change that contradicts
 either needs both updated.
 
 ## The one rule that governs everything
@@ -41,7 +43,7 @@ See `docs/BUILD-ORDER.md`.
 ## Layout
 
 ```
-SPEC.md / SPEC.pdf     the specification
+playing-god-spec.md/.pdf  the specification
 docs/                  build order, stage instructions, handover prompt
 src/                   ES modules — genome, synthesis, variation, archive,
                        fitness, servo, descriptors, logging.

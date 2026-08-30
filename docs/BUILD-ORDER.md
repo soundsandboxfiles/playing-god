@@ -98,17 +98,36 @@ should:
 3. Build Stage 2. Run Gates 2a and 2b. Write artefacts to
    `output/gate-artefacts/`.
 4. **Branch on Gate 2b.**
-   - **Pass** → build Stage 3 and run Gate 3-plumbing with synthetic dwell.
+   - **Pass** → **build everything.** Stage 3 in full, Gate 3-plumbing with
+     synthetic dwell, and the §14 logging, §8.6 annotation field and export
+     path. Do not stop to wait for a human to run Gate 1a. See below.
    - **Fail** → stop. Do not build Stage 3. Report `p_same`, `p_near`, `H_cell`
      and which of the specification's §13.3 fixes the numbers point to.
 5. Write `output/OVERNIGHT-REPORT.md`: what was built, gate results with
    measured numbers against thresholds, anything in the specification found
    ambiguous or contradictory, and what is waiting for a human.
 
-Note that Stage 3 work is not wasted if **Gate 1a** later fails — the archive,
-servo and logging are correct regardless of whether generation zero sounds
-good, and a 1a failure is fixed in the priors (§5). It *is* wasted if Gate 2b
-fails, which is why 2b is the branch point and 1a is not.
+### Why the run does not stop for Gate 1a
+
+The owner's time is the scarce resource, not the agent's. Waiting overnight for
+a human verdict before building the rest would cost a return trip to a coding
+agent, and the risk it avoids is smaller than it looks.
+
+**The only gate that can invalidate the architecture is Gate 2b, and it needs
+no human.** If behavioural locality fails, the archive design itself may change
+— coarser grid, different descriptors, or adaptive-sampling MAP-Elites — so
+that work would genuinely be thrown away. The machine can determine this on its
+own, overnight, before committing to the archive layer.
+
+A **Gate 1a** failure is a different shape entirely. It says generation zero is
+not worth listening to, and the fix is in the priors (§5, §5.1). The archive,
+selection, fitness, servo, logging and annotation machinery are all still
+correct — they do not care whether the sounds being fed through them are any
+good. That work is *premature*, not wasted.
+
+So: build through to completion once 2b passes. The genuinely at-risk work is
+already gated by something fully automatable, and the residual downside is some
+possibly-early code rather than a wrong architecture.
 
 ---
 

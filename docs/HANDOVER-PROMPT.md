@@ -11,7 +11,7 @@ the vault at `/sandbox/Cowork/CONTEXT/`.
 
 READ FIRST, IN THIS ORDER
 1. `code/playing-god/README.md`
-2. `code/playing-god/SPEC.md` — the complete specification. Every value in it
+2. `code/playing-god/playing-god-spec.md` — the complete specification. Every value in it
    is a decision, not a suggestion. Where you disagree, implement it as written
    and record the disagreement in your report.
 3. `code/playing-god/docs/BUILD-ORDER.md` — the stage sequence and its gates.
@@ -46,22 +46,33 @@ Constraints of this environment, which shape the architecture:
 
 WHAT TO DO, IN ORDER
 1. Build Stage 1 plus its §14 logging. Run Gate 1b-mech.
-2. Render 100 random genomes to WAV in `output/gate-artefacts/gate1a-batch/`
-   and write a listening harness that plays them in sequence with the
-   legibility display. Do not judge them — that gate needs a human.
-3. Build Stage 2. Run Gates 2a and 2b. Write artefacts to
+2. Run the §5.2 prior sanity check over 1,000 random genomes and write the raw
+   distributions to `output/gate-artefacts/`. Report distributions only, with
+   no verdict — it is a plumbing check, not a quality judgement.
+3. Render 100 random genomes to WAV in `output/gate-artefacts/gate1a-batch/`
+   and write a listening harness that plays them in sequence. Build it with an
+   **audio-only mode as the default** and visuals as a toggle: Gate 1a asks
+   whether the generator is producing anything worth hearing, and visuals would
+   change what is being judged. Do not judge them yourself — that gate needs a
+   human.
+4. Build Stage 2. Run Gates 2a and 2b. Write artefacts to
    `output/gate-artefacts/`.
-4. Branch on Gate 2b:
-   - PASS  → build Stage 3, run Gate 3-plumbing with synthetic dwell, and
-             label every synthetic run `SYNTHETIC` in the logs.
+5. Branch on Gate 2b:
+   - PASS  → build EVERYTHING: Stage 3 in full, Gate 3-plumbing with synthetic
+             dwell (label every synthetic run `SYNTHETIC` in the logs), the §14
+             logging, the §8.6 annotation field, and the export path in
+             `docs/EXPORTING-LOGS.md`. Do not stop to wait for a human verdict
+             on Gate 1a — see docs/BUILD-ORDER.md for why that is safe.
    - FAIL  → STOP. Do not build Stage 3. Report the numbers and say which of
-             SPEC §13.3's listed fixes the evidence points to.
-5. Write `output/OVERNIGHT-REPORT.md` containing:
+             playing-god-spec.md §13.3's listed fixes the evidence points to.
+6. Write `output/OVERNIGHT-REPORT.md` containing:
    - what was built, stage by stage
    - every gate result, measured number against stated threshold
    - anything in the specification you found ambiguous, contradictory or
      impossible, quoted with its section number
    - any place you were tempted to narrow the space, and what you did instead
+   - every item in playing-god-spec.md §5.1 you had to choose a value for, what you chose, and
+     why — those priors are undesigned and your choices are provisional
    - exactly what is waiting for a human, and how to run it
 
 CODE STYLE
@@ -70,7 +81,10 @@ what the line does. The project owner does not read code and navigates by
 comments. Cite specification section numbers in comments wherever a constant
 comes from the spec.
 
-Commit after every meaningful unit of work. Do not attempt to push to a remote;
-this sandbox has no git history and pushes happen host-side.
+The sandbox snapshot excludes `.git/`, so this copy has no history. Run
+`git init` in the project root at the start and commit after every meaningful
+unit of work — that gives you rollback within the session. Do not attempt to
+push to a remote; the real repository lives on the host and pushes happen there
+after sync-back.
 
 Work autonomously. Do not stop to ask questions — record them in the report.
