@@ -1,0 +1,12 @@
+# Runtime output — regenerated, never reviewed as source
+output/logs/
+*.jsonl
+*.wav
+
+# Keep gate artefacts: they are evidence, not build products
+!output/gate-artefacts/
+
+node_modules/
+.venv/
+__pycache__/
+.DS_Store
