@@ -1,10 +1,13 @@
 # Runtime output — regenerated, never reviewed as source
 output/logs/
+
+# Bulk data formats, ignored by default anywhere in the tree
 *.jsonl
 *.wav
 
-# Keep gate artefacts: they are evidence, not build products
-!output/gate-artefacts/
+# ...except gate artefacts, which are evidence and must be committed.
+# This negation has to come AFTER the *.jsonl rule to take effect.
+!output/gate-artefacts/**
 
 node_modules/
 .venv/
