@@ -387,9 +387,12 @@ function playCandidate(cand) {
   renderEnded = false; // F7: new listen, timer runs again
   favMsg = '';         // F11: clear any stale favourite confirmation for the new creature
   // Natural end of playback → the render reached its end; freeze the dwell display
-  // and stop accrual (§8.3). Also fires on .stop() for the next Creature, which is
-  // harmless because we have already committed by then.
-  src.onended = () => { renderEnded = true; };
+  // (§8.3). BUG FIX (smoke test, 2026-08-31): onended ALSO fires asynchronously
+  // when the previous source is stopped for the next Creature — AFTER the new
+  // listen has reset renderEnded — which froze every subsequent timer at L on
+  // arrival. Guard: only freeze if this source is still the one playing. The
+  // measured dwell was never affected (commit computes from clocks, not this flag).
+  src.onended = () => { if (source === src) renderEnded = true; };
 }
 
 // Finalise the current listen with a measured outcome, then start the next.

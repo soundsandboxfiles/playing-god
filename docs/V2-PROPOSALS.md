@@ -389,3 +389,14 @@ influencing nothing. Session-model autonomy note: its recent-dwell context
 freezes to the last K human dwells while running alone (its guesses degrade
 without fresh human context — the UI should say so). Recorded in SPEC-DELTA
 as an owner amendment to §10.2.
+
+---
+
+## v2.3 queue (logged 2026-08-31, post-smoke-test)
+
+| # | Item | Notes |
+|---|---|---|
+| B1 | **onended race** (FIXED on host, uncommitted): stale playback-finished callback froze the next listen's timer at L. One-line guard in app/index.html; measurement was never affected (commit computes from clocks). Fold into next commit. | done, commit pending |
+| S1 | **Seed herd = all favourites** (owner instruction): seed-picks.json regenerated from favourites.json — 10 seed parents (7 gate1a + f3-006 #001/#019 + w1-n64-07), verified via genomesFromSeedPicks. Data-only change; commit pending. | done, commit pending |
+| P7 | **Descriptor head → genome-only autonomy.** Owner hit the render cost ("run 10 takes a while"). Path: train a genome→descriptor predictor on the unlimited free labels every real render produces; display its objective filing accuracy (fraction placed in correct / adjacent cell); switch autonomous placement to genome-only once proven — same public-accuracy pattern as the dwell predictor. Until then rendering stays (honest filing). | next sandbox run |
+| P8 | **Background autonomy rendering**: move autonomous renders into a worker so the UI never blocks; progress readout. Immediate relief independent of P7. | next sandbox run |
