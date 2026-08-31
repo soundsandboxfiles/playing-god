@@ -39,6 +39,14 @@ import { normalizeLoudness } from './loudness.js';
 // exact zeros produced while every wave's pre_wait gate is still shut (§4.2), so
 // this precisely targets the opening silence and nothing else.
 //
+// v2.1 REFINEMENT (owner ruling, V2-PROPOSALS "Owner rulings, 2026-08-31 evening"):
+// "trim the opening only when the leading inaudible span exceeds 0.25 s; playback
+// then starts at the first audible moment. Openings quieter than 0.25 s of silence
+// are left alone (the breath before an entrance survives)." So the trim now fires
+// only past a 0.25 s leading-silence THRESHOLD (TRIM_MIN_LEAD_S); shorter openings
+// pass through untouched, and when it does fire, playback begins at the first
+// audible sample (unchanged). Still presentation-only — no genome changes.
+//
 // CONSEQUENCES (P4): leading pre_wait becomes phenotypically near-neutral — neutral
 // drift along it is fine and expected; §4.7 loudness and the descriptors read the
 // trimmed buffer (below); the servo's dwell semantics are unchanged (dwell still
@@ -51,6 +59,9 @@ import { normalizeLoudness } from './loudness.js';
 // (§4.7). PROVISIONAL threshold, recorded in the v2 report.
 const TRIM_REL_TO_PEAK = 1e-3;   // −60 dB below the render's peak
 const TRIM_ABS_FLOOR = 1e-6;     // never treat literal denormal noise as "audible"
+// v2.1 (owner): only trim when the leading inaudible span exceeds this; shorter
+// openings (the breath before an entrance) are left alone.
+const TRIM_MIN_LEAD_S = 0.25;
 
 // Find the first index at or after which the signal is audible. Returns 0 if the
 // buffer starts audible, or N if it is silent throughout (caller then does NOT
@@ -86,9 +97,12 @@ export function renderNormalized(gn, opts = {}) {
   let trimSamples = 0;
   if (doTrim) {
     const cut = firstAudibleIndex(r.samples);
-    // Only trim a genuine leading run, and never trim the whole buffer away (a
-    // fully near-silent render returns cut === N and is left intact above).
-    if (cut > 0 && cut < r.samples.length) {
+    // v2.1 (owner): only trim when the leading inaudible span EXCEEDS 0.25 s.
+    const minLeadSamples = TRIM_MIN_LEAD_S * r.sampleRate;
+    // Only trim a genuine leading run past the threshold, and never trim the whole
+    // buffer away (a fully near-silent render returns cut === N and is left intact
+    // above). Playback then starts at the first audible sample (cut).
+    if (cut > minLeadSamples && cut < r.samples.length) {
       trimSamples = cut;
       r.samples = r.samples.subarray(cut); // view; cheap, no copy
       r.N = r.samples.length;

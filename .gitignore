@@ -18,6 +18,10 @@ output/gate-artefacts/gate1a-batch/
 output/gate-artefacts/f3-pactive-003/
 output/gate-artefacts/f3-pactive-006/
 output/gate-artefacts/f3-pactive-010/
+# W1 high-wave exploration batch — same reasoning (large, regenerable, reaches the
+# host via sync-back not git). Harness + manifest live inside and are regenerable;
+# the committed evidence is output/gate-artefacts/w1-exploration-manifest.json.
+output/gate-artefacts/w1-exploration/
 
 node_modules/
 .venv/

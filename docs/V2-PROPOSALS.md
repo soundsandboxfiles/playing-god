@@ -272,3 +272,47 @@ waves, independently confirming the owner's sameyness instinct. Archive:
 47 cells at listen 100 → 75 at listen 200, QD score 207 → 405, D_med rising.
 Evolution is working and diversifying; the wave-count question may be more
 about generation-zero listenability than about where evolution ends up.
+
+---
+
+## F3 verdict and owner rulings (2026-08-31 evening audition)
+
+Engagement by batch (Jon, ~20 auditioned each): p_active 0.03 → 4/21;
+0.06 → 6/21 (incl. f3-pactive-006 #001, "might be the best thing I've heard",
+4 waves; #019 "most pad-sounding thing we've made", 5 waves); 0.10 → 8/23.
+Engaged creatures' wave counts: 003 batch {5,3,1,3}; 006 {4,4,4,3,7,5};
+010 {6,5,7,6,8,6,6,6} — engagement rises with waves, but a 1-wave creature
+engaged too, and Jon noted some 6-wave creatures "sounded like 1 or 2"
+(expected: gain_out_on p=0.75 plus pure modulators mean active ≠ audible).
+
+**F10 (owner ruling): generation-zero wave count becomes a RANGE, 1–10.**
+Replace the per-slot p_active draw at init with an explicit count
+distribution: draw n_active in 1..10 (uniform unless the owner says
+otherwise), then activate that many slots. Init-draw bias only; kill-switch
+evolvability and the floor unchanged; nothing unreachable (§2.1).
+
+**W1 (owner wishlist): a high-wave exploration batch** — render creatures at
+forced n_active up to the 64 max (e.g. 8/16/32/64) purely for the owner to
+hear what dense territory sounds like. A rendering exercise, not a prior
+change.
+
+**F11 (owner wishlist): favourites library** — created at
+`output/favourites/favourites.json` + vault entity
+`jons-favourite-creatures`. Wishlist: an in-app "add to favourites" key
+writing an entry (genome, timestamp) live during sessions.
+
+---
+
+## Owner rulings, 2026-08-31 evening (P5 and the trim refined) — for the v2.1 micro-run
+
+**P5 RULED: auto-advance adopted.** On the `near_silent` measurement flag the
+app plays the creature, shows a clear "near-silent" label, and auto-advances
+after **0.25–0.5 s** (owner's range; pick a value in it and record), logging
+the true short dwell. Nothing deleted, no fitness faked, selection untouched.
+Option D (selection bias) remains vetoed.
+
+**F4/P4 trim refined (owner):** trim the opening only when the leading
+inaudible span exceeds **0.25 s**; playback then starts at the first audible
+moment. Openings quieter than 0.25 s of silence are left alone (the breath
+before an entrance survives). No genome change — presentation only. The
+mandated non-purist comment stays and should quote this refinement.

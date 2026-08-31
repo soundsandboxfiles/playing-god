@@ -1,35 +1,35 @@
 {
-  "timestamp_ms": 1788192674707,
-  "session_id": "overnight-headless-2026-08-31160427",
+  "timestamp_ms": 1788198224805,
+  "session_id": "overnight-headless-2026-08-31172952",
   "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
   "artefact": "gate2b-behavioural.json",
   "gate": "2b (behavioural locality, §13.3)",
   "threshold": "p_same ≥ 0.35 AND p_near ≥ 0.7 (mutation-only)",
-  "pass": true,
+  "pass": false,
   "mutation_only": {
-    "p_same": 0.56675,
-    "p_near": 0.7795,
+    "p_same": 0.19175,
+    "p_near": 0.479,
     "n": 4000
   },
   "with_crossover": {
-    "p_same": 0.49425,
-    "p_near": 0.7105,
+    "p_same": 0.15575,
+    "p_near": 0.404,
     "n": 4000
   },
-  "H_cell": 0.3331984158647351,
+  "H_cell": 0.7658238579073687,
   "H_cell_detail": {
-    "H_cell": 0.3331984158647351,
-    "U_vec": 235.3703259656603,
-    "cells_with_2plus": 108
+    "H_cell": 0.7658238579073687,
+    "U_vec": 215.23039254635867,
+    "cells_with_2plus": 245
   },
   "axis_calibration": {
     "dev": {
-      "min": 0.013995593565584108,
-      "max": 308.3364709682916
+      "min": 7.5453438182628965,
+      "max": 304.02724205051476
     },
     "harm": {
-      "min": 1.7168823763017527e-11,
-      "max": 1.0000000000001905
+      "min": 0.0011511969360222596,
+      "max": 0.05110254566348297
     }
   },
   "switch_rates_used": "from Gate 2a J_class_table",
@@ -40,5 +40,5 @@
     "n_offspring": 20,
     "seed": "0x2B00"
   },
-  "elapsed_s": 406.93
+  "elapsed_s": 831.808
 }

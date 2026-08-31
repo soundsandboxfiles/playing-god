@@ -21,6 +21,7 @@ import {
   analyze, loadSwitchRates, calibrateAxis, runPass, computeHcell,
   N_PARENTS, P_SAME_THRESH, P_NEAR_THRESH,
 } from './gate2b-behavioural.js';
+import { HARM_AXIS_MIN_FLOOR } from '../src/descriptors.js';
 import { breed } from '../src/variation.js';
 import { WAVE_SLOTS, GENES_PER_WAVE, WAVE_INDEX, GLOBAL_INDEX, GLOBAL_SCHEMA, WAVE_SCHEMA, inverseMap } from '../src/genome.js';
 import { writeArtefact } from './_util.js';
@@ -63,7 +64,7 @@ function main() {
       if (ca) { devVals.push(ca.dev); harmVals.push(ca.harm); }
     }
   }
-  const cal = { dev: calibrateAxis(devVals), harm: calibrateAxis(harmVals) };
+  const cal = { dev: calibrateAxis(devVals), harm: calibrateAxis(harmVals, { floorMin: HARM_AXIS_MIN_FLOOR }) };
   console.log('  axis calibration (fixed across sweep): dev', fmt(cal.dev), 'harm', fmt(cal.harm));
 
   const curve = [];

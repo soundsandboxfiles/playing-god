@@ -203,6 +203,119 @@ IndexedDB up (1→2) with a **purely additive** upgrade — never deletes or rec
 store — so the owner's v1 data is preserved; a `meta` store records the schema
 version. A pre-existing v1 database is tolerated, never clobbered.
 
+---
+
+# v2.1 refinement pass (2026-08-31 evening) — deltas on top of v2
+
+The v2.1 micro-run refines the working v2 system against the owner's evening
+rulings (V2-PROPOSALS "Owner rulings, 2026-08-31 evening"; F10/W1/F11). Every change
+below is still a *bias on which moves are cheap* or a *presentation-layer* handling
+of a measurement fact — never a truncation of what can exist. The single deliberate
+exception remains the F4/P4 leading-silence trim, now refined (below).
+
+> **Gate status after v2.1 (IMPORTANT).** The harm-axis fix and F10 are both
+> correct/mandated in themselves, but **together they drop Gate 2b (behavioural
+> locality) below threshold** — p_same 0.192 (needs ≥0.35), p_near 0.479 (needs
+> ≥0.70), vs v2's 0.567/0.779. A bisect (`gate2b-bisect.json`) attributes it: F10
+> dominates the p_same collapse (denser starts compress the dev axis), the instrument
+> fix dominates the H_cell rise and independently sinks p_near (a now-legible harm
+> axis is a real second dimension offspring move along — part of v2's "pass" was the
+> degenerate axis collapsing offspring into one bin, V2-REPORT §5). Per the work
+> order this run did **not** loosen the gate; the archive-geometry response (coarser
+> grid / coarser harm binning / adaptive sampling, §13.3, or an owner change to the
+> F10 range) is a **pending owner decision** — see `output/V2.1-REPORT.md` §4. So the
+> two deltas below are shipped in code, but **the 16×16 deep archive does not
+> re-validate under them as-is.**
+
+## §7.1 Harmonicity axis — estimator legibility fix (V2-REPORT §5)
+
+**Spec (§7.1, Axis 2):** harmonicity via spectral flatness (Wiener entropy),
+tonal→0, noisy→1. **Instrument (§2.2): carries no opinion about the sound.**
+
+**v2 defect (V2-REPORT §5):** the estimator added a *fixed absolute* floor
+(eps = 1e-10) to every bin's power before the geometric mean. On a near-pure tone
+almost every bin is genuinely ~0 power, so the geometric mean collapsed onto eps
+itself and the flatness read ~1e-9 — the estimator's numerical floor, not a
+harmonicity value. ~6% of random genomes piled onto that floor, the distribution
+went bimodal, and the calibrated log axis stretched into estimator noise (most
+mid-range sounds compressed into the top harm bins; archive coverage fell to 48%).
+
+**v2.1 fix (instrument legibility only — no range narrowed, no genome rejected):**
+- **Relative per-frame noise floor** `HARM_FLOOR_REL = 1e-3`: each bin's power is
+  floored at `1e-3 × (mean raw bin power of the frame)` before both means. A pure
+  tone then reads a *stable* flatness of ≈ `HARM_FLOOR_REL` (scale-invariant —
+  independent of the render's amplitude), comfortably above estimator noise; a
+  genuinely noisy frame (bins already comparable) is essentially unchanged.
+- **Silent frames excluded** from the average: a silent frame carries no harmonic
+  information. The v2 eps made a silent frame read flatness 1 (noisy), wrongly
+  piling silence-dominated genomes (median silence ~0.73) at the noisy end; a naive
+  "silent→0" would just move the pile to the tonal end. Excluding them removes both.
+- **Belt-and-braces** `HARM_AXIS_MIN_FLOOR = 1e-4` raises the calibrated `harm.min`
+  (raise-only, so it cannot narrow a well-spread axis), so a residual near-pure
+  reading still clamps cleanly into the tonal edge bin rather than anchoring the log
+  scale on noise.
+
+**Measured** (1000 F10 genomes @4 s): harm p2 **2.4e-10 → 1.13e-3**, p50 8.0e-3,
+p98 6.3e-2; the estimator-floor pile is gone. Nothing about what can exist or what
+is heard changed (§2.2). Recorded for the cold evaluator as the resolution of the
+§5 finding.
+
+## §5 / §5.1 Generation-zero wave count — explicit range draw (F10)
+
+**Spec (§5, Appendix `P_ACTIVE_AT_INIT`):** each wave slot is activated
+independently at init with probability `p_active`.
+
+**v2.1 (F10, owner ruling):** the default generation-zero activation is now an
+explicit **count** draw: `n_active` uniform in **1..10**, then that many distinct
+slots chosen uniformly. **Init-draw bias only (§2.1):** every wave-count and every
+slot combination stays reachable, the per-wave kill-switch stays evolvable, and the
+`MIN_ACTIVE = 1` floor is untouched (`n_active ≥ 1`). `P_ACTIVE_AT_INIT` and the
+per-slot path are retained only for the F3 comparison batches (which pass an explicit
+`pActive`); `opts.nActive` forces an exact count (W1). **Why (F10):** the owner's F3
+audition found 1–3-wave creatures samey and wanted denser starts on the table — a bet
+on where to *start*, not a change to what may exist. **Measured:** active-count
+uniform 1..10 over 2000 draws; near-silent @4 s fell ~12% → 5.8%.
+
+## §4.2 / §4.7 Leading-silence trim — 0.25 s threshold (owner refinement)
+
+**v2 (above):** trim any leading run of sub-audible samples before the first audible
+sound. **v2.1 (owner ruling):** trim the opening **only when the leading inaudible
+span exceeds 0.25 s** (`TRIM_MIN_LEAD_S`); playback then starts at the first audible
+moment. Openings quieter than 0.25 s of silence are left alone — "the breath before
+an entrance survives". Still the single deliberate presentation-layer exception,
+still no genome change; the mandated non-purist comment in `src/render.js` quotes the
+refinement. Verified: ≤0.24 s openings pass untouched, ≥0.25 s trim at first audible.
+
+## §8.3 / §8.7 / P5 Near-silent auto-advance (owner ruling)
+
+**Spec (§8.3):** no looping, no auto-advance; dwell is the sole fitness signal
+(§8.1). **V2-REPORT §9 (P5):** the owner asked to stop wasting interface time on
+near-silent creatures; deleting-at-creation was ruled out as a §2.1 truncation, and
+Option A (presentation-layer auto-advance) recommended.
+
+**v2.1 (P5 ruled, app delivery surface only):** on the `near_silent` **measurement**
+flag the app plays the creature (so it is heard and measured), shows a clear
+"near-silent · auto-advancing" label, and **auto-advances after 0.4 s** (in the
+owner's 0.25–0.5 s range), recording the **true short dwell** via the normal commit
+path — no fabricated skip, no suppressed dwell. `Space` stays frictionless (a
+keystroke pre-empts the timer); pause/annotate/tab-hide clears it via the single §8.7
+suspension path and it re-arms on resume. **Nothing is deleted and selection is
+untouched** — this acts only on presentation timing (§2.2, the near-silent flag is a
+measurement fact, not a taste judgement). Confined to `app/index.html`; `src/` is
+unchanged and DOM-free.
+
+## §14 / §8.6 Favourites store (F11)
+
+**v2.1 (F11, owner wishlist):** a new IndexedDB store `favourites`. Pressing **`K`**
+writes the current creature — the full genome (exactly reconstructible), `genome_id`,
+`added_at`, and a `listen_context` block — to it. Like `notes`, favourites are stated
+preference and are **firewalled from the search (§8.6):** nothing reads them into
+fitness, descriptors, the Predictor or selection. The IndexedDB is versioned **2→3**
+purely additively (no store deleted or recreated; §6/F6 rule preserved). `E` exports
+`favourites.jsonl` (the store is in `STORES`). At startup the store is **seeded from
+`output/favourites/favourites.json` without clobbering** existing entries (idempotent,
+dedupe by id). Merge path documented in `docs/EXPORTING-LOGS.md`.
+
 ## Appendix — constants changed
 
 ```
@@ -218,7 +331,18 @@ P_COPY_RATIO_BLOCK    0.08 (provisional)                                        
 SERVO_REFRESH_GUARD   50   (= X/2; new, F8)
 LEADING_SILENCE_TRIM  first sample ≥ −60 dB of peak (new, F4/P4; non-purist)
 TAU_GLOBAL/TAU_LOCAL  recomputed for n=6167 (0.0090 / 0.0798)
-P_ACTIVE_AT_INIT      0.03 (F3 audition may revise)
+P_ACTIVE_AT_INIT      0.03 (retained for F3 batches; NOT the default init after F10)
+```
+
+### v2.1 constants
+
+```
+HARM_FLOOR_REL        1e-3   (relative per-frame spectral-flatness noise floor; V2-REPORT §5)
+HARM_AXIS_MIN_FLOOR   1e-4   (belt-and-braces min for the calibrated harm axis; §5)
+N_ACTIVE_MIN/MAX      1 / 10 (F10 generation-zero wave-count range; init-draw bias only)
+TRIM_MIN_LEAD_S       0.25   (leading-silence trim now fires only past this; owner refinement)
+AUTO_ADVANCE_S        0.4    (P5 near-silent auto-advance window; owner range 0.25–0.5 s)
+DB_VERSION            2 → 3  (F11 favourites store; purely additive)
 ```
 
 *Gate-measured values (P_SWITCH_FLIP_BASE, the Gate 2b p_ratio_jump default) are

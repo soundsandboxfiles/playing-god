@@ -13,6 +13,7 @@ database `playing-god`. Object stores:
 | `servo` | every render-length servo evaluation — §14.3 |
 | `notes` | annotations from the feedback field — §8.6 |
 | `anomalies` | render failures, guard trips, quota events — §14.6 |
+| `favourites` | creatures the owner starred with `K` — full genome + listen context (F11) |
 
 IndexedDB is per-browser and per-profile. Logs do not survive clearing site
 data, and do not follow you to another browser or machine.
@@ -31,11 +32,50 @@ playing-god-export-YYYYMMDDTHHMMSSZ/
   servo.jsonl
   notes.jsonl
   anomalies.jsonl
+  favourites.jsonl
 ```
 
 Move the folder to `code/playing-god/output/logs/`. It is gitignored, so it
 will not be committed — that is intentional, the files are large and
 regenerable.
+
+## Favourites (F11) — the star key and how it merges back
+
+Pressing **`K`** in the app stars the current creature. Each star is written to
+the `favourites` store as one record holding the **full genome** (so it is
+exactly reconstructible), its `genome_id`, the `added_at` timestamp, and a
+`listen_context` block (listen id, cell, dwell, L, dev/harm, near-silent flag,
+active-wave count). This is stated preference, like notes — it is **firewalled
+from the search** (§8.6): nothing in the engine reads the favourites store into
+fitness, descriptors, the Predictor or selection. It is a personal library, not a
+signal.
+
+**Seeding at startup.** When the app boots it reads
+`output/favourites/favourites.json` (the host-curated master list) and copies any
+entries not already in the browser store into it, keyed by a dedupe id
+(`v1_id` for the curated picks, `genome_id` for live stars). This is
+**non-clobbering and idempotent**: existing store entries are never overwritten,
+and re-seeding on a later launch adds nothing already present. So the owner's
+curated favourites show up in-session, and live stars accumulate alongside them.
+
+**Merging an export back into the master file.** After pressing `E`, the export
+folder contains `favourites.jsonl` (one JSON object per line — the live stars from
+that session). To fold them into `output/favourites/favourites.json`:
+
+1. Open `output/favourites/favourites.json`; its `entries` array is the master
+   list, and `count` is its length.
+2. For each line in `favourites.jsonl`, check whether an entry with the same
+   `genome_id` (or `dedupe_id`) is already in `entries`. If not, append it.
+   Entries seeded *from* the file (they carry `seeded_from_file: true`) are
+   skipped — they are already in the master list.
+3. Optionally fill in `jon_words` on a newly-appended entry (the live records
+   leave it `null`) — the owner's note on why the creature earned a star.
+4. Update `count` to the new length of `entries`.
+
+The master file is the machine-readable side of the vault entity
+`Cowork/CONTEXT/projects/jons-favourite-creatures.md`; keep the two in step.
+This merge is a human/desktop-session step (the app cannot write host files) —
+walk the owner through it file-in-hand, the same way as the sync-back report.
 
 ## A complete export — checklist
 
@@ -46,6 +86,7 @@ Before handing logs over, check `manifest.json` shows:
 - [ ] `snapshots` ≈ listens ÷ 100
 - [ ] `servo` non-empty if the run exceeded 100 listens
 - [ ] `anomalies` present, even if empty — an absent store means logging broke
+- [ ] `favourites` present if the owner starred anything with `K` (F11)
 - [ ] `spec_version` matches the `playing-god-spec.md` you want it evaluated against
 - [ ] any run driven by synthetic dwell is labelled `SYNTHETIC`
 

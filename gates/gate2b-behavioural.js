@@ -23,7 +23,7 @@ import { RNG } from '../src/rng.js';
 import { randomGenome } from '../src/priors.js';
 import { renderNormalized } from '../src/render.js';
 import { mfccSequence, meanVector, vecDist } from '../src/mfcc.js';
-import { developmentFromFrames, harmonicityRaw, binLog } from '../src/descriptors.js';
+import { developmentFromFrames, harmonicityRaw, binLog, HARM_AXIS_MIN_FLOOR } from '../src/descriptors.js';
 import { breed } from '../src/variation.js';
 import { medianDistance } from '../src/distance.js';
 import { writeArtefact, percentile, ARTEFACT_DIR } from './_util.js';
@@ -66,11 +66,21 @@ export function loadSwitchRates() {
 // Calibrate an axis range from observed values: [p2, p98], clamped to >0 for the
 // log scale (BUILD-ORDER: "Archive axis ranges need calibrating against observed
 // distributions"). Reported so a human can see them.
-export function calibrateAxis(values) {
+//
+// v2.1 (V2-REPORT §5): opts.floorMin raises the axis min to a belt-and-braces
+// floor. The primary harm-axis fix is in the estimator (descriptors.harmonicityRaw
+// relative noise floor); this floor is the second line of defence — even if a
+// residual near-pure tone reads slightly above estimator noise, flooring harm.min
+// at HARM_AXIS_MIN_FLOOR keeps it clamping cleanly into the tonal edge bin instead
+// of anchoring the log scale on estimator noise. It only raises the min (never
+// lowers it) so it cannot narrow a well-spread axis; it changes nothing about what
+// can exist or what is heard (§2.2) — pure instrument legibility.
+export function calibrateAxis(values, opts = {}) {
   const arr = values.filter((v) => v > 0).sort((a, b) => a - b);
-  if (arr.length < 2) return { min: 1e-6, max: 1 };
+  if (arr.length < 2) return { min: opts.floorMin || 1e-6, max: 1 };
   let min = percentile(arr, 2), max = percentile(arr, 98);
   if (!(min > 0)) min = arr.find((v) => v > 0) || 1e-6;
+  if (opts.floorMin != null && min < opts.floorMin) min = opts.floorMin; // belt-and-braces
   if (max <= min) max = min * 10;
   return { min, max };
 }
@@ -163,7 +173,7 @@ function main() {
     const ca = analyze(child);
     if (ca) { devVals.push(ca.dev); harmVals.push(ca.harm); }
   }
-  const cal = { dev: calibrateAxis(devVals), harm: calibrateAxis(harmVals) };
+  const cal = { dev: calibrateAxis(devVals), harm: calibrateAxis(harmVals, { floorMin: HARM_AXIS_MIN_FLOOR }) };
   console.log('  axis calibration: dev', fmtRange(cal.dev), 'harm', fmtRange(cal.harm));
 
   // Pass 1 — mutation + duplication only (the graded run, §13.3).

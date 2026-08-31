@@ -64,7 +64,7 @@
     <div class="row" id="flags"></div>
     <canvas id="legibility"></canvas>
     <div class="row" style="margin-top:8px">
-      <kbd>Space</kbd> new · <kbd>M</kbd> mutate · <kbd>B</kbd> back · <kbd>P</kbd> pause · <kbd>F</kbd> note · <kbd>E</kbd> export · <kbd>V</kbd> visuals
+      <kbd>Space</kbd> new · <kbd>M</kbd> mutate · <kbd>B</kbd> back · <kbd>P</kbd> pause · <kbd>F</kbd> note · <kbd>K</kbd> ★ favourite · <kbd>E</kbd> export · <kbd>V</kbd> visuals
     </div>
     <textarea id="note" placeholder="Annotation (F). Firewalled from the search — §8.6. Enter submits, Esc discards."></textarea>
   </div>
@@ -91,14 +91,18 @@ import { genomesFromSeedPicks } from '../src/seedpicks.js';
 // few hundred listens — IndexedDB is mandatory (README, §12).
 // ─────────────────────────────────────────────────────────────────────────────
 const DB_NAME = 'playing-god';
-const STORES = ['listens', 'genomes', 'snapshots', 'servo', 'notes', 'anomalies'];
+// F11 (v2.1): `favourites` is a new store for the owner's in-app "add to favourites"
+// key (K). It rides the same additive-upgrade machinery as the log streams, and E
+// exports it as favourites.jsonl alongside the rest (docs/EXPORTING-LOGS.md).
+const STORES = ['listens', 'genomes', 'snapshots', 'servo', 'notes', 'anomalies', 'favourites'];
 // F6: bumped 1 → 2 for the v2 build. A real session's data already lives in this
 // origin's v1 database (213 listens on :8766, 2026-08-31), so the upgrade must be
 // PURELY ADDITIVE — never delete or recreate an existing store (that would clobber
 // the owner's data). onupgradeneeded below only creates stores that are MISSING,
 // and adds a `meta` store recording the schema version so a later reader can tell
 // v1 records (v1 timing genes) from v2 records (period/duty, P3) in the same DB.
-const DB_VERSION = 2;
+// v2.1 (F11): bumped 2 → 3 to add the `favourites` store — still purely additive.
+const DB_VERSION = 3;
 const SCHEMA_VERSION = 'v2'; // period/duty timing schema (P3)
 const META_STORE = 'meta';
 let db;
@@ -171,6 +175,9 @@ let idleTriggered = false;
 
 function suspendAttention(reason) {
   suspensionReasons.add(reason);
+  // P5: a near-silent auto-advance is paused while attention is suspended (pause,
+  // annotate, tab hidden) — the listener is engaging, so their action should drive.
+  clearAutoAdvance();
   if (suspended) return;
   suspended = true; nSuspensions++; suspendStart = performance.now();
   // Fold elapsed audible time into the accrued clocks, then pause audio exactly.
@@ -184,6 +191,9 @@ function resumeAttention() {
   suspensionReasons.clear();
   AC.resume();
   playStartCtxTime = AC.currentTime;
+  // P5: re-arm the near-silent auto-advance if we resumed onto a near-silent
+  // creature the listener has not yet moved past.
+  scheduleAutoAdvance();
 }
 
 // Live dwell in ms (excludes suspended time).
@@ -215,11 +225,49 @@ let noteComposing = false, noteStartMs = 0, nNotesThisListen = 0;
 // has already completed.
 let renderEnded = false;
 
+// P5 (owner ruling, V2-PROPOSALS "Owner rulings, 2026-08-31 evening"): on the
+// `near_silent` MEASUREMENT flag the app PLAYS the creature (so it is heard and
+// measured), shows a clear "near-silent" label, and AUTO-ADVANCES after a short
+// window in the owner's 0.25–0.5 s range — recording the TRUE short dwell, not a
+// fabricated skip. Nothing is deleted and SELECTION IS UNTOUCHED (§9, Option A):
+// this acts only on presentation timing, never on what may exist or how it scores.
+// Space stays frictionless — a user keystroke pre-empts the timer via the normal
+// commit path. Chosen value 0.4 s (recorded in the v2.1 report).
+const AUTO_ADVANCE_S = 0.4;
+let autoAdvanceTimer = null;
+function clearAutoAdvance() { if (autoAdvanceTimer !== null) { clearTimeout(autoAdvanceTimer); autoAdvanceTimer = null; } }
+function scheduleAutoAdvance() {
+  clearAutoAdvance();
+  if (!current || suspended) return;
+  const ns = current.render && current.render.loudness && current.render.loudness.near_silent;
+  if (!ns) return;
+  autoAdvanceTimer = setTimeout(() => {
+    autoAdvanceTimer = null;
+    // Re-check: the listener may have paused/annotated (suspended) or already moved
+    // on. If they did, do nothing — their action drives. Otherwise advance, logging
+    // the honest short dwell that liveDwellMs() has accrued (~AUTO_ADVANCE_S).
+    if (!current || suspended) return;
+    const stillNS = current.render && current.render.loudness && current.render.loudness.near_silent;
+    if (stillNS) commitAndAdvance('space');
+  }, AUTO_ADVANCE_S * 1000);
+}
+
+// F11 (owner wishlist): in-session favourites. `K` adds the current creature to a
+// favourites IndexedDB store; `E` exports it as favourites.jsonl (via STORES). At
+// startup the store is SEEDED from ../output/favourites/favourites.json without
+// clobbering existing entries. See docs/EXPORTING-LOGS.md for the merge path.
+const FAV_STORE = 'favourites';
+const favSeen = new Set(); // dedupe ids already in the store (this session + seeded)
+let favCount = 0;
+let favMsg = ''; // transient confirmation chip, shown in the flags row then cleared
+
 async function boot() {
   db = await openDb();
   // Try to load calibrated axis ranges shipped with the build (from Gate 2b).
   try { const r = await fetch('../output/gate-artefacts/axis-calibration.json'); if (r.ok) calibration = (await r.json()).axis_calibration; } catch {}
   logger = new IdbLogger();
+  // F11: seed the favourites store from the host-curated file (non-clobbering).
+  await seedFavourites();
   // F2: seed the archive from the owner's Gate 1a picks (seed-picks.json), each plus
   // σ=0.2 mutants to fill 32 (§5, amended). If the file is missing the engine falls
   // back to the v1 random-seed batch, so the app still runs.
@@ -268,6 +316,7 @@ function playCandidate(cand) {
   nSuspensions = 0; totalSuspendedMs = 0; suspended = false; suspensionReasons.clear();
   nNotesThisListen = 0; idleTriggered = false; lastInputMs = Date.now();
   renderEnded = false; // F7: new listen, timer runs again
+  favMsg = '';         // F11: clear any stale favourite confirmation for the new creature
   // Natural end of playback → the render reached its end; freeze the dwell display
   // and stop accrual (§8.3). Also fires on .stop() for the next Creature, which is
   // harmless because we have already committed by then.
@@ -276,6 +325,7 @@ function playCandidate(cand) {
 
 // Finalise the current listen with a measured outcome, then start the next.
 function commitAndAdvance(action) {
+  clearAutoAdvance(); // a user keystroke (or the auto-advance itself) pre-empts the timer
   if (current) {
     const L = current.L_at_listen;
     // F4/P4: the audio actually plays for played_length_s (nominal L minus the
@@ -325,8 +375,8 @@ function advance(action) {
   if (action === 'back') {
     // Returning to a parent (or replaying the root) is a B-replay: its dwell is
     // recorded and averaged (§8.5) but it is not re-inserted into the archive.
-    if (lineageStack.length > 0) { current = lineageStack.pop(); current._isReplay = true; playCandidate(current); refreshDisplay(); return; }
-    if (current) { current._isReplay = true; playCandidate(current); refreshDisplay(); return; }
+    if (lineageStack.length > 0) { current = lineageStack.pop(); current._isReplay = true; playCandidate(current); refreshDisplay(); scheduleAutoAdvance(); return; }
+    if (current) { current._isReplay = true; playCandidate(current); refreshDisplay(); scheduleAutoAdvance(); return; }
   }
   // M — a DIRECTED mutation of the CURRENT Creature (§1). Push the current
   // candidate as the parent to return to, then breed a child OF IT.
@@ -341,6 +391,7 @@ function advance(action) {
   current = cand;
   playCandidate(cand);
   refreshDisplay();
+  scheduleAutoAdvance(); // P5: arm the near-silent auto-advance for this creature
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -356,6 +407,7 @@ const KEYMAP = {
   'KeyF': () => focusNote(),
   'KeyE': () => exportLogs(),
   'KeyV': () => { showViz = !showViz; },
+  'KeyK': () => addFavourite(), // F11: keep / add current creature to favourites
 };
 addEventListener('keydown', (e) => {
   lastInputMs = Date.now();
@@ -428,6 +480,81 @@ function download(name, text) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// F11 — favourites (owner wishlist). `K` writes the current creature to the
+// favourites store: the full genome (so it is exactly reconstructible), its id,
+// the timestamp, and the listen context. This is stated preference, like notes —
+// it is FIREWALLED from the search (§8.6): nothing reads the favourites store into
+// fitness, descriptors or selection. It is a personal library, not a signal.
+// `E` exports it as favourites.jsonl (it is in STORES); docs/EXPORTING-LOGS.md
+// documents merging that into output/favourites/favourites.json.
+// ─────────────────────────────────────────────────────────────────────────────
+function addFavourite() {
+  if (!current) return;
+  const g = current.genome;
+  const dedupe = g.id;
+  if (favSeen.has(dedupe)) { flashFav(`already a favourite (${favCount})`); return; }
+  const rec = {
+    dedupe_id: dedupe,
+    genome_id: g.id,
+    schema: SCHEMA_VERSION,        // v2 timing schema
+    source: 'app-live',
+    added_at: new Date().toISOString(),
+    timestamp_ms: Date.now(),
+    session_id: SESSION_ID,
+    listener_id: LISTENER_ID,
+    jon_words: null,              // owner fills in during the merge, if they wish
+    listen_context: {
+      listen_id: current.listen_id,
+      cell_x: current.cell.cell_x, cell_y: current.cell.cell_y,
+      dwell_s: liveDwellMs() / 1000, L_at_listen: current.L_at_listen,
+      development_raw: current.descriptors.development_raw,
+      harmonicity_raw: current.descriptors.harmonicity_raw,
+      near_silent: !!(current.render.loudness && current.render.loudness.near_silent),
+      active_waves: current.render.activeWaves,
+    },
+    genome: Array.from(g.data),
+  };
+  put(FAV_STORE, rec);
+  favSeen.add(dedupe); favCount++;
+  flashFav(`★ favourited (${favCount})`);
+  console.info('[playing-god] favourite added', g.id, 'total', favCount);
+}
+function flashFav(text) {
+  favMsg = `<span class="flag">${text}</span>`;
+  refreshDisplay();
+  setTimeout(() => { favMsg = ''; refreshDisplay(); }, 1800);
+}
+
+// Seed the in-app favourites store from the host-curated file WITHOUT clobbering
+// existing entries (F11). Reads what is already in the store first, then adds only
+// file entries whose dedupe id is not already present — so this is idempotent
+// across restarts and never overwrites a live-added or previously-seeded favourite.
+async function seedFavourites() {
+  try {
+    const existing = await readAll(FAV_STORE);
+    favCount = existing.length;
+    for (const e of existing) { const id = e.dedupe_id || e.genome_id || e.v1_id; if (id) favSeen.add(id); }
+  } catch (e) { console.warn('[playing-god] favourites store read failed', e); }
+  let data = null;
+  try {
+    const r = await fetch('../output/favourites/favourites.json');
+    if (r.ok) data = await r.json();
+  } catch (e) { console.warn('[playing-god] favourites.json not loaded (fetch)', e); }
+  if (!data || !Array.isArray(data.entries)) return;
+  let added = 0;
+  for (const e of data.entries) {
+    // File entries carry no genome_id; dedupe on v1_id, else a stable hash of the
+    // genome head. If already present (seeded before, or the owner favourited it
+    // live), skip — never clobber.
+    const dedupe = e.dedupe_id || e.v1_id || (Array.isArray(e.genome) ? 'g:' + e.genome.slice(0, 12).join(',') : null);
+    if (!dedupe || favSeen.has(dedupe)) continue;
+    put(FAV_STORE, { ...e, dedupe_id: dedupe, seeded_from_file: true, seeded_at: new Date().toISOString(), session_id: SESSION_ID });
+    favSeen.add(dedupe); favCount++; added++;
+  }
+  if (added) console.info('[playing-god] favourites seeded from file:', added, 'new (', favCount, 'total)');
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Legibility display (§12.1) — the primary debugging surface, present from the
 // first build. One lane per active wave with its gate pattern, plus readouts.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -440,8 +567,10 @@ function refreshDisplay() {
   const flags = document.getElementById('flags');
   flags.innerHTML = '';
   if (r.hasFeedbackCycle) flags.innerHTML += '<span class="flag">feedback</span>';
-  if (r.loudness && r.loudness.near_silent) flags.innerHTML += '<span class="flag">near-silent</span>';
+  // P5: a clear near-silent label that also states the auto-advance is happening.
+  if (r.loudness && r.loudness.near_silent) flags.innerHTML += `<span class="flag">near-silent · auto-advancing ${AUTO_ADVANCE_S}s</span>`;
   if (r.clipped) flags.innerHTML += '<span class="flag">clipped(raw)</span>';
+  if (favMsg) flags.innerHTML += favMsg; // F11: transient "★ favourited" confirmation
   // Readouts (§12.1).
   const ro = document.getElementById('readouts');
   const rows = [

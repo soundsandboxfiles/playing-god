@@ -52,24 +52,68 @@ export function developmentFromFrames(frames) {
 // Geometric mean of the power spectrum divided by its arithmetic mean, averaged
 // over frames (Wiener entropy). One end pitched/tonal (flatness→0), the other
 // noisy (flatness→1).
+//
+// v2.1 (V2-REPORT §5, HARM-AXIS FIX). This is an INSTRUMENT-LEGIBILITY fix, NOT a
+// judgement about sound (§2.2, vastness-is-the-point): it changes only how the
+// harmonicity axis READS near-pure tones, and narrows/rejects nothing.
+//
+// The v2 estimator added a FIXED absolute floor (eps = 1e-10) to every bin's power
+// before the geometric mean. On a near-pure tone almost every bin is genuinely
+// ~0 power, so the geometric mean collapsed onto eps itself and the flatness read
+// ~1e-9 — the numerical floor of the estimator, not a harmonicity value. ~6% of
+// random genomes piled onto that floor (measured), the harm distribution went
+// bimodal, and the calibrated log axis stretched into estimator noise, so most
+// mid-range sounds compressed into the top harm bins (§5). The fix is a RELATIVE
+// noise floor: floor each bin at `HARM_FLOOR_REL × (mean raw bin power of the
+// frame)` before both means. That makes a pure tone read a STABLE flatness of
+// ≈ HARM_FLOOR_REL (scale-invariant — independent of the render's amplitude),
+// comfortably above estimator noise, while a genuinely noisy frame (all bins
+// comparable) is essentially unchanged. No value is snapped or quantised; the axis
+// is only made legible. Belt-and-braces: the axis calibration also floors harm.min
+// (HARM_AXIS_MIN_FLOOR) so a residual pure-tone reading still clamps cleanly into
+// the drone/tonal edge bin instead of anchoring the log scale on noise.
+export const HARM_FLOOR_REL = 1e-3;   // relative per-frame flatness floor (pure tone ≈ this)
+export const HARM_AXIS_MIN_FLOOR = 1e-4; // belt-and-braces min for the harm axis calibration
 export function harmonicityRaw(samples, sampleRate, opts = {}) {
   const win = opts.win || 1024;
   const hop = opts.hop || 512;
+  const relFloor = opts.floorRel != null ? opts.floorRel : HARM_FLOOR_REL;
   const hann = hannWindow(win);
   const re = new Float64Array(win), im = new Float64Array(win);
+  const pow = new Float64Array(win / 2 + 1);
   let flatnessSum = 0, nFrames = 0;
   for (let start = 0; start + win <= samples.length; start += hop) {
     for (let i = 0; i < win; i++) { re[i] = samples[start + i] * hann[i]; im[i] = 0; }
     fft(re, im);
     const nBins = win / 2 + 1;
+    const nUsed = nBins - 1;
+    // First pass: raw bin powers (skip DC) and their mean, to set a RELATIVE floor
+    // that scales with this frame's energy (so the estimator is amplitude-invariant).
+    let rawSum = 0;
+    for (let k = 1; k < nBins; k++) {
+      const p = re[k] * re[k] + im[k] * im[k];
+      pow[k] = p;
+      rawSum += p;
+    }
+    // SILENT FRAMES CARRY NO HARMONIC INFORMATION, so they are EXCLUDED from the
+    // average (not counted as tonal, not counted as noisy) — the harm axis then
+    // reads the tonal↔noisy character of the AUDIBLE content only. This matters
+    // because most renders are majority-silence (§5.2: median silence fraction
+    // ~0.73): the v2 estimator's fixed eps made a silent frame read flatness 1
+    // (noisy), so silence-dominated genomes wrongly piled at the noisy end; a naive
+    // "silent→0" would just move the pile to the tonal end. Excluding them removes
+    // both artefacts. Legibility only — nothing about what may exist (§2.2).
+    const SILENT_FRAME_POW = 1e-12; // post-normalisation; real audio frames ≫ this
+    if (!(rawSum / nUsed > SILENT_FRAME_POW)) continue; // silent frame → not averaged
+    const meanRaw = rawSum / nUsed;
+    // Absolute backstop keeps log() finite if a frame is all-but-silent.
+    const floorP = Math.max(relFloor * meanRaw, 1e-30);
     let logSum = 0, arithSum = 0;
-    const eps = 1e-10;
-    for (let k = 1; k < nBins; k++) { // skip DC
-      const p = re[k] * re[k] + im[k] * im[k] + eps;
+    for (let k = 1; k < nBins; k++) {
+      const p = pow[k] > floorP ? pow[k] : floorP; // relative noise floor, both means
       logSum += Math.log(p);
       arithSum += p;
     }
-    const nUsed = nBins - 1;
     const geo = Math.exp(logSum / nUsed);
     const arith = arithSum / nUsed;
     const flatness = arith > 0 ? geo / arith : 0;

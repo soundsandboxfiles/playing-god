@@ -169,16 +169,29 @@ function drawTiming(rng, gn, w, tempoBpm) {
 
 // ── the main entry point ─────────────────────────────────────────────────────
 
-// Init activation probability (§5, Appendix P_ACTIVE_AT_INIT). PROVISIONAL for the
-// herd — the owner's F3 audition (batches at 0.03/0.06/0.10) sets the shipped value.
+// Init activation probability (§5, Appendix P_ACTIVE_AT_INIT). Retained for the F3
+// comparison batches (which pass an explicit `pActive` to compare per-slot rates);
+// NO LONGER the default generation-zero path — F10 (below) replaces the default.
 export const P_ACTIVE_AT_INIT = 0.03;
 
+// F10 (owner ruling, V2-PROPOSALS "Owner rulings, 2026-08-31 evening"): the
+// generation-zero wave count is an explicit RANGE draw, not a per-slot coin. The
+// owner's F3 audition found 1–3-wave creatures samey and wanted denser starts on
+// the table. Default init now draws n_active uniform in 1..10, then chooses which
+// slots — a bet on where to START (more waves audible at generation zero), never a
+// change to what can exist (§2.1, vastness-is-the-point): every wave-count and
+// every slot combination stays reachable, the per-wave kill-switch stays evolvable,
+// and the MIN_ACTIVE = 1 floor is untouched (n_active ≥ 1). PROVISIONAL bound (1..10).
+export const N_ACTIVE_MIN = 1;
+export const N_ACTIVE_MAX = 10;
+
 // Draw one genome from the priors. `rng` is a seeded RNG (rng.js) so the draw is
-// reproducible. `opts.pActive` overrides the wave-activation probability (§5),
-// used by the F3 comparison batches; it biases only the initial draw and removes
-// no region from reach (§2.1) — a muted wave unmutes under selection either way.
+// reproducible. Activation options (all INIT-DRAW BIAS ONLY — none removes a region
+// from reach, §2.1):
+//   opts.nActive — force an exact active-wave count (W1 exploration batch).
+//   opts.pActive — legacy per-slot activation probability (F3 comparison batches).
+//   (neither given) — F10 default: n_active uniform in [N_ACTIVE_MIN, N_ACTIVE_MAX].
 export function randomGenome(rng, opts = {}) {
-  const pActive = opts.pActive != null ? opts.pActive : P_ACTIVE_AT_INIT;
   const gn = new Genome();
 
   // ---- Global genes first (some per-wave priors depend on them) ----
@@ -219,16 +232,31 @@ export function randomGenome(rng, opts = {}) {
     }
   }
 
-  // ---- Per-wave activation (§5) ----
-  // Each slot active with prob 0.03, floor of 1 forced-active slot.
-  let anyActive = false;
+  // ---- Per-wave activation ----
   const activeFlags = new Array(WAVE_SLOTS).fill(false);
-  for (let w = 0; w < WAVE_SLOTS; w++) {
-    const on = rng.bool(pActive);
-    activeFlags[w] = on;
-    if (on) anyActive = true;
+  if (opts.pActive != null) {
+    // Legacy per-slot draw (F3 comparison batches): each slot active with prob
+    // pActive, floor of 1 forced-active slot. Kept only for that comparison.
+    let anyActive = false;
+    for (let w = 0; w < WAVE_SLOTS; w++) {
+      const on = rng.bool(opts.pActive);
+      activeFlags[w] = on;
+      if (on) anyActive = true;
+    }
+    if (!anyActive) activeFlags[rng.int(WAVE_SLOTS)] = true; // MIN_ACTIVE = 1
+  } else {
+    // F10 default (or W1's forced count): draw n_active, then choose that many
+    // DISTINCT slots uniformly (partial Fisher–Yates). n_active ≥ 1 is the floor.
+    let nActive = opts.nActive != null ? opts.nActive : (N_ACTIVE_MIN + rng.int(N_ACTIVE_MAX - N_ACTIVE_MIN + 1));
+    if (nActive < 1) nActive = 1;
+    if (nActive > WAVE_SLOTS) nActive = WAVE_SLOTS;
+    const idx = Array.from({ length: WAVE_SLOTS }, (_, i) => i);
+    for (let i = 0; i < nActive; i++) {
+      const j = i + rng.int(WAVE_SLOTS - i);
+      [idx[i], idx[j]] = [idx[j], idx[i]];
+      activeFlags[idx[i]] = true;
+    }
   }
-  if (!anyActive) activeFlags[rng.int(WAVE_SLOTS)] = true; // MIN_ACTIVE = 1
 
   // ---- Per-wave genes for ALL slots ----
   // Neutral material (muted waves) is drawn from the same priors so that a slot

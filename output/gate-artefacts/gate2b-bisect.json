@@ -1,0 +1,86 @@
+{
+  "timestamp_ms": 1788199281019,
+  "session_id": "overnight-headless-2026-08-31174530",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "gate2b-bisect.json",
+  "gate": "Gate 2b bisect (attribution only — thresholds NOT loosened)",
+  "threshold": "p_same ≥ 0.35 AND p_near ≥ 0.70 (mutation-only, §13.3)",
+  "note": "2×2 of {activation: perslot|F10} × {harm estimator: v2|v2.1}. dev axis and all else identical across cells.",
+  "config": {
+    "sample_rate": 22050,
+    "length_s": 4,
+    "n_parents": 150,
+    "n_offspring": 20
+  },
+  "cells": [
+    {
+      "label": "v2 baseline (perslot,oldharm)",
+      "activation": "perslot",
+      "harm": "v2",
+      "p_same": 0.48433333333333334,
+      "p_near": 0.7126666666666667,
+      "H_cell": 0.443956051283917,
+      "dev_axis": {
+        "min": 0.40163817104708893,
+        "max": 323.6582157307537
+      },
+      "harm_axis": {
+        "min": 1.4339494228478272e-7,
+        "max": 1.0000000000001905
+      },
+      "n": 3000
+    },
+    {
+      "label": "instrument-fix alone",
+      "activation": "perslot",
+      "harm": "v2.1",
+      "p_same": 0.387,
+      "p_near": 0.634,
+      "H_cell": 0.6783162641756113,
+      "dev_axis": {
+        "min": 0.40163817104708893,
+        "max": 323.6582157307537
+      },
+      "harm_axis": {
+        "min": 0.0011164223903874862,
+        "max": 0.09409803906945091
+      },
+      "n": 3000
+    },
+    {
+      "label": "F10 alone",
+      "activation": "f10",
+      "harm": "v2",
+      "p_same": 0.289,
+      "p_near": 0.604,
+      "H_cell": 0.4725557688121906,
+      "dev_axis": {
+        "min": 2.682025346477017,
+        "max": 286.24689706283016
+      },
+      "harm_axis": {
+        "min": 0.00008926515444200741,
+        "max": 1.0000000000001905
+      },
+      "n": 3000
+    },
+    {
+      "label": "both (= failing 2b config)",
+      "activation": "f10",
+      "harm": "v2.1",
+      "p_same": 0.23266666666666666,
+      "p_near": 0.533,
+      "H_cell": 0.7719624822364136,
+      "dev_axis": {
+        "min": 2.682025346477017,
+        "max": 286.24689706283016
+      },
+      "harm_axis": {
+        "min": 0.0011819354316625996,
+        "max": 0.05831163571605651
+      },
+      "n": 3000
+    }
+  ],
+  "elapsed_s": 950.952
+}
