@@ -1,0 +1,20 @@
+{
+  "timestamp_ms": 1788134118277,
+  "session_id": "overnight-headless-2026-08-30234802",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "axis-calibration.json",
+  "gate": "2b",
+  "axis_calibration": {
+    "dev": {
+      "min": 7.625268579634308,
+      "max": 347.59486458171796
+    },
+    "harm": {
+      "min": 0.0002326045437504625,
+      "max": 1.0000000000001905
+    }
+  },
+  "length_s": 4,
+  "sample_rate": 22050,
+  "note": "Calibrated at 4 s render for the gate; the app at L=60 s should recalibrate from live descriptor data (BUILD-ORDER)."
+}

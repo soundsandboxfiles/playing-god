@@ -1,0 +1,194 @@
+{
+  "timestamp_ms": 1788134957414,
+  "session_id": "overnight-headless-2026-08-30235851",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "gate2a-locality.json",
+  "gate": "2a (genotypic locality, §13.2)",
+  "criterion": "p90 perceptual distance at ε=0.01 below 0.2·U",
+  "U": 285.9051822840222,
+  "continuous_pass": false,
+  "pass": false,
+  "locality_curve": [
+    {
+      "eps": 0.001,
+      "median": 7.169277308243904,
+      "p90": 58.97331862705088,
+      "median_over_U": 0.025075716539904633,
+      "p90_over_U": 0.20626879917295785,
+      "n": 2000
+    },
+    {
+      "eps": 0.01,
+      "median": 21.48128029156339,
+      "p90": 178.45362319592485,
+      "median_over_U": 0.07513428095270965,
+      "p90_over_U": 0.6241706490603116,
+      "n": 2000
+    },
+    {
+      "eps": 0.1,
+      "median": 76.74991972438816,
+      "p90": 289.07485859119566,
+      "median_over_U": 0.26844536049068085,
+      "p90_over_U": 1.0110864597901015,
+      "n": 2000
+    },
+    {
+      "eps": 0.5,
+      "median": 179.1569964889885,
+      "p90": 488.95272474121305,
+      "median_over_U": 0.6266308118577978,
+      "p90_over_U": 1.7101918924137605,
+      "n": 2000
+    }
+  ],
+  "per_class_at_crit_eps": {
+    "shape": {
+      "p90": 0.3700555048328098,
+      "p90_over_U": 0.0012943294762149205,
+      "pass": true
+    },
+    "timing": {
+      "p90": 202.08337734292112,
+      "p90_over_U": 0.7068195676920913,
+      "pass": false
+    },
+    "gain": {
+      "p90": 2.3139261432938167,
+      "p90_over_U": 0.008093334037559102,
+      "pass": true
+    },
+    "amp_env_level": {
+      "p90": 3.189399859384018,
+      "p90_over_U": 0.011155446130443426,
+      "pass": true
+    },
+    "amp_env_shape": {
+      "p90": 1.203607138359643,
+      "p90_over_U": 0.004209812248747428,
+      "pass": true
+    },
+    "pitch": {
+      "p90": 21.332178823180467,
+      "p90_over_U": 0.07461277425181045,
+      "pass": true
+    },
+    "pitch_env": {
+      "p90": 7.324005768143552,
+      "p90_over_U": 0.02561690456127438,
+      "pass": true
+    },
+    "mod_depth": {
+      "p90": 0,
+      "p90_over_U": 0,
+      "pass": true
+    },
+    "meta": {
+      "p90": 0,
+      "p90_over_U": 0,
+      "pass": true
+    },
+    "global": {
+      "p90": 0,
+      "p90_over_U": 0,
+      "pass": true
+    }
+  },
+  "J_class_table": {
+    "active": {
+      "J_median_over_U": 0.16875343598514728,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "gain_out_on": {
+      "J_median_over_U": 0.1667370173428227,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "gain_mod_on": {
+      "J_median_over_U": 0,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "shape_sine_on": {
+      "J_median_over_U": 0.004778584015979972,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "shape_triangle_on": {
+      "J_median_over_U": 0.006999421651533497,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "shape_saw_on": {
+      "J_median_over_U": 0.0019985331992183075,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "shape_square_on": {
+      "J_median_over_U": 0.005212077907689889,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "mid_wait_on": {
+      "J_median_over_U": 0,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "amp_env_on": {
+      "J_median_over_U": 0.004560044597386334,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "pitch_env_on": {
+      "J_median_over_U": 0.0037366121168052485,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "pm_on": {
+      "J_median_over_U": 0,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "am_on": {
+      "J_median_over_U": 0,
+      "p_class": 0.004,
+      "n": 60
+    }
+  },
+  "compatibility_distance": {
+    "parent_child_no_flip": {
+      "measured": 0,
+      "expected": 0.005,
+      "within_2x": false
+    },
+    "parent_child_active_flip": {
+      "measured": 0.1338541666666667,
+      "expected": 0.105,
+      "within_2x": true
+    },
+    "siblings": {
+      "measured": 0,
+      "expected": 0.1,
+      "within_2x": false
+    },
+    "unrelated_elites": {
+      "measured": 0.6094018324221852,
+      "expected": 0.55,
+      "within_2x": true
+    }
+  },
+  "config": {
+    "sample_rate": 22050,
+    "length_s": 4,
+    "n_parents": 100,
+    "n_mutants": 20,
+    "epsilons": [
+      0.001,
+      0.01,
+      0.1,
+      0.5
+    ]
+  },
+  "elapsed_s": 626.143
+}

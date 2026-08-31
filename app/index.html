@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Playing God</title>
+<!--
+  app/index.html — the DELIVERY SURFACE ONLY (README). All the tested logic lives
+  in ../src/ as DOM-free ES modules; this file is a thin shell wiring them to Web
+  Audio, canvas and the keyboard. Nothing here is on the gate path — every gate
+  runs headless under node (README) — so the substance is upstream and this page
+  is deliberately light.
+
+  It implements: the keyboard table (§1, table-driven so bindings extend without
+  restructuring), attention gating through ONE suspension code path (§8.7), the
+  annotation field firewalled from the search (§8.6), the render-length servo via
+  the engine (§9), the legibility display (§12.1), a plain fallback visualiser
+  (§11.1), and IndexedDB logging with the §14 schema plus the E-export path
+  (docs/EXPORTING-LOGS.md).
+-->
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #08080b; color: #d6d6dd; font: 13px/1.5 ui-monospace, monospace; overflow: hidden; }
+  #viz { position: fixed; inset: 0; z-index: 0; }
+  #ui { position: relative; z-index: 1; padding: 16px; display: grid; grid-template-columns: 1fr 380px; gap: 16px; height: 100vh; pointer-events: none; }
+  .panel { background: rgba(12,12,16,0.72); border: 1px solid #23232c; border-radius: 8px; padding: 12px; pointer-events: auto; backdrop-filter: blur(3px); }
+  #left { align-self: end; }
+  #right { overflow: auto; }
+  h1 { font-size: 14px; margin: 0 0 6px; letter-spacing: 0.06em; font-weight: 600; }
+  .muted { color: #7d7d88; }
+  .big { font-size: 20px; font-weight: 600; }
+  kbd { background: #1a1a20; border: 1px solid #2c2c36; border-radius: 4px; padding: 1px 5px; font-size: 11px; }
+  #dwell { font-size: 28px; font-variant-numeric: tabular-nums; }
+  #legibility { width: 100%; height: 220px; background: #050506; border-radius: 6px; display: block; }
+  #note { width: 100%; background: #0e0e12; color: #d6d6dd; border: 1px solid #2c2c36; border-radius: 6px; padding: 8px; font: inherit; resize: none; height: 54px; }
+  #note:focus { outline: 1px solid #4a6; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 1px 4px; } td.k { color: #7d7d88; }
+  .flag { display: inline-block; padding: 0 6px; border-radius: 4px; background: #24242c; margin-right: 4px; font-size: 11px; }
+</style>
+</head>
+<body>
+<canvas id="viz"></canvas>
+<div id="ui">
+  <div id="left" class="panel">
+    <h1>PLAYING GOD <span class="muted" id="status">— loading —</span></h1>
+    <div class="row"><span id="dwell">0.0</span><span class="muted"> s dwell</span> · <span class="muted" id="listenmeta"></span></div>
+    <div class="row" id="flags"></div>
+    <canvas id="legibility"></canvas>
+    <div class="row" style="margin-top:8px">
+      <kbd>Space</kbd> new · <kbd>M</kbd> mutate · <kbd>B</kbd> back · <kbd>P</kbd> pause · <kbd>F</kbd> note · <kbd>E</kbd> export · <kbd>V</kbd> visuals
+    </div>
+    <textarea id="note" placeholder="Annotation (F). Firewalled from the search — §8.6. Enter submits, Esc discards."></textarea>
+  </div>
+  <div id="right" class="panel">
+    <h1 class="muted">LEGIBILITY (§12.1)</h1>
+    <table id="readouts"></table>
+    <h1 class="muted" style="margin-top:12px">ARCHIVE</h1>
+    <table id="archiveStats"></table>
+    <p class="muted" id="firewall" style="margin-top:12px; font-size:11px">
+      Notes are stated preference and never enter the search (§8.6). Dwell is the only fitness signal (§8.1).
+    </p>
+  </div>
+</div>
+
+<script type="module">
+import { RNG } from '../src/rng.js';
+import { Engine } from '../src/loop.js';
+import { WAVE_SLOTS } from '../src/genome.js';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// IndexedDB logging (§14, docs/EXPORTING-LOGS.md). One db, one store per stream.
+// A full genome is ~24 KB, so a real run exceeds localStorage's quota within a
+// few hundred listens — IndexedDB is mandatory (README, §12).
+// ─────────────────────────────────────────────────────────────────────────────
+const DB_NAME = 'playing-god';
+const STORES = ['listens', 'genomes', 'snapshots', 'servo', 'notes', 'anomalies'];
+let db;
+function openDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = () => { const d = req.result; for (const s of STORES) if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { autoIncrement: true }); };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+function put(store, record) {
+  if (!db) return;
+  const tx = db.transaction(store, 'readwrite');
+  tx.objectStore(store).put(record);
+}
+
+const SESSION_ID = 'app-' + new Date().toISOString();
+const LISTENER_ID = 'local'; // §12 defers multi-user; the field is kept (§14)
+
+// A browser Logger with the same interface the Engine expects (logging.js), but
+// persisting to IndexedDB and mirroring genome deltas as they are created.
+class IdbLogger {
+  constructor() { this.sessionId = SESSION_ID; this.streams = { snapshots: [], servo: [], anomalies: [] }; this.clock = () => Date.now(); }
+  append(stream, record) {
+    const stamped = { timestamp_ms: Date.now(), session_id: SESSION_ID, ...record };
+    if (this.streams[stream]) this.streams[stream].push(stamped);
+    put(stream, stamped);
+    return stamped;
+  }
+  anomaly(kind, detail) { return this.append('anomalies', { kind, ...detail }); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Attention suspension — ONE code path (§8.7). Three triggers (visibility/blur,
+// annotation focus, pause key) all funnel here so the dwell clock has exactly one
+// owner (§8.7: three independent start/stop points is three places for it to leak).
+// Suspension halts all four clocks together: audio, dwell, render position, visuals.
+// ─────────────────────────────────────────────────────────────────────────────
+const AC = new (window.AudioContext || window.webkitAudioContext)();
+let source = null;              // current AudioBufferSourceNode
+let playStartCtxTime = 0;       // AC.currentTime when playback (re)started
+let accruedDwellMs = 0;         // dwell accumulated across suspensions
+let renderAccruedMs = 0;        // render-position clock (for `completed`)
+let suspended = false;
+const suspensionReasons = new Set();
+let nSuspensions = 0, totalSuspendedMs = 0, suspendStart = 0;
+let lastInputMs = Date.now();   // for the 90 s idle → unattended rule (§8.3)
+let idleTriggered = false;
+
+function suspendAttention(reason) {
+  suspensionReasons.add(reason);
+  if (suspended) return;
+  suspended = true; nSuspensions++; suspendStart = performance.now();
+  // Fold elapsed audible time into the accrued clocks, then pause audio exactly.
+  const elapsed = (AC.currentTime - playStartCtxTime) * 1000;
+  accruedDwellMs += elapsed; renderAccruedMs += elapsed;
+  AC.suspend(); // preserves position exactly (§8.7)
+}
+function resumeAttention() {
+  if (!suspended) return;
+  suspended = false; totalSuspendedMs += performance.now() - suspendStart;
+  suspensionReasons.clear();
+  AC.resume();
+  playStartCtxTime = AC.currentTime;
+}
+
+// Live dwell in ms (excludes suspended time).
+function liveDwellMs() {
+  if (suspended) return accruedDwellMs;
+  return accruedDwellMs + (AC.currentTime - playStartCtxTime) * 1000;
+}
+function liveRenderMs() {
+  if (suspended) return renderAccruedMs;
+  return renderAccruedMs + (AC.currentTime - playStartCtxTime) * 1000;
+}
+
+document.addEventListener('visibilitychange', () => document.hidden ? suspendAttention('hidden') : (document.activeElement !== noteEl && resumeAttention()));
+window.addEventListener('blur', () => suspendAttention('blur'));
+window.addEventListener('focus', () => { if (document.activeElement !== noteEl) resumeAttention(); });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Engine + playback.
+// ─────────────────────────────────────────────────────────────────────────────
+const rng = new RNG((Date.now() ^ 0x9e37) >>> 0);
+let engine, logger, calibration = { dev: { min: 0.5, max: 60 }, harm: { min: 0.001, max: 0.6 } };
+let current = null;             // current candidate
+let lineageStack = [];          // app-side B stack of candidates (mutation/back)
+let noteComposing = false, noteStartMs = 0, nNotesThisListen = 0;
+
+async function boot() {
+  db = await openDb();
+  // Try to load calibrated axis ranges shipped with the build (from Gate 2b).
+  try { const r = await fetch('../output/gate-artefacts/axis-calibration.json'); if (r.ok) calibration = (await r.json()).axis_calibration; } catch {}
+  logger = new IdbLogger();
+  engine = new Engine({
+    rng, calibration, logger,
+    // v1 renders at the descriptor rate (22.05 kHz) for consistency with the
+    // gates and the axis calibration; §12 permits 44.1 kHz audio with descriptor
+    // downsampling as a future refinement (noted in the overnight report).
+    renderOpts: { sampleRate: 22050, captureVisEnv: true },
+  });
+  document.getElementById('status').textContent = '— press any key —';
+  advance('space');
+  requestAnimationFrame(frame);
+}
+
+// Stop the current source with an 8 ms fade (§12: "Stop is an 8 ms linear ramp").
+function stopAudio() {
+  if (!source) return;
+  try {
+    const g = source._gain;
+    const t = AC.currentTime;
+    g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(g.gain.value, t);
+    g.gain.linearRampToValueAtTime(0, t + 0.008);
+    source.stop(t + 0.01);
+  } catch {}
+  source = null;
+}
+
+function playCandidate(cand) {
+  stopAudio();
+  const buf = AC.createBuffer(1, cand.render.samples.length, cand.render.sampleRate);
+  buf.copyToChannel(cand.render.samples, 0);
+  const src = AC.createBufferSource();
+  const gain = AC.createGain();
+  src.buffer = buf; src.connect(gain); gain.connect(AC.destination);
+  src._gain = gain;
+  src.start();
+  source = src;
+  // Reset the clocks for the new listen (§8.3). No looping, no auto-advance (§8.3).
+  playStartCtxTime = AC.currentTime; accruedDwellMs = 0; renderAccruedMs = 0;
+  nSuspensions = 0; totalSuspendedMs = 0; suspended = false; suspensionReasons.clear();
+  nNotesThisListen = 0; idleTriggered = false; lastInputMs = Date.now();
+  src.onended = () => { /* render reached its end; dwell censors at L on next key (§8.3) */ };
+}
+
+// Finalise the current listen with a measured outcome, then start the next.
+function commitAndAdvance(action) {
+  if (current) {
+    const L = current.L_at_listen;
+    let dwellS = liveDwellMs() / 1000;
+    const renderS = liveRenderMs() / 1000;
+    const completed = renderS >= L - 0.02; // reached the end → censored at L (§8.3)
+    if (completed) dwellS = L;
+    dwellS = Math.min(dwellS, L);
+    const unattended = idleTriggered;
+    const outcome = {
+      dwell_s: dwellS, completed, unattended,
+      discarded_short: dwellS < 0.35,
+      annotated: nNotesThisListen > 0, n_notes: nNotesThisListen,
+      n_suspensions: nSuspensions, total_suspended_ms: Math.round(totalSuspendedMs),
+      suspension_reasons: [...suspensionReasons],
+      idle_triggered: idleTriggered,
+      listener_id: LISTENER_ID,
+      // A B-replay's dwell is averaged into the genome's observations (§8.2/§8.5)
+      // but must not re-insert it as a second cell resident (handled in the engine).
+      is_replay: !!current._isReplay,
+    };
+    engine.recordListen(current, outcome);
+    // Persist the genome delta that recordListen just added (§14).
+    persistNewGenomes();
+  }
+  advance(action);
+}
+
+let _genomeCursor = 0;
+function persistNewGenomes() {
+  // Mirror any genome-store entries created since last time into IDB 'genomes'.
+  const entries = [...engine.genomeStore.entries.entries()];
+  for (; _genomeCursor < entries.length; _genomeCursor++) {
+    const [id, e] = entries[_genomeCursor];
+    put('genomes', { timestamp_ms: Date.now(), session_id: SESSION_ID, genome_id: id, ...e });
+  }
+}
+
+// action: 'space' (new), 'mutate' (M), 'back' (B).
+function advance(action) {
+  if (action === 'back') {
+    // Returning to a parent (or replaying the root) is a B-replay: its dwell is
+    // recorded and averaged (§8.5) but it is not re-inserted into the archive.
+    if (lineageStack.length > 0) { current = lineageStack.pop(); current._isReplay = true; playCandidate(current); refreshDisplay(); return; }
+    if (current) { current._isReplay = true; playCandidate(current); refreshDisplay(); return; }
+  }
+  // M — a DIRECTED mutation of the CURRENT Creature (§1). Push the current
+  // candidate as the parent to return to, then breed a child OF IT.
+  let cand;
+  if (action === 'mutate' && current) {
+    lineageStack.push(current);
+    cand = engine.mutateFrom(current.genome, current.parentCell || { x: current.cell.cell_x, y: current.cell.cell_y });
+  } else {
+    // SPACE — a new Creature from the steady-state loop (archive-selected prime).
+    cand = engine.nextCandidate();
+  }
+  current = cand;
+  playCandidate(cand);
+  refreshDisplay();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Keyboard — TABLE-DRIVEN (§1: "must be table-driven so further bindings can be
+// added without restructuring").
+// ─────────────────────────────────────────────────────────────────────────────
+const noteEl = document.getElementById('note');
+const KEYMAP = {
+  'Space': () => commitAndAdvance('space'),
+  'KeyM': () => commitAndAdvance('mutate'),
+  'KeyB': () => commitAndAdvance('back'),
+  'KeyP': () => togglePause(),
+  'KeyF': () => focusNote(),
+  'KeyE': () => exportLogs(),
+  'KeyV': () => { showViz = !showViz; },
+};
+addEventListener('keydown', (e) => {
+  lastInputMs = Date.now();
+  // While the note field holds focus, transport keys TYPE, they do not transport
+  // (§8.6). Enter submits, Shift+Enter newline, Escape discards.
+  if (document.activeElement === noteEl) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitNote(); }
+    else if (e.key === 'Escape') { e.preventDefault(); discardNote(); }
+    return;
+  }
+  const fn = KEYMAP[e.code];
+  if (fn) { e.preventDefault(); if (AC.state === 'suspended' && !suspended) AC.resume(); fn(); }
+});
+// Any pointer/touch counts as attention for the idle rule (§8.3).
+['pointerdown', 'pointermove', 'touchstart'].forEach((ev) => addEventListener(ev, () => { lastInputMs = Date.now(); }));
+
+function togglePause() {
+  if (suspended && suspensionReasons.has('paused')) resumeAttention();
+  else suspendAttention('paused');
+}
+function focusNote() {
+  // F focuses the field AND suspends the listen (§8.6) via the one path (§8.7).
+  suspendAttention('annotating');
+  noteComposing = true; noteStartMs = performance.now();
+  noteEl.focus();
+}
+function submitNote() {
+  const text = noteEl.value.trim();
+  if (text) {
+    nNotesThisListen++;
+    // The note records what was playing (§8.6 anchoring). It is written to its own
+    // store with NO join path into the fitness pipeline (§8.6 firewall).
+    put('notes', {
+      note_id: SESSION_ID + '-' + Date.now(), timestamp_ms: Date.now(), session_id: SESSION_ID, listener_id: LISTENER_ID,
+      listen_id: current ? current.listen_id : null, genome_id: current ? current.genome.id : null,
+      cell_x: current ? current.cell.cell_x : null, cell_y: current ? current.cell.cell_y : null,
+      dwell_at_note_s: liveDwellMs() / 1000, render_position_s: liveRenderMs() / 1000,
+      L_at_note: current ? current.L_at_listen : null, time_composing_ms: Math.round(performance.now() - noteStartMs),
+      text,
+    });
+  }
+  noteEl.value = ''; noteEl.blur(); noteComposing = false; resumeAttention();
+}
+function discardNote() { noteEl.value = ''; noteEl.blur(); noteComposing = false; resumeAttention(); }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Export (E) — timestamped JSONL per store (docs/EXPORTING-LOGS.md).
+// ─────────────────────────────────────────────────────────────────────────────
+async function exportLogs() {
+  const stamp = new Date().toISOString().replace(/[:.]/g, '').slice(0, 15) + 'Z';
+  const manifest = { spec_version: 'playing-god-spec.md', session_id: SESSION_ID, exported_at: new Date().toISOString(), counts: {} };
+  for (const store of STORES) {
+    const rows = await readAll(store);
+    manifest.counts[store] = rows.length;
+    download(`${store}.jsonl`, rows.map((r) => JSON.stringify(r)).join('\n') + '\n');
+  }
+  download('manifest.json', JSON.stringify(manifest, null, 2));
+}
+function readAll(store) {
+  return new Promise((resolve) => {
+    const rows = []; const tx = db.transaction(store, 'readonly'); const req = tx.objectStore(store).openCursor();
+    req.onsuccess = () => { const c = req.result; if (c) { rows.push(c.value); c.continue(); } else resolve(rows); };
+    req.onerror = () => resolve(rows);
+  });
+}
+function download(name, text) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: 'application/x-ndjson' }));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Legibility display (§12.1) — the primary debugging surface, present from the
+// first build. One lane per active wave with its gate pattern, plus readouts.
+// ─────────────────────────────────────────────────────────────────────────────
+const legEl = document.getElementById('legibility');
+function refreshDisplay() {
+  if (!current) return;
+  const g = current.genome, r = current.render;
+  const meta = document.getElementById('listenmeta');
+  meta.textContent = `#${current.listen_id} · ${g.id} · cell (${current.cell.cell_x},${current.cell.cell_y}) · ${r.activeWaves} wave(s)`;
+  const flags = document.getElementById('flags');
+  flags.innerHTML = '';
+  if (r.hasFeedbackCycle) flags.innerHTML += '<span class="flag">feedback</span>';
+  if (r.loudness && r.loudness.near_silent) flags.innerHTML += '<span class="flag">near-silent</span>';
+  if (r.clipped) flags.innerHTML += '<span class="flag">clipped(raw)</span>';
+  // Readouts (§12.1).
+  const ro = document.getElementById('readouts');
+  const rows = [
+    ['listen', current.listen_id], ['genome', g.id],
+    ['cell', `(${current.cell.cell_x}, ${current.cell.cell_y})`],
+    ['L (render s)', current.L_at_listen.toFixed(1)],
+    ['dev / harm', `${current.descriptors.development_raw.toFixed(2)} / ${current.descriptors.harmonicity_raw.toFixed(3)}`],
+    ['LUFS', r.loudness ? `${r.loudness.lufs_before} → ${r.loudness.lufs_after}` : 'n/a'],
+    ['lineage depth', lineageStack.length],
+  ];
+  ro.innerHTML = rows.map(([k, v]) => `<tr><td class="k">${k}</td><td>${v}</td></tr>`).join('');
+  const as = document.getElementById('archiveStats');
+  const occ = engine.archive.occupiedCount();
+  as.innerHTML = `<tr><td class="k">cells occupied</td><td>${occ} / 256</td></tr><tr><td class="k">D_med</td><td>${engine.archive.dMed.toFixed(3)}</td></tr>`;
+  drawLegibility();
+}
+function drawLegibility() {
+  const cx = legEl.getContext('2d');
+  const W = legEl.width = legEl.clientWidth, H = legEl.height = 220;
+  cx.fillStyle = '#050506'; cx.fillRect(0, 0, W, H);
+  if (!current) return;
+  const g = current.genome;
+  const active = [];
+  for (let w = 0; w < WAVE_SLOTS; w++) if (g.getWave(w, 'active') >= 0.5) active.push(w);
+  const L = current.L_at_listen;
+  const laneH = Math.min(28, (H - 20) / Math.max(1, active.length));
+  active.forEach((w, i) => {
+    const y = 6 + i * laneH;
+    const cents = g.getWave(w, 'pitch_master'); const hz = 0.01 * Math.pow(2, cents / 1200);
+    const hue = (Math.log2(Math.max(1, hz)) / 14) * 360;
+    const gain = g.getWave(w, 'gain_out');
+    const h = Math.max(3, (gain + 80) / 86 * (laneH - 4));
+    // Gate pattern across the render (pre_wait / duration / mid_wait, §12.1).
+    const pre = g.getWave(w, 'pre_wait'), dur = g.getWave(w, 'duration'), mid = g.getWave(w, 'mid_wait');
+    const midOn = g.isOn(w, 'mid_wait_on');
+    cx.fillStyle = `hsl(${hue},55%,45%)`;
+    const px = (s) => (s / L) * W;
+    let t = pre;
+    for (let rep = 0; rep < 400 && t < L; rep++) {
+      cx.fillRect(px(t), y + (laneH - h), Math.max(1, px(dur)), h);
+      if (!midOn) break;
+      t += dur + mid;
+    }
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Visualiser fallback (§11.1) — one radial blob per active wave on a ring by
+// slot, hue from pitch, radius from gain, brightness from that wave's cached
+// 60 Hz envelope (the fast channel, §11 — NOT an FFT of the mix). Deliberately
+// plain and expected to be replaced by the §11 proposal.
+// ─────────────────────────────────────────────────────────────────────────────
+const vizEl = document.getElementById('viz');
+let showViz = true;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches; // §11.1
+function frame() {
+  requestAnimationFrame(frame);
+  // Idle → unattended (§8.3): 90 s with no input pauses nothing but flags the listen.
+  if (!suspended && Date.now() - lastInputMs > 90000) idleTriggered = true;
+  document.getElementById('dwell').textContent = (liveDwellMs() / 1000).toFixed(1);
+  const cx = vizEl.getContext('2d');
+  const W = vizEl.width = innerWidth, H = vizEl.height = innerHeight;
+  cx.fillStyle = '#08080b'; cx.fillRect(0, 0, W, H);
+  if (!showViz || !current) return;
+  const r = current.render;
+  const env = r.visEnv; const hz = r.visEnvHz || 60;
+  const frameIdx = Math.floor((liveRenderMs() / 1000) * hz * (reducedMotion ? 0.1 : 1));
+  const g = current.genome; const cxc = W / 2, cyc = H / 2, R = Math.min(W, H) * 0.32;
+  for (let w = 0; w < WAVE_SLOTS; w++) {
+    if (g.getWave(w, 'active') < 0.5) continue;
+    const a = (w / WAVE_SLOTS) * Math.PI * 2;
+    const cents = g.getWave(w, 'pitch_master'); const f = 0.01 * Math.pow(2, cents / 1200);
+    const hue = (Math.log2(Math.max(1, f)) / 14) * 360;
+    let amp = 0;
+    if (env && env[w]) amp = env[w][Math.min(env[w].length - 1, Math.max(0, frameIdx))] || 0;
+    const rad = (18 + (g.getWave(w, 'gain_out') + 80) / 86 * 60) * (1 + amp * 3);
+    const grd = cx.createRadialGradient(cxc + Math.cos(a) * R, cyc + Math.sin(a) * R, 0, cxc + Math.cos(a) * R, cyc + Math.sin(a) * R, rad);
+    grd.addColorStop(0, `hsla(${hue},70%,${40 + amp * 40}%,0.55)`);
+    grd.addColorStop(1, 'hsla(0,0%,0%,0)');
+    cx.fillStyle = grd;
+    cx.beginPath(); cx.arc(cxc + Math.cos(a) * R, cyc + Math.sin(a) * R, rad, 0, Math.PI * 2); cx.fill();
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+── Gate 2a (genotypic locality) ──
+  parents rendered: 100
+  U (unrelated median perceptual distance): 285.905
+  ε=0.001: median=7.169 p90=58.973 p90/U=0.206
+  ε=0.01: median=21.481 p90=178.454 p90/U=0.624
+  ε=0.1: median=76.750 p90=289.075 p90/U=1.011
+  ε=0.5: median=179.157 p90=488.953 p90/U=1.710
+  continuous criterion p90/U at ε=0.01: 0.624 < 0.2 → FAIL
+  J_class (median/U):
+    active: J=0.169 → p_class=4.00e-3
+    gain_out_on: J=0.167 → p_class=4.00e-3
+    gain_mod_on: J=0.000 → p_class=4.00e-3
+    shape_sine_on: J=0.005 → p_class=4.00e-3
+    shape_triangle_on: J=0.007 → p_class=4.00e-3
+    shape_saw_on: J=0.002 → p_class=4.00e-3
+    shape_square_on: J=0.005 → p_class=4.00e-3
+    mid_wait_on: J=0.000 → p_class=4.00e-3
+    amp_env_on: J=0.005 → p_class=4.00e-3
+    pitch_env_on: J=0.004 → p_class=4.00e-3
+    pm_on: J=0.000 → p_class=4.00e-3
+    am_on: J=0.000 → p_class=4.00e-3
+  D-distribution vs §6.5 intuitions:
+    parent_child_no_flip: measured=0.0000 expected≈0.005 within2x=false
+    parent_child_active_flip: measured=0.1339 expected≈0.105 within2x=true
+    siblings: measured=0.0000 expected≈0.1 within2x=false
+    unrelated_elites: measured=0.6094 expected≈0.55 within2x=true
+  PASS: false | artefact: /sandbox/code/playing-god/output/gate-artefacts/gate2a-locality.json

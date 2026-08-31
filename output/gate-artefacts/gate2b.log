@@ -1,0 +1,8 @@
+── Gate 2b (behavioural locality) — the decision point ──
+  parents analysed: 200/200
+  axis calibration: dev [7.63e+0, 3.48e+2] harm [2.33e-4, 1.00e+0]
+  mutation-only: p_same=0.548 (≥0.35) p_near=0.752 (≥0.7)
+  with-crossover: p_same=0.489 p_near=0.674
+  H_cell=0.541 (fraction of U; 158 cells with ≥2)
+  PASS: true
+  artefact: /sandbox/code/playing-god/output/gate-artefacts/gate2b-behavioural.json

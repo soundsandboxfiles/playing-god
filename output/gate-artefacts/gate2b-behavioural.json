@@ -1,0 +1,44 @@
+{
+  "timestamp_ms": 1788134118276,
+  "session_id": "overnight-headless-2026-08-30234802",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "gate2b-behavioural.json",
+  "gate": "2b (behavioural locality, §13.3)",
+  "threshold": "p_same ≥ 0.35 AND p_near ≥ 0.7 (mutation-only)",
+  "pass": true,
+  "mutation_only": {
+    "p_same": 0.548,
+    "p_near": 0.75175,
+    "n": 4000
+  },
+  "with_crossover": {
+    "p_same": 0.48875,
+    "p_near": 0.67375,
+    "n": 4000
+  },
+  "H_cell": 0.5410278790713671,
+  "H_cell_detail": {
+    "H_cell": 0.5410278790713671,
+    "U_vec": 210.75960608025397,
+    "cells_with_2plus": 158
+  },
+  "axis_calibration": {
+    "dev": {
+      "min": 7.625268579634308,
+      "max": 347.59486458171796
+    },
+    "harm": {
+      "min": 0.0002326045437504625,
+      "max": 1.0000000000001905
+    }
+  },
+  "switch_rates_used": "from Gate 2a J_class_table",
+  "config": {
+    "sample_rate": 22050,
+    "length_s": 4,
+    "n_parents": 200,
+    "n_offspring": 20,
+    "seed": "0x2B00"
+  },
+  "elapsed_s": 435.664
+}

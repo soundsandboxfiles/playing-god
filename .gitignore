@@ -9,6 +9,11 @@ output/logs/
 # This negation has to come AFTER the *.jsonl rule to take effect.
 !output/gate-artefacts/**
 
+# ...but NOT the Gate 1a WAV batch: it is large (hundreds of MB) and fully
+# regenerable, and it reaches the host via sync-back (which copies files, not git)
+# rather than through the repo. This re-ignore must come after the negation above.
+output/gate-artefacts/gate1a-batch/
+
 node_modules/
 .venv/
 __pycache__/

@@ -65,7 +65,11 @@ WHAT TO DO, IN ORDER
              on Gate 1a — see docs/BUILD-ORDER.md for why that is safe.
    - FAIL  → STOP. Do not build Stage 3. Report the numbers and say which of
              playing-god-spec.md §13.3's listed fixes the evidence points to.
-6. Write `output/OVERNIGHT-REPORT.md` containing:
+6. Write the report to BOTH of these paths — the second one reaches the host
+   directly without needing sync-back, so it is the one that gets read first:
+   - `/sandbox/code/playing-god/output/OVERNIGHT-REPORT.md`
+   - `/output/PLAYING-GOD-OVERNIGHT-REPORT.md`
+   Containing:
    - what was built, stage by stage
    - every gate result, measured number against stated threshold
    - anything in the specification you found ambiguous, contradictory or
@@ -87,4 +91,15 @@ unit of work — that gives you rollback within the session. Do not attempt to
 push to a remote; the real repository lives on the host and pushes happen there
 after sync-back.
 
-Work autonomously. Do not stop to ask questions — record them in the report.
+ENVIRONMENT
+Everything you need is already in the snapshot. Do not install dependencies —
+the specification requires vanilla JS with no build step and no packages, and
+hand-rolled MFCC. If you find yourself running `npm install`, stop and
+reconsider: it means you are about to build something the spec forbids.
+
+`/sandbox` is your working copy and persists after the container exits.
+`/output` is a separate mount that lands directly on the host.
+
+Work autonomously through the whole task. Do not stop to ask questions —
+record every question in the report and carry on with your best judgement,
+saying in the report what you assumed. Nobody will be watching.

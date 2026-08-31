@@ -1,0 +1,18 @@
+  ...200/1000 (164s)
+  ...400/1000 (331s)
+  ...600/1000 (499s)
+  ...800/1000 (664s)
+  ...1000/1000 (830s)
+── §5.2 prior sanity check (1000 genomes, 60 s) ──
+  counts: {"rendered":1000,"render_errors":0,"non_finite_repaired":0,"clipped_raw":520,"effectively_silent_raw":127,"near_silent_loudness":122}
+  peak: min=0.000 p50=1.000 mean=1.739 p90=4.300 max=15.000
+  rms: min=0.000 p50=0.189 mean=0.409 p90=1.009 max=8.261
+  silence_frac: min=8.31e-6 p50=0.732 mean=0.561 p90=1.000 max=1.000
+  onsets: min=0.000 p50=81.000 mean=172.743 p90=498.400 max=867.000
+  spectral_centroid_hz: min=0.000 p50=1.49e+3 mean=1.48e+3 p90=2.98e+3 max=9.33e+3
+  lufs_before: min=-61.730 p50=-14.890 mean=-15.310 p90=-2.156 max=18.860
+  active_wave_count: min=1.000 p50=2.000 mean=2.112 p90=4.000 max=7.000
+  complexity: min=268.000 p50=301.000 mean=301.006 p90=315.000 max=344.000
+  back_edges: min=0.000 p50=0.000 mean=0.017 p90=0.000 max=1.000
+  (no verdict — plumbing check, §5.2)
+  artefact: /sandbox/code/playing-god/output/gate-artefacts/prior-sanity.json

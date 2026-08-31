@@ -1,0 +1,48 @@
+{
+  "timestamp_ms": 1788134307968,
+  "session_id": "overnight-headless-2026-08-30235547",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "gate3-plumbing.json",
+  "gate": "3-plumbing (SYNTHETIC dwell — machinery only, NOT evidence about the search)",
+  "SYNTHETIC": true,
+  "pass": true,
+  "checks": {
+    "cells_filled_ge_40": true,
+    "some_cell_reached_depth_8": true,
+    "eviction_fired": true,
+    "protection_held": true,
+    "servo_moved": true,
+    "logs_round_trip": true,
+    "snapshots_written": true,
+    "no_render_errors": true
+  },
+  "measured": {
+    "n_listens": 2500,
+    "cells_occupied": 200,
+    "coverage": 0.78125,
+    "cell_depth_histogram": [
+      0,
+      19,
+      13,
+      13,
+      8,
+      12,
+      17,
+      9,
+      109
+    ],
+    "max_cell_depth": 8,
+    "evictions": 1287,
+    "protection_events": 1287,
+    "protection_blocked_all": 0,
+    "servo_moves": 83,
+    "final_L": 300,
+    "render_errors": 0,
+    "genomes_stored": 2500,
+    "genomes_reconstructed": 2500,
+    "snapshots": 25,
+    "servo_events": 2500,
+    "anomalies": 0
+  },
+  "elapsed_s": 160.778
+}

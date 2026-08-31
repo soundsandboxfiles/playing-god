@@ -1,0 +1,8 @@
+  ...25/100 (16s)
+  ...50/100 (29s)
+  ...75/100 (45s)
+  ...100/100 (59s)
+── Gate 1a batch staged ──
+  100/100 WAVs written to output/gate-artefacts/gate1a-batch/
+  open output/gate-artefacts/gate1a-batch/index.html on the HOST to audition.
+  (this script makes NO judgement — Gate 1a needs a human, by construction)

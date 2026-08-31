@@ -1,0 +1,71 @@
+{
+  "timestamp_ms": 1788134957415,
+  "session_id": "overnight-headless-2026-08-30235851",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "J_class_table.json",
+  "gate": "2a",
+  "U": 285.9051822840222,
+  "J_class_table": {
+    "active": {
+      "J_median_over_U": 0.16875343598514728,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "gain_out_on": {
+      "J_median_over_U": 0.1667370173428227,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "gain_mod_on": {
+      "J_median_over_U": 0,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "shape_sine_on": {
+      "J_median_over_U": 0.004778584015979972,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "shape_triangle_on": {
+      "J_median_over_U": 0.006999421651533497,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "shape_saw_on": {
+      "J_median_over_U": 0.0019985331992183075,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "shape_square_on": {
+      "J_median_over_U": 0.005212077907689889,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "mid_wait_on": {
+      "J_median_over_U": 0,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "amp_env_on": {
+      "J_median_over_U": 0.004560044597386334,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "pitch_env_on": {
+      "J_median_over_U": 0.0037366121168052485,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "pm_on": {
+      "J_median_over_U": 0,
+      "p_class": 0.004,
+      "n": 60
+    },
+    "am_on": {
+      "J_median_over_U": 0,
+      "p_class": 0.004,
+      "n": 60
+    }
+  },
+  "note": "Switch flip rates for Stage 3: p_class = 0.004·min(1, 0.25/J)."
+}

@@ -1,0 +1,29 @@
+{
+  "timestamp_ms": 1788131781448,
+  "session_id": "overnight-headless-2026-08-30231621",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "gate1b-mech.json",
+  "gate": "1b-mech",
+  "description": "Lineage stack: B returns to previous state at arbitrary depth; genome reconstruction from log.",
+  "pass": true,
+  "results": [
+    {
+      "name": "straight_return",
+      "depth": 40,
+      "exact_return": true,
+      "root_noop": true
+    },
+    {
+      "name": "interleaved",
+      "steps": 400,
+      "mismatches": 0,
+      "exact": true
+    },
+    {
+      "name": "reconstruction",
+      "genomes": 251,
+      "checked": 251,
+      "exact": true
+    }
+  ]
+}
