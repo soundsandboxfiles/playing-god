@@ -63,15 +63,22 @@ function popSummary(engine) {
   return out;
 }
 
+function parseGeom(s, fb) { const m = s && /^(\d+)x(\d+)$/.exec(s); return m ? { nx: +m[1], ny: +m[2] } : fb; }
+
 function runOne(seed, runIndex) {
   const cal = loadJSON('axis-calibration.json', { axis_calibration: { dev: { min: 0.5, max: 60 }, harm: { min: 0.001, max: 0.6 } } }).axis_calibration;
   const jt = loadJSON('J_class_table.json', null);
   const switchRates = jt ? Object.fromEntries(Object.entries(jt.J_class_table).map(([k, v]) => [k, v.p_class])) : null;
+  // v2.2: the null model must match the SHIPPING archive = the DEFAULT mode, deep@G,
+  // with G from the Lane A geometry sweep (work order §5). Refreshing it against the
+  // old 16×16 would baseline an archive that will not ship.
+  const G = parseGeom(loadJSON('gate2b-geomsweep.json', {}).chosen_G, { nx: 8, ny: 8 });
   const rng = new RNG(seed);
   const logger = new Logger('SYNTHETIC-drift-' + runIndex, () => Date.now());
   const engine = new Engine({
     rng, calibration: cal, switchRates, logger,
     seedGenomes: loadSeedPicks(),
+    archiveMode: 'deep', geometry: G,
     renderOpts: { sampleRate: 22050, lengthOverride: RENDER_LEN },
     synthetic: true,
   });
@@ -104,14 +111,16 @@ function runOne(seed, runIndex) {
 }
 
 function main() {
-  console.log('── Drift control: SYNTHETIC null model (3× 2500 listens, picks-seeded) ──');
+  const G = parseGeom(loadJSON('gate2b-geomsweep.json', {}).chosen_G, { nx: 8, ny: 8 });
+  console.log(`── Drift control: SYNTHETIC null model (3× 2500 listens, picks-seeded, deep@${G.nx}x${G.ny} default) ──`);
   const runs = [];
   for (let r = 0; r < N_RUNS; r++) runs.push(runOne(SEEDS[r], r));
   writeArtefact('drift-control.json', {
     gate: 'drift-control (SYNTHETIC null model — NOT evidence about the search, BUILD-ORDER)',
     SYNTHETIC: true,
-    note: 'Where the picks-seeded herd drifts under RANDOM fitness = operator bias + priors alone. A real run must differ from this to claim a selection effect (V2-PROPOSALS methodological note). Every record labelled SYNTHETIC.',
-    config: { n_runs: N_RUNS, n_listens: N_LISTENS, render_len_s: RENDER_LEN, seeds: SEEDS.map((s) => '0x' + s.toString(16)) },
+    archive_mode: 'deep', geometry: `${G.nx}x${G.ny}`,
+    note: 'Where the picks-seeded herd drifts under RANDOM fitness = operator bias + priors alone. A real run must differ from this to claim a selection effect (V2-PROPOSALS methodological note). v2.2: refreshed for the SHIPPING default archive deep@G (G from the Lane A sweep). Every record labelled SYNTHETIC.',
+    config: { n_runs: N_RUNS, n_listens: N_LISTENS, render_len_s: RENDER_LEN, geometry: `${G.nx}x${G.ny}`, seeds: SEEDS.map((s) => '0x' + s.toString(16)) },
     runs,
   });
   console.log('  artefact: output/gate-artefacts/drift-control.json (labelled SYNTHETIC)');

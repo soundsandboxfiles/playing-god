@@ -18,6 +18,7 @@ import { breed, mutateGenome } from './variation.js';
 import { renderNormalized } from './render.js';
 import { computeDescriptors, cellOf } from './descriptors.js';
 import { Archive } from './archive.js';
+import { AdaptiveArchive } from './adaptive.js';
 import { Servo } from './servo.js';
 import { Cooldown, REGEN_TRIES } from './cooldown.js';
 import { GenomeStore, RESYNC_EVERY } from './logging.js';
@@ -51,7 +52,17 @@ export class Engine {
     this.captureVisEnv = !!(opts.renderOpts && opts.renderOpts.captureVisEnv); // §11 fast channel
     this.synthetic = !!opts.synthetic;
 
-    this.archive = new Archive();
+    // v2.2: archive geometry + mode are parameters (work order §2, §5). Geometry
+    // defaults to 16×16 (§7.1). Mode is 'deep' (Deep-Grid MAP-Elites, §7.2 — the
+    // default and the v2/v2.1 path) or 'adaptive' (adaptive-sampling MAP-Elites,
+    // Justesen et al. 2019, §13.3 — single elite per cell, explicit re-evaluation,
+    // no locality assumption). Both are FULLY WORKING; the app exposes the choice.
+    this.geom = opts.geometry ? { nx: opts.geometry.nx, ny: opts.geometry.ny } : { nx: 16, ny: 16 };
+    this.archiveMode = opts.archiveMode === 'adaptive' ? 'adaptive' : 'deep';
+
+    this.archive = this.archiveMode === 'adaptive'
+      ? new AdaptiveArchive(this.geom)
+      : new Archive(this.geom);
     // Reproducible eviction for headless runs (§7.4 note): fitness-blind uniform.
     this.archive.setEvictionRng(() => this.rng.next());
     this.servo = new Servo();
@@ -142,6 +153,14 @@ export class Engine {
       const provenance = { prime_parent_id: null, partner_ids: [], k_partners: 0, crossover_fired: false, src: Array.from(genome.src || new Int8Array(WAVE_SLOTS)), duplication_fired: false, duplication_targets: [], duplication_hit_active_slot: false, variation: null, from_seed: true };
       return this._finishCandidate(genome, provenance, null, null, 0, false);
     }
+    // ADAPTIVE mode (§13.3): before breeding, the scheduler may owe an existing
+    // genome a RE-LISTEN to settle a contest or re-sample a survived elite. The
+    // cooldown (§8.5) is respected — a genome still in the repeat window is deferred.
+    if (this.archiveMode === 'adaptive') {
+      const rl = this.archive.pendingRelisten(this.cooldown);
+      if (rl) return this._relistenCandidate(rl);
+    }
+
     // Select prime parent (§7.3). Until two cells are occupied, crossover is 0
     // (§7.3a-edge): the partner draw excludes the prime, so it cannot return one.
     let cell = this.archive.selectCell(this.rng);
@@ -193,6 +212,24 @@ export class Engine {
     return this._finishCandidate(bred.child, bred.provenance, primeParent, parentCell, cooldownCollisions, acceptedDespiteCollision);
   }
 
+  // ADAPTIVE re-listen (§13.3): re-evaluate an existing archive genome to accumulate
+  // a fresh dwell sample. No breeding — the SAME genome is re-rendered and played.
+  // The candidate carries `relisten` metadata so recordListen routes it to the
+  // adaptive archive as a re-sample (of a contest challenger or a survived elite)
+  // rather than a new insertion. It is a real listen with real dwell (it drives the
+  // servo and slides the cooldown like any other).
+  _relistenCandidate(rl) {
+    const provenance = {
+      prime_parent_id: null, partner_ids: [], k_partners: 0, crossover_fired: false,
+      src: Array.from(rl.genome.src || new Int8Array(WAVE_SLOTS)),
+      duplication_fired: false, duplication_targets: [], duplication_hit_active_slot: false,
+      variation: null, adaptive_relisten: true, relisten_kind: rl.kind,
+    };
+    const cand = this._finishCandidate(rl.genome, provenance, null, { x: rl.cellX, y: rl.cellY }, 0, false);
+    cand.relisten = { kind: rl.kind, cellX: rl.cellX, cellY: rl.cellY };
+    return cand;
+  }
+
   // Render + normalise (§4.7), compute descriptors on the normalised buffer, find
   // the target cell, and package the candidate.
   _finishCandidate(genome, provenance, primeParent, parentCell, cooldownCollisions, acceptedDespiteCollision) {
@@ -209,7 +246,7 @@ export class Engine {
     let cell = { cell_x: 0, cell_y: 0, clamped_to_edge: true };
     if (!r.renderError) {
       descriptors = computeDescriptors(r.samples, this.renderSampleRate);
-      cell = cellOf(descriptors.development_raw, descriptors.harmonicity_raw, this.cal);
+      cell = cellOf(descriptors.development_raw, descriptors.harmonicity_raw, this.cal, this.geom);
     } else if (this.logger) {
       this.logger.anomaly('render_error', { listen_id: this.listenId, genome_id: genome.id, error: r.renderError });
     }
@@ -262,9 +299,21 @@ export class Engine {
       const fit = lineageFitness({ dwell: ownMean }, ancestors);
       lineageF = fit.F; ancestorsUsed = fit.used;
 
-      if (!isReplay) {
-        // Insert into the target cell (§7.4). Every genome has its own dwell
-        // measured before insertion (§7.5) — it just was, above.
+      if (this.archiveMode === 'adaptive') {
+        // ADAPTIVE (§13.3): explicit re-evaluation. A scheduled re-listen re-samples
+        // an existing genome (its registry mean above already folded in the new
+        // dwell, so ownMean/ownN are the denoised, equal-footing statistics the
+        // contest compares); a fresh child opens/settles a contest in its target
+        // cell. Re-listens do not count as offspring yield.
+        if (candidate.relisten) {
+          archiveAction = this.archive.recordAdaptive(genome, candidate.cell.cell_x, candidate.cell.cell_y, ownMean, ownN, listenId, candidate.relisten);
+        } else if (!isReplay) {
+          archiveAction = this.archive.recordAdaptive(genome, candidate.cell.cell_x, candidate.cell.cell_y, ownMean, ownN, listenId, null);
+          if (parentCell) this.archive.recordOffspring(parentCell.x, parentCell.y, outcome.dwell_s);
+        }
+      } else if (!isReplay) {
+        // DEEP GRID (§7.4). Every genome has its own dwell measured before insertion
+        // (§7.5) — it just was, above. Eviction is fitness-blind uniform (§7.4).
         archiveAction = this.archive.insert(genome, lineageF, ownMean, ownN, candidate.cell.cell_x, candidate.cell.cell_y, listenId);
         // Offspring yield against the PARENT'S cell (§7.6), never the child's.
         if (parentCell) this.archive.recordOffspring(parentCell.x, parentCell.y, outcome.dwell_s);
@@ -344,8 +393,17 @@ export class Engine {
     const v = provenance.variation || {};
     return {
       run_synthetic: this.synthetic || undefined,
+      // P6: a PREDICTED record is one the predictor assigned autonomously. It is a
+      // HARD RULE (work order) that PREDICTED records are excluded BOTH from the
+      // accuracy metrics and from the predictor's training data. The label rides the
+      // log so a later session's history-training and any accuracy pass can filter it
+      // out — the predictor never grades its own homework nor trains on its own output.
+      predicted: outcome.predicted || undefined,
+      predicted_by: outcome.predicted_by || undefined, // 'creature' | 'session'
       listen_id: candidate.listen_id,
       listener_id: outcome.listener_id || 'headless',
+      // adaptive re-listen marker (§13.3): this listen re-measured an existing genome.
+      adaptive_relisten: (candidate.relisten ? true : undefined),
       genome_id: genome.id,
       // genome storage is a delta in genomeStore; here we record identity + shape.
       expressed_parameter_count: expressedCount(genome),
@@ -421,7 +479,10 @@ export class Engine {
 }
 
 // ── small genome readouts (kept here to avoid widening genome.js' surface) ────
-function activeCount(g) {
+// Exported (v2.2) so the app's CREATURE predictor featurises a live genome with the
+// EXACT same genome-derived scalars the §14.1 log stores — history-training and live
+// prediction then share one feature definition (P6).
+export function activeCount(g) {
   let n = 0;
   for (let w = 0; w < WAVE_SLOTS; w++) if (g.getWave(w, 'active') >= 0.5) n++;
   return n;
@@ -431,7 +492,7 @@ function activeCount(g) {
 // expressed complexity growing?"), not an exact 162 accounting. Counts, per
 // active wave, the genes that actually reach the output: pitch, both gains, the
 // enabled shape weights, the timing trio, and each active envelope's nodes.
-function expressedCount(g) {
+export function expressedCount(g) {
   let n = 0;
   for (let w = 0; w < WAVE_SLOTS; w++) {
     if (g.getWave(w, 'active') < 0.5) continue;
@@ -446,7 +507,7 @@ function expressedCount(g) {
   return n;
 }
 
-function modEdgeCount(g) {
+export function modEdgeCount(g) {
   let n = 0;
   for (let w = 0; w < WAVE_SLOTS; w++) {
     if (g.getWave(w, 'active') < 0.5) continue;

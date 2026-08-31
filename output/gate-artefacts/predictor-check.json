@@ -1,0 +1,71 @@
+{
+  "timestamp_ms": 1788205750445,
+  "session_id": "overnight-headless-2026-08-31194646",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "predictor-check.json",
+  "check": "P6 predictor integration (SYNTHETIC — soundness + the honest low-ρ regime)",
+  "SYNTHETIC": true,
+  "pass": true,
+  "checks": {
+    "predicted_excluded_from_training": true,
+    "predicted_records_present": true,
+    "pipeline_learns_when_signal_observable": true
+  },
+  "scenario_A_observable": {
+    "note": "taste depends only on creature-observable features + low noise → the creature model SHOULD learn (soundness proof)",
+    "creature_rho": 0.3781050291747708,
+    "baseline_rho": -0.007819568745219989,
+    "creature_mae_s": 0.4188955193580303,
+    "trajectory": [
+      {
+        "listen": 150,
+        "creature_rho": 0.1091708244815437,
+        "session_rho": 0.12602195021659604,
+        "baseline_rho": 0.09405572385330174
+      },
+      {
+        "listen": 300,
+        "creature_rho": 0.5167833730332266,
+        "session_rho": 0.4766588870315071,
+        "baseline_rho": -0.03289278150433798
+      },
+      {
+        "listen": 450,
+        "creature_rho": 0.7193664906918589,
+        "session_rho": 0.7051958877465963,
+        "baseline_rho": 0.08994629607972633
+      }
+    ]
+  },
+  "scenario_B_realistic": {
+    "note": "full taste landscape (partly hidden from the creature model) + high noise → the HONEST regime: near-zero ρ at a few hundred bred listens",
+    "creature_rho": 0.028307666663833796,
+    "session_rho": -0.004782827766384492,
+    "baseline_rho": 0.014129637194096633,
+    "creature_mae_s": 0.9992987269837103,
+    "session_mae_s": 1.0356312480638952,
+    "baseline_mae_s": 0.922948477015796,
+    "session_minus_creature_gap": -0.03309049443021829,
+    "trajectory": [
+      {
+        "listen": 150,
+        "creature_rho": -0.13052421649919582,
+        "session_rho": -0.11668242352291824,
+        "baseline_rho": -0.07443300955381672
+      },
+      {
+        "listen": 300,
+        "creature_rho": -0.12933869477521293,
+        "session_rho": -0.06709968571275626,
+        "baseline_rho": -0.266457173084713
+      },
+      {
+        "listen": 450,
+        "creature_rho": -0.010423683322763205,
+        "session_rho": -0.05607607177914323,
+        "baseline_rho": -0.23370448753575856
+      }
+    ]
+  },
+  "honest_expectation": "On REAL dwell (noisier and more context-driven than even scenario B) the creature ρ at a few hundred listens will be near zero. That is shown in public by design (P6): calibrated trust, on the spec's own health metric. Autonomy WISDOM says worthwhile results are not expected below creature-model ρ ≥ 0.40."
+}

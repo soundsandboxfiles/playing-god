@@ -18,7 +18,7 @@
 import { complexity } from './genome.js';
 import { distance } from './distance.js';
 
-export const GRID = 16;              // §7.1 (16×16 = 256 cells)
+export const GRID = 16;              // §7.1 default (16×16 = 256 cells)
 export const CELL_DEPTH = 8;         // §7.2 D = 8
 export const CELL_SELECT_ALPHA = 2.0; // §7.3a
 export const IN_CELL_SELECT_BETA = 2.0; // §7.3c
@@ -29,17 +29,23 @@ export const NEWCOMER_PROTECT_ARRIVALS = 2; // §7.2
 export const PARSIMONY_TIE_LO = 0.95; // §7.4 / Appendix
 export const PARSIMONY_TIE_HI = 1.05;
 
-function cellKey(x, y) { return y * GRID + x; }
-
 export class Archive {
-  constructor() {
+  // v2.2: geometry is a parameter (work order §2). `geom = { nx, ny }` sets the
+  // grid; it defaults to 16×16 (§7.1) so every prior caller is unchanged. Deep
+  // cells and every rule below are geometry-agnostic — only the cell count and the
+  // coverage denominator change.
+  constructor(geom) {
+    this.gridX = (geom && geom.nx) ? geom.nx : GRID;
+    this.gridY = (geom && geom.ny) ? geom.ny : GRID;
     this.cells = new Map(); // key → { x, y, residents:[], n_offspring, offspringDwell:[] }
     this._dMed = 0;
     this._acceptedPartnerD = []; // for the §6.6 diagnostic
   }
 
+  _cellKey(x, y) { return y * this.gridX + x; }
+
   getCell(x, y, create = false) {
-    const k = cellKey(x, y);
+    const k = this._cellKey(x, y);
     let c = this.cells.get(k);
     if (!c && create) { c = { x, y, residents: [], n_offspring: 0, offspringDwell: [] }; this.cells.set(k, c); }
     return c;
@@ -228,7 +234,7 @@ export class Archive {
     return {
       listen_id_at_snapshot: listenId,
       cells_occupied: occ.length,
-      coverage: occ.length / (GRID * GRID),
+      coverage: occ.length / (this.gridX * this.gridY),
       cell_depth_histogram: depthHist,
       qd_score_sum_mean_fitness: qdScore,
       D_med: this._dMed,

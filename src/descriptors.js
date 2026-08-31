@@ -146,9 +146,16 @@ export function binLog(value, min, max, nBins = N_BINS) {
   return b;
 }
 
-export function cellOf(development_raw, harmonicity_raw, cal) {
-  const x = binLog(development_raw, cal.dev.min, cal.dev.max);
-  const y = binLog(harmonicity_raw, cal.harm.min, cal.harm.max);
+// v2.2: archive geometry is a PARAMETER (work order §2). `geom = { nx, ny }` sets
+// the per-axis bin counts; it defaults to 16×16 (§7.1) so every v2/v2.1 caller is
+// unchanged. Changing the geometry moves only where the bin EDGES fall — never a
+// descriptor value, never what can exist, never what is heard (§2.1/§2.2). §13.3's
+// "coarser grid" response to a Gate 2b failure is exactly this parameter.
+export function cellOf(development_raw, harmonicity_raw, cal, geom) {
+  const nx = geom && geom.nx ? geom.nx : N_BINS;
+  const ny = geom && geom.ny ? geom.ny : N_BINS;
+  const x = binLog(development_raw, cal.dev.min, cal.dev.max, nx);
+  const y = binLog(harmonicity_raw, cal.harm.min, cal.harm.max, ny);
   const clamped =
     development_raw <= cal.dev.min || development_raw >= cal.dev.max ||
     harmonicity_raw <= cal.harm.min || harmonicity_raw >= cal.harm.max;

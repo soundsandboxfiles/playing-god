@@ -347,3 +347,125 @@ DB_VERSION            2 → 3  (F11 favourites store; purely additive)
 
 *Gate-measured values (P_SWITCH_FLIP_BASE, the Gate 2b p_ratio_jump default) are
 filled from the artefacts in the V2 report — see `output/V2-REPORT.md`.*
+
+---
+
+# v2.2 archive-geometry resolution + shadow predictors (2026-08-31 late) — deltas on top of v2.1
+
+The v2.2 run resolves the v2.1 Gate 2b failure (the 16×16 deep archive fell below the
+behavioural-locality threshold under the fixed harm instrument + F10 priors) by making
+the archive geometry a PARAMETER and letting the gate choose, and it ships BOTH archive
+architectures raced against each other, plus BOTH shadow predictors. Every change is
+still a *bias on which moves are cheap*, a *presentation/measurement instrument*, or an
+*archive-geometry choice sanctioned by §13.3* — never a truncation of what can exist.
+The 2b thresholds were NOT loosened (p_same ≥ 0.35, p_near ≥ 0.70, mutation-only).
+
+## §7.1 Archive geometry is a parameter; the shipping deep geometry is G = 8×8
+
+**Spec (§7.1):** "16 × 16 = 256 cells … Axes are global constants (§2.5)."
+
+**v2.2:** the grid is a build parameter `{nx, ny}` (default 16×16 — every prior caller
+unchanged). §13.3's first sanctioned response to a 2b failure is a **coarser grid**;
+this run swept Gate 2b (thresholds fixed) across {16×16, 16×8, 12×12, 12×8, 10×10, 8×8}
+with ONE render pass re-binned per geometry (geometry moves only where bin edges fall,
+never a descriptor value — invariant-clean, §2.1). **Result: only 8×8 passes both
+thresholds with margin** (p_same 0.379 ≥ 0.35, p_near 0.807 ≥ 0.70); 10×10 is the
+nearest miss (p_same 0.343). So the **shipped default deep geometry is G = 8×8** — which
+is exactly §13.3's named coarser-grid fallback (64 cells, 512 listens to fill vs 2,048).
+Full table in `output/V2.2-REPORT.md` §2 and `gate2b-geomsweep.json`.
+
+**Why (work order §2).** A coarser grid lets a parent's neighbourhood absorb the larger
+offspring descriptor spread that the legible harm axis (v2.1) and denser F10 starts
+produced. It adds no quality metric and narrows nothing — a pure resolution change.
+
+## §7.2 / §13.3 Adaptive-sampling MAP-Elites shipped alongside the deep grid
+
+**Spec (§13.3):** if behavioural locality is genuinely absent, "switch to
+adaptive-sampling MAP-Elites (Justesen et al., 2019) — single elite per cell; a
+challenger must beat the elite after being sampled the same number of times, and the
+elite is re-sampled whenever it survives … depends on no locality assumption at all."
+
+**v2.2:** implemented as `src/adaptive.js` (`AdaptiveArchive`) and selectable in the
+Engine via `archiveMode: 'deep' | 'adaptive'`. Single elite per cell; a bred child that
+lands in an occupied cell opens a **contest**; the scheduler owes the challenger
+re-listens until it has the elite's sample count, then compares denoised means; the
+survivor is **re-sampled**. §8.5 cooldown is **respected when scheduling re-listens** (a
+genome in the repeat window is deferred, not re-heard early). Adaptive does NOT require
+2b (run informationally at 16×16: p_same 0.234, p_near 0.564 — the deep grid would fail
+there, adaptive does not care and fills the grid regardless; race column confirms).
+
+**Why (V2-PROPOSALS fulcrum check).** "Never re-listen" was a derived engineering choice,
+not an invariant (the invariant is §2.3b — listens are scarce). The deep grid buys cheap
+implicit averaging with a locality dependency; adaptive buys locality-independence with a
+re-listen tax. **The race (work order §4) measures both; it declares NO winner** — the
+archive-mode choice and the boredom-confound weighting are the owner's.
+
+## §10.2 Autonomy gate DEMOTED from RULE to WISDOM — OWNER AMENDMENT
+
+**Spec (§10.2):** "Minimum data before first use: 2,000 attended listens"; autonomous
+operation is *disabled* below ρ < 0.20 and gated throughout on the health metric — a
+hard LOCK.
+
+**v2.2 (owner override, 2026-08-31 late — recorded here as an amendment to §10.2):** the
+autonomy gate is **demoted from RULE to WISDOM**. Both predictors ship this session, both
+are accessible from the UI, and **either can be set running at any moment**. In place of a
+lock there is plain on-screen text stating that **worthwhile results are not expected
+below creature-model ρ ≥ 0.40**, showing the **current ρ** and the **attended-listen
+count**. The gate becomes information, not a barrier.
+
+**What REMAIN hard rules (unchanged, enforced):**
+- every predictor-assigned record is labelled **PREDICTED** (`predicted: true` in the
+  §14.1 log, with `predicted_by`);
+- PREDICTED records are excluded **both** from the accuracy metrics (the predictor does
+  not grade its own homework) **and** from the predictor's training data (no training on
+  its own outputs);
+- the shadow predictions **influence nothing** — not selection, eviction, or rendering —
+  in shadow mode; autonomy is a distinct, owner-invoked mode whose PREDICTED assignations
+  are quarantined by the labelling rule above.
+- **Session-model autonomy freezes** its recent-dwell context to the last K human dwells
+  while running alone (its guesses degrade without fresh human context — the UI says so).
+
+## §10 P6 — the two shadow predictors (creature + session)
+
+**Spec (§10.2):** one ensemble of 5 MLPs (3×256) on the full 6,101-gene genome.
+
+**v2.2 (P6, sized to the delivery reality):** two **tiny hand-rolled** ensembles
+(`src/predictor.js`) trained **incrementally between listens** from IndexedDB history
+(all real sessions; never on PREDICTED or SYNTHETIC records). Tiny on purpose — a big
+model on a few hundred points would overfit and lie (§ honesty about scale, P6).
+- **CREATURE model** — five genome-derived scalars only (active-wave count, complexity,
+  modulation-edge count, feedback flag, expressed-parameter count — all in the §14.1
+  schema, so live prediction and history-training share one feature definition). Never
+  renders (§10.2). **Its ρ is the number the wisdom text keys on.**
+- **SESSION model** — creature features + hour-of-day (sin/cos) + session position +
+  **last K = 5** human dwells + listener id.
+- **UI (P6):** before each listen both models' predictions; after it, the actual dwell
+  beside them; a **rolling Spearman ρ over the last N** (N user-settable, default 40) for
+  both models **and a rolling-median naive baseline**; the **session−creature gap** as its
+  own readout. LCB fitness `mean − k·std` (§10.2), k = 1.0 when creature ρ ≥ 0.40 else 2.0.
+- **Interleaved autonomy** (owner idea): a toggle, **OFF by default**, f(ρ) conservative
+  and documented — 0 below ρ = 0.20, ramping linearly to a cap of 3 assignations per human
+  listen at ρ ≥ 0.40.
+
+**Autonomy render note (provisional choice, documented).** §10.2 says the predictor
+performs no renders and uses predicted descriptors (head B) for placement. v2.2 autonomy
+instead **renders each autonomous candidate** (cheap — ms) so it lands in its REAL
+descriptor cell, and predicts only the **dwell** (the scarce human signal, §2.3b). This
+avoids injecting a poorly-trained descriptor head into the archive while still realising
+the "no human listen" speedup. Revisitable; flagged in the report.
+
+## Appendix — v2.2 constants
+
+```
+ARCHIVE_GEOMETRY        parameter {nx,ny}; deep DEFAULT G = 8×8 (Gate 2b geometry sweep — only pass w/ margin)
+ARCHIVE_MODE            'deep' (default) | 'adaptive' (16×16); visible app setting
+ADAPTIVE (Justesen 2019) single elite/cell; contest to elite's sample count; survivor re-sampled; cooldown-respected
+PRED_K                  5      (last-K human dwells fed to the session model)
+PRED_ENSEMBLE           6      (tiny-MLP ensemble size; mean → prediction, std → LCB)
+PRED_HIDDEN             10     (hidden units per MLP)
+PRED_RHO_WINDOW         40     (default rolling-ρ window N; user-settable in the UI)
+LCB_K                   1.0 (ρ≥0.40) / 2.0 (else)   (§10.2 acquisition)
+INTERLEAVE_F(ρ)         0 below ρ=0.20 → linear → cap 3 at ρ≥0.40   (OFF by default)
+AUTONOMY_GATE           WISDOM, not lock (owner amendment to §10.2); PREDICTED labelling/exclusion remain hard rules
+```
+

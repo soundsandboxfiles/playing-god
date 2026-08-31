@@ -1,0 +1,16 @@
+── LANE A: Gate 2b geometry sweep (16×16 → 8×8) — the decision gate ──
+  parents analysed: 200/200
+  bred 40/200 parents (1600 offspring rendered, 173s)
+  bred 80/200 parents (3200 offspring rendered, 319s)
+  bred 120/200 parents (4800 offspring rendered, 456s)
+  bred 160/200 parents (6400 offspring rendered, 603s)
+  bred 200/200 parents (8000 offspring rendered, 752s)
+  axis calibration (fixed across geometries): dev [8.96e-1, 2.97e+2] harm [1.09e-3, 6.22e-2]
+  16x16 (256 cells): p_same=0.234 p_near=0.564 H_cell=0.786 → FAIL
+  12x12 (144 cells): p_same=0.284 p_near=0.665 H_cell=0.607 → FAIL
+  16x8 (128 cells): p_same=0.291 p_near=0.667 H_cell=0.615 → FAIL
+  10x10 (100 cells): p_same=0.343 p_near=0.730 H_cell=0.670 → FAIL
+  12x8 (96 cells): p_same=0.329 p_near=0.729 H_cell=0.658 → FAIL
+  8x8 (64 cells): p_same=0.379 p_near=0.807 H_cell=0.636 → PASS+margin
+  → G = 8x8 (finest geometry passing with margin ≥0.02 on both thresholds)
+  artefact: /sandbox/code/playing-god/output/gate-artefacts/gate2b-geomsweep.json (752s)

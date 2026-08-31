@@ -1,0 +1,181 @@
+{
+  "timestamp_ms": 1788204225803,
+  "session_id": "overnight-headless-2026-08-31191113",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "gate2b-geomsweep.json",
+  "lane": "A (archive geometry sweep, work order §2)",
+  "gate": "2b behavioural locality (§13.3)",
+  "threshold": "p_same ≥ 0.35 AND p_near ≥ 0.7 (mutation-only); G = finest passing with margin ≥0.02",
+  "calibration_basis": "geometry-independent [p2,p98] over parents + mutation-only offspring descriptors; harm min floored at HARM_AXIS_MIN_FLOOR",
+  "axis_calibration": {
+    "dev": {
+      "min": 0.895866808806138,
+      "max": 297.0501906277125
+    },
+    "harm": {
+      "min": 0.0010909633684984485,
+      "max": 0.06219288650356417
+    }
+  },
+  "parents_analysed": 200,
+  "config": {
+    "sample_rate": 22050,
+    "length_s": 4,
+    "n_parents": 200,
+    "n_offspring": 20,
+    "seed_parents": "0x2B60",
+    "seed_breed": "0x2B61"
+  },
+  "table": [
+    {
+      "geometry": "16x16",
+      "nx": 16,
+      "ny": 16,
+      "cells": 256,
+      "mutation_only": {
+        "p_same": 0.23375,
+        "p_near": 0.56375,
+        "H_cell": 0.785865564431329,
+        "cells_occupied": 228,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.18975,
+        "p_near": 0.484,
+        "H_cell": 0.6542893445611432,
+        "n": 4000
+      },
+      "pass": false,
+      "pass_with_margin": false
+    },
+    {
+      "geometry": "12x12",
+      "nx": 12,
+      "ny": 12,
+      "cells": 144,
+      "mutation_only": {
+        "p_same": 0.28425,
+        "p_near": 0.6655,
+        "H_cell": 0.6069523959635641,
+        "cells_occupied": 136,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.22975,
+        "p_near": 0.58475,
+        "H_cell": 0.657721818188765,
+        "n": 4000
+      },
+      "pass": false,
+      "pass_with_margin": false
+    },
+    {
+      "geometry": "16x8",
+      "nx": 16,
+      "ny": 8,
+      "cells": 128,
+      "mutation_only": {
+        "p_same": 0.29075,
+        "p_near": 0.6675,
+        "H_cell": 0.6145609689406347,
+        "cells_occupied": 124,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.23925,
+        "p_near": 0.5795,
+        "H_cell": 0.6461318664836372,
+        "n": 4000
+      },
+      "pass": false,
+      "pass_with_margin": false
+    },
+    {
+      "geometry": "10x10",
+      "nx": 10,
+      "ny": 10,
+      "cells": 100,
+      "mutation_only": {
+        "p_same": 0.343,
+        "p_near": 0.7295,
+        "H_cell": 0.6700499069931334,
+        "cells_occupied": 98,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.28425,
+        "p_near": 0.64125,
+        "H_cell": 0.8342789577603493,
+        "n": 4000
+      },
+      "pass": false,
+      "pass_with_margin": false
+    },
+    {
+      "geometry": "12x8",
+      "nx": 12,
+      "ny": 8,
+      "cells": 96,
+      "mutation_only": {
+        "p_same": 0.32925,
+        "p_near": 0.72875,
+        "H_cell": 0.6583238145679733,
+        "cells_occupied": 94,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.271,
+        "p_near": 0.64025,
+        "H_cell": 0.5831221269241242,
+        "n": 4000
+      },
+      "pass": false,
+      "pass_with_margin": false
+    },
+    {
+      "geometry": "8x8",
+      "nx": 8,
+      "ny": 8,
+      "cells": 64,
+      "mutation_only": {
+        "p_same": 0.37925,
+        "p_near": 0.80675,
+        "H_cell": 0.6358875903872571,
+        "cells_occupied": 63,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.31425,
+        "p_near": 0.71475,
+        "H_cell": 0.7995899612750798,
+        "n": 4000
+      },
+      "pass": true,
+      "pass_with_margin": true
+    }
+  ],
+  "chosen_G": "8x8",
+  "chosen_G_detail": {
+    "geometry": "8x8",
+    "nx": 8,
+    "ny": 8,
+    "cells": 64,
+    "mutation_only": {
+      "p_same": 0.37925,
+      "p_near": 0.80675,
+      "H_cell": 0.6358875903872571,
+      "cells_occupied": 63,
+      "n": 4000
+    },
+    "with_crossover": {
+      "p_same": 0.31425,
+      "p_near": 0.71475,
+      "H_cell": 0.7995899612750798,
+      "n": 4000
+    },
+    "pass": true,
+    "pass_with_margin": true
+  },
+  "basis": "finest geometry passing with margin ≥0.02 on both thresholds",
+  "elapsed_s": 752.463
+}

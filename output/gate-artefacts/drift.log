@@ -1,0 +1,5 @@
+── Drift control: SYNTHETIC null model (3× 2500 listens, picks-seeded, deep@8x8 default) ──
+  run 0 (seed 0xd8171): 199s, final cells=64, QD=179
+  run 1 (seed 0xd8172): 255s, final cells=64, QD=182
+  run 2 (seed 0xd8173): 267s, final cells=62, QD=167
+  artefact: output/gate-artefacts/drift-control.json (labelled SYNTHETIC)

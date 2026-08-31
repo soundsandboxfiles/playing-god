@@ -72,18 +72,53 @@
     <h1 class="muted">LEGIBILITY (§12.1)</h1>
     <table id="readouts"></table>
     <h1 class="muted" style="margin-top:12px">ARCHIVE</h1>
+    <div class="row" style="margin-bottom:6px; font-size:11px">
+      <label class="muted">mode&nbsp;</label>
+      <select id="archiveMode" style="background:#0e0e12;color:#d6d6dd;border:1px solid #2c2c36;border-radius:4px;font:inherit;font-size:11px">
+        <option value="deep">deep-grid @ G (default)</option>
+        <option value="adaptive">adaptive-sampling @ 16×16</option>
+      </select>
+      <span class="muted" id="modeNote"></span>
+    </div>
     <table id="archiveStats"></table>
+
+    <h1 class="muted" style="margin-top:14px">PREDICTOR (§10 · shadow — influences nothing)</h1>
+    <table id="predStats"></table>
+    <div class="row" style="font-size:11px;margin-top:4px">
+      <label class="muted">ρ window N&nbsp;</label>
+      <input id="rhoN" type="number" min="5" max="500" value="40" style="width:56px;background:#0e0e12;color:#d6d6dd;border:1px solid #2c2c36;border-radius:4px;font:inherit;font-size:11px" />
+    </div>
+
+    <h1 class="muted" style="margin-top:14px">AUTONOMY (§10.2 · owner-overridden to WISDOM)</h1>
+    <p class="muted" id="wisdom" style="font-size:11px;margin:2px 0 6px">—</p>
+    <div class="row" style="font-size:11px">
+      <label class="muted">model&nbsp;</label>
+      <select id="autoModel" style="background:#0e0e12;color:#d6d6dd;border:1px solid #2c2c36;border-radius:4px;font:inherit;font-size:11px">
+        <option value="creature">creature</option>
+        <option value="session">session</option>
+      </select>
+      &nbsp;<label class="muted">N&nbsp;</label>
+      <input id="autoN" type="number" min="1" max="5000" value="200" style="width:64px;background:#0e0e12;color:#d6d6dd;border:1px solid #2c2c36;border-radius:4px;font:inherit;font-size:11px" />
+      &nbsp;<button id="autoRun" style="background:#1a1a20;color:#d6d6dd;border:1px solid #3a3a46;border-radius:4px;font:inherit;font-size:11px;cursor:pointer">run N yourself</button>
+    </div>
+    <div class="row" style="font-size:11px;margin-top:4px">
+      <label class="muted"><input id="interleave" type="checkbox" /> interleaved (f(ρ) silent assignations between human listens — OFF by default)</label>
+    </div>
+    <p class="muted" id="autoStatus" style="font-size:11px;margin-top:4px"></p>
+
     <p class="muted" id="firewall" style="margin-top:12px; font-size:11px">
       Notes are stated preference and never enter the search (§8.6). Dwell is the only fitness signal (§8.1).
+      PREDICTED records are labelled, excluded from the accuracy metric and from training data (the predictor never grades its own homework).
     </p>
   </div>
 </div>
 
 <script type="module">
 import { RNG } from '../src/rng.js';
-import { Engine } from '../src/loop.js';
-import { WAVE_SLOTS } from '../src/genome.js';
+import { Engine, activeCount, modEdgeCount, expressedCount } from '../src/loop.js';
+import { WAVE_SLOTS, complexity } from '../src/genome.js';
 import { genomesFromSeedPicks } from '../src/seedpicks.js';
+import { DwellPredictor, RollingScore, creatureFeaturesFromScalars, sessionExtras, PRED_K } from '../src/predictor.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // IndexedDB logging (§14, docs/EXPORTING-LOGS.md). One db, one store per stream.
@@ -261,28 +296,62 @@ const favSeen = new Set(); // dedupe ids already in the store (this session + se
 let favCount = 0;
 let favMsg = ''; // transient confirmation chip, shown in the flags row then cleared
 
+// v2.2: archive mode + geometry are a VISIBLE SETTING (work order §5). The default is
+// deep@G, where G is the finest geometry that PASSED Gate 2b in the Lane A sweep
+// (shipped in gate2b-geomsweep.json → chosen_G). adaptive@16×16 is the fully-working
+// alternative (§13.3). The choice is persisted per-origin; switching restarts the
+// in-memory archive (it is rebuilt from the picks each session anyway) — the logs are
+// untouched.
+let ARCHIVE_MODE = localStorage.getItem('pg_archive_mode') || 'deep';
+let GEOM_G = { nx: 8, ny: 8 };            // default until the sweep artefact loads
+let seedGenomesCache = null;
+
+function currentGeometry() { return ARCHIVE_MODE === 'adaptive' ? { nx: 16, ny: 16 } : GEOM_G; }
+
+function buildEngine() {
+  const geom = currentGeometry();
+  engine = new Engine({
+    rng, calibration, logger, seedGenomes: seedGenomesCache && seedGenomesCache(),
+    archiveMode: ARCHIVE_MODE, geometry: geom,
+    // v2 renders at the descriptor rate (22.05 kHz) for consistency with the gates
+    // and the axis calibration; §12 permits 44.1 kHz audio with descriptor
+    // downsampling as a future refinement (noted in the overnight report).
+    renderOpts: { sampleRate: 22050, captureVisEnv: true },
+  });
+  _genomeCursor = 0;
+  const mn = document.getElementById('modeNote');
+  if (mn) mn.textContent = ARCHIVE_MODE === 'adaptive' ? `16×16 · re-evaluates (§13.3)` : `${geom.nx}×${geom.ny} = G (Gate 2b pass)`;
+}
+
 async function boot() {
   db = await openDb();
   // Try to load calibrated axis ranges shipped with the build (from Gate 2b).
   try { const r = await fetch('../output/gate-artefacts/axis-calibration.json'); if (r.ok) calibration = (await r.json()).axis_calibration; } catch {}
+  // Load the Lane A geometry sweep result to pin G (the shipping deep geometry).
+  try { const r = await fetch('../output/gate-artefacts/gate2b-geomsweep.json'); if (r.ok) { const j = await r.json(); const m = j.chosen_G && /^(\d+)x(\d+)$/.exec(j.chosen_G); if (m) GEOM_G = { nx: +m[1], ny: +m[2] }; } } catch {}
   logger = new IdbLogger();
   // F11: seed the favourites store from the host-curated file (non-clobbering).
   await seedFavourites();
   // F2: seed the archive from the owner's Gate 1a picks (seed-picks.json), each plus
   // σ=0.2 mutants to fill 32 (§5, amended). If the file is missing the engine falls
-  // back to the v1 random-seed batch, so the app still runs.
-  let seedGenomes = null;
+  // back to the v1 random-seed batch, so the app still runs. Fresh Genome objects are
+  // needed each engine build (the engine mutates them), so cache the RAW json and
+  // re-parse on demand.
+  let seedJson = null;
   try {
     const r = await fetch('../output/gate-artefacts/seed-picks.json');
-    if (r.ok) { seedGenomes = genomesFromSeedPicks(await r.json()); console.info('[playing-god] seeded from', seedGenomes.length, 'Gate 1a picks (F2)'); }
+    if (r.ok) { seedJson = await r.json(); console.info('[playing-god] seed picks loaded (F2)'); }
   } catch (e) { console.warn('[playing-god] seed-picks.json not loaded; using random seed batch', e); }
-  engine = new Engine({
-    rng, calibration, logger, seedGenomes,
-    // v2 renders at the descriptor rate (22.05 kHz) for consistency with the
-    // gates and the axis calibration; §12 permits 44.1 kHz audio with descriptor
-    // downsampling as a future refinement (noted in the overnight report).
-    renderOpts: { sampleRate: 22050, captureVisEnv: true },
-  });
+  seedGenomesCache = seedJson ? () => genomesFromSeedPicks(seedJson) : null;
+
+  // P6: the two shadow predictors + rolling scorers, warm-started from history.
+  await initPredictors();
+
+  // Reflect the persisted mode in the selector, then build the engine.
+  document.getElementById('archiveMode').value = ARCHIVE_MODE;
+  buildEngine();
+  wireControls();
+
   document.getElementById('status').textContent = '— press any key —';
   advance('space');
   requestAnimationFrame(frame);
@@ -351,9 +420,15 @@ function commitAndAdvance(action) {
       // but must not re-insert it as a second cell resident (handled in the engine).
       is_replay: !!current._isReplay,
     };
+    // P6: score the shadow predictions against the actual dwell and train on this
+    // REAL listen (guarded against replays/discards/PREDICTED inside scoreAndTrain).
+    scoreAndTrain(dwellS, outcome.discarded_short);
     engine.recordListen(current, outcome);
     // Persist the genome delta that recordListen just added (§14).
     persistNewGenomes();
+    // P6: interleaved autonomy (OFF by default) — f(ρ) silent assignations after a
+    // human listen. No-op unless the owner toggled it on.
+    maybeInterleave();
   }
   advance(action);
 }
@@ -555,17 +630,228 @@ async function seedFavourites() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// P6 — the two SHADOW PREDICTORS (§10; V2-PROPOSALS "P6"). Both are shown live and
+// influence NOTHING (not selection, eviction, or rendering) until the owner presses
+// the autonomy control — which is WISDOM-gated, not locked (owner override). All the
+// numeric machinery is in ../src/predictor.js (node-tested); this is thin wiring.
+//
+//   • CREATURE model — genome-derived features only; its ρ is the number the WISDOM
+//     text keys on (ρ ≥ 0.40 guidance).
+//   • SESSION model — creature features + hour + session position + last K human
+//     dwells + listener id.
+//
+// HARD RULES enforced here: every autonomous (PREDICTED) record is labelled and is
+// NEVER fed to observe() [training] nor to RollingScore.record() [accuracy]. Live
+// human listens are the only training/scoring data. A B-replay and a discarded
+// double-tap are excluded too (not fresh evaluations of a creature).
+// ─────────────────────────────────────────────────────────────────────────────
+let creatureModel, sessionModel, creatureScore, sessionScore;
+const humanDwellHistory = [];   // last human dwells (session-model last-K + freeze)
+let frozenDwells = null;        // session-model recent-dwell context frozen during autonomy
+let interleaveOn = false;
+let autonomyBusy = false;
+const LISTENER_IDX = 0;         // single listener ('local'); §12 defers multi-user
+
+function creatureScalars(cand) {
+  const g = cand.genome, r = cand.render;
+  return {
+    active_wave_count: activeCount(g),
+    complexity: complexity(g),
+    modulation_edge_count: modEdgeCount(g),
+    has_feedback_cycle: !!(r && r.hasFeedbackCycle),
+    expressed_parameter_count: expressedCount(g),
+  };
+}
+function creatureVec(cand) { return creatureFeaturesFromScalars(creatureScalars(cand)); }
+function sessionCtx(useFrozen) {
+  const last = useFrozen && frozenDwells ? frozenDwells : humanDwellHistory.slice(-PRED_K);
+  return { hour: new Date().getHours(), session_pos: engine ? engine.listenId : 0, last_dwells: last, listener_idx: LISTENER_IDX };
+}
+function sessionVec(cand, useFrozen) { return [...creatureVec(cand), ...sessionExtras(sessionCtx(useFrozen))]; }
+
+async function initPredictors() {
+  creatureModel = new DwellPredictor('creature');
+  sessionModel = new DwellPredictor('session');
+  creatureScore = new RollingScore(40);
+  sessionScore = new RollingScore(40);
+  // Warm-start training from IndexedDB history — ALL real sessions, NEVER on
+  // PREDICTED or SYNTHETIC records (work order hard rule). The stored §14.1 scalars
+  // are exactly the creature features, so no genome reconstruction is needed.
+  try {
+    const rows = await readAll('listens');
+    rows.sort((a, b) => (a.timestamp_ms || 0) - (b.timestamp_ms || 0));
+    const hist = [];
+    let n = 0;
+    for (const r of rows) {
+      if (r.predicted || r.run_synthetic) continue;          // never train on our own output / synthetic
+      if (r.discarded_short || r.dwell_s == null || r.dwell_s < 0.35) continue;
+      const cvec = creatureFeaturesFromScalars(r);
+      const hour = r.timestamp_ms ? new Date(r.timestamp_ms).getHours() : 0;
+      const ctx = { hour, session_pos: r.listen_id || n, last_dwells: hist.slice(-PRED_K), listener_idx: 0 };
+      const svec = [...cvec, ...sessionExtras(ctx)];
+      creatureModel.observe(cvec, r.dwell_s);
+      sessionModel.observe(svec, r.dwell_s);
+      hist.push(r.dwell_s); n++;
+    }
+    if (n) console.info('[playing-god] predictors warm-started on', n, 'real historical listens');
+  } catch (e) { console.warn('[playing-god] predictor warm-start skipped', e); }
+}
+
+// Predict for the current candidate (called when it is first shown). Stores the
+// prediction + the feature vectors on the candidate so scoring/training reuse them.
+function predictCurrent() {
+  if (!current || !creatureModel) return;
+  const L = current.L_at_listen;
+  const cvec = creatureVec(current);
+  const svec = sessionVec(current, false);
+  current._cvec = cvec; current._svec = svec;
+  current._pred = {
+    creature: creatureModel.predict(cvec, L),
+    session: sessionModel.predict(svec, L),
+  };
+}
+
+// Score + train on a REAL human listen (called at commit). `dwellS` is the measured
+// dwell. Excludes replays, discards, and (by construction) PREDICTED records.
+function scoreAndTrain(dwellS, discarded) {
+  if (!current || !current._pred || current._isReplay || current._predicted || discarded) return;
+  creatureScore.record(current._pred.creature.dwell, dwellS);
+  sessionScore.record(current._pred.session.dwell, dwellS);
+  creatureModel.observe(current._cvec, dwellS);
+  sessionModel.observe(current._svec, dwellS);
+  humanDwellHistory.push(dwellS);
+  refreshPredictorUI();
+}
+
+// LCB coefficient (§10.2): distrust the ensemble more when the health metric is low.
+function lcbK() { const m = creatureScore.model(); return (m.rho != null && m.rho >= 0.40) ? 1.0 : 2.0; }
+
+// ── autonomy (§10.2, owner-overridden to WISDOM) ──────────────────────────────
+// "run N yourself": breed N candidates from the archive and assign each a PREDICTED
+// dwell (the chosen model's LCB fitness). Each candidate is RENDERED so it lands in
+// its REAL descriptor cell — no descriptor lie is injected into the archive — but the
+// scarce DWELL signal is predicted, which is the whole speedup (§2.3b: listens are
+// scarce, renders are cheap). Every record is labelled PREDICTED (excluded from
+// metrics + training). Session-model autonomy FREEZES its recent-dwell context to the
+// last K human dwells (its guesses degrade without fresh human context — the UI says
+// so). Runs in chunks so the page stays responsive.
+async function runAutonomy(nTotal, modelName) {
+  if (autonomyBusy || !engine) return;
+  autonomyBusy = true;
+  frozenDwells = humanDwellHistory.slice(-PRED_K); // freeze session context (owner note)
+  const k = lcbK();
+  const statusEl = document.getElementById('autoStatus');
+  let done = 0;
+  const CHUNK = 25;
+  const step = () => {
+    const end = Math.min(nTotal, done + CHUNK);
+    for (; done < end; done++) {
+      const cand = engine.nextCandidate();
+      const L = cand.L_at_listen;
+      const pred = modelName === 'session'
+        ? sessionModel.predict([...creatureVec(cand), ...sessionExtras({ ...sessionCtx(true) })], L, k)
+        : creatureModel.predict(creatureVec(cand), L, k);
+      const dwell = pred.lcb; // LCB acquisition (§10.2)
+      cand._predicted = true;
+      engine.recordListen(cand, {
+        dwell_s: dwell, completed: dwell >= L * 0.999, listener_id: LISTENER_ID,
+        predicted: true, predicted_by: modelName,
+      });
+      persistNewGenomes();
+    }
+    statusEl.textContent = `autonomy (${modelName}, LCB k=${k}): ${done}/${nTotal} PREDICTED assignations…`;
+    refreshDisplay();
+    if (done < nTotal) { setTimeout(step, 0); }
+    else {
+      statusEl.textContent = `autonomy done: ${nTotal} PREDICTED records (labelled; excluded from ρ + training). Frozen session context released.`;
+      frozenDwells = null; autonomyBusy = false;
+    }
+  };
+  step();
+}
+
+// Interleaved autonomy (owner idea, OFF by default): between human listens do f(ρ)
+// silent PREDICTED assignations. f is CONSERVATIVE and documented: 0 below ρ=0.20,
+// ramping linearly to a cap of 3 at ρ≥0.40 — autonomy that scales with demonstrated
+// accuracy and never runs when the model is unproven. Gated on the CREATURE ρ (the
+// number the spec's health metric keys on).
+function interleavedF(rho) {
+  if (rho == null || rho < 0.20) return 0;
+  const t = Math.min(1, (rho - 0.20) / 0.20);
+  return Math.round(t * 3);
+}
+function maybeInterleave() {
+  if (!interleaveOn || autonomyBusy) return;
+  const rho = creatureScore.model().rho;
+  const f = interleavedF(rho);
+  if (f > 0) runAutonomy(f, document.getElementById('autoModel').value);
+}
+
+function wireControls() {
+  const modeSel = document.getElementById('archiveMode');
+  modeSel.onchange = () => {
+    const v = modeSel.value === 'adaptive' ? 'adaptive' : 'deep';
+    if (v === ARCHIVE_MODE) return;
+    ARCHIVE_MODE = v; localStorage.setItem('pg_archive_mode', v);
+    // Switching restarts the in-memory archive (rebuilt from the picks); logs persist.
+    stopAudio(); lineageStack = []; buildEngine();
+    document.getElementById('autoStatus').textContent = `archive mode → ${v}. Archive restarted from the seed picks (logs kept).`;
+    advance('space');
+  };
+  const rhoN = document.getElementById('rhoN');
+  rhoN.onchange = () => { const n = parseInt(rhoN.value, 10) || 40; creatureScore.setWindow(n); sessionScore.setWindow(n); refreshPredictorUI(); };
+  document.getElementById('autoRun').onclick = () => {
+    const n = Math.max(1, parseInt(document.getElementById('autoN').value, 10) || 0);
+    runAutonomy(n, document.getElementById('autoModel').value);
+  };
+  const il = document.getElementById('interleave');
+  il.onchange = () => { interleaveOn = il.checked; document.getElementById('autoStatus').textContent = interleaveOn ? 'interleaved autonomy ON (f(ρ) silent assignations between human listens)' : 'interleaved autonomy OFF'; };
+}
+
+function refreshPredictorUI() {
+  const el = document.getElementById('predStats');
+  if (!el || !creatureScore) return;
+  const cm = creatureScore.model(), cs = sessionScore.model(), cb = creatureScore.baseline();
+  const fmt = (x) => (x == null ? '—' : x.toFixed(2));
+  const pc = current && current._pred ? current._pred.creature.dwell.toFixed(1) : '—';
+  const ps = current && current._pred ? current._pred.session.dwell.toFixed(1) : '—';
+  const gap = (cm.rho != null && cs.rho != null) ? (cs.rho - cm.rho).toFixed(2) : '—';
+  const rows = [
+    ['predicted (creat/sess)', `${pc} / ${ps} s`],
+    ['ρ creature', `${fmt(cm.rho)}  (n=${cm.n})`],
+    ['ρ session', `${fmt(cs.rho)}`],
+    ['ρ naive baseline', `${fmt(cb.rho)}`],
+    ['session−creature gap', gap],
+    ['MAE creat/sess/base', `${fmt(cm.mae)} / ${fmt(cs.mae)} / ${fmt(cb.mae)} s`],
+    ['trained on (real)', `${creatureModel ? creatureModel.n_observations : 0}`],
+  ];
+  el.innerHTML = rows.map(([k, v]) => `<tr><td class="k">${k}</td><td>${v}</td></tr>`).join('');
+  // WISDOM text (owner override): worthwhile results not expected below ρ ≥ 0.40.
+  const w = document.getElementById('wisdom');
+  if (w) {
+    const rho = cm.rho, attended = creatureModel ? creatureModel.n_observations : 0;
+    const ok = rho != null && rho >= 0.40;
+    w.innerHTML = `Worthwhile results are <b>not expected below creature-model ρ ≥ 0.40</b>. ` +
+      `Current ρ = <b style="color:${ok ? '#6a6' : '#c96'}">${fmt(rho)}</b> · attended listens = <b>${attended}</b> (spec's soft target 2000). ` +
+      `The gate is information, not a lock — either predictor may be run at any moment.`;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Legibility display (§12.1) — the primary debugging surface, present from the
 // first build. One lane per active wave with its gate pattern, plus readouts.
 // ─────────────────────────────────────────────────────────────────────────────
 const legEl = document.getElementById('legibility');
 function refreshDisplay() {
   if (!current) return;
+  predictCurrent(); // P6: refresh the shadow predictions for the shown candidate
   const g = current.genome, r = current.render;
   const meta = document.getElementById('listenmeta');
   meta.textContent = `#${current.listen_id} · ${g.id} · cell (${current.cell.cell_x},${current.cell.cell_y}) · ${r.activeWaves} wave(s)`;
   const flags = document.getElementById('flags');
   flags.innerHTML = '';
+  // §13.3 adaptive re-listen: this candidate is a re-evaluation of an existing genome.
+  if (current.relisten) flags.innerHTML += `<span class="flag">re-listen · adaptive re-eval (${current.relisten.kind})</span>`;
   if (r.hasFeedbackCycle) flags.innerHTML += '<span class="flag">feedback</span>';
   // P5: a clear near-silent label that also states the auto-advance is happening.
   if (r.loudness && r.loudness.near_silent) flags.innerHTML += `<span class="flag">near-silent · auto-advancing ${AUTO_ADVANCE_S}s</span>`;
@@ -584,7 +870,17 @@ function refreshDisplay() {
   ro.innerHTML = rows.map(([k, v]) => `<tr><td class="k">${k}</td><td>${v}</td></tr>`).join('');
   const as = document.getElementById('archiveStats');
   const occ = engine.archive.occupiedCount();
-  as.innerHTML = `<tr><td class="k">cells occupied</td><td>${occ} / 256</td></tr><tr><td class="k">D_med</td><td>${engine.archive.dMed.toFixed(3)}</td></tr>`;
+  const total = engine.archive.gridX * engine.archive.gridY;
+  let arows = `<tr><td class="k">mode</td><td>${ARCHIVE_MODE} @ ${engine.archive.gridX}×${engine.archive.gridY}</td></tr>` +
+    `<tr><td class="k">cells occupied</td><td>${occ} / ${total}</td></tr>` +
+    `<tr><td class="k">D_med</td><td>${engine.archive.dMed.toFixed(3)}</td></tr>`;
+  if (ARCHIVE_MODE === 'adaptive') {
+    const snap = engine.archive.snapshot(engine.listenId);
+    arows += `<tr><td class="k">re-listen tax</td><td>${(snap.relisten_tax != null ? snap.relisten_tax : 0).toFixed(3)}</td></tr>` +
+      `<tr><td class="k">mean elite samples</td><td>${(snap.mean_elite_samples || 0).toFixed(2)}</td></tr>`;
+  }
+  as.innerHTML = arows;
+  refreshPredictorUI(); // P6
   drawLegibility();
 }
 function drawLegibility() {

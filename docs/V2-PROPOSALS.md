@@ -316,3 +316,76 @@ inaudible span exceeds **0.25 s**; playback then starts at the first audible
 moment. Openings quieter than 0.25 s of silence are left alone (the breath
 before an entrance survives). No genome change — presentation only. The
 mandated non-purist comment stays and should quote this refinement.
+
+---
+
+## The fulcrum check and the two-lane resolution (owner + Cowork, 2026-08-31 late)
+
+Owner asked whether the Gate 2b response was balancing a planet on an
+unexamined pebble — specifically whether "never listen twice" is an invariant.
+Resolution: it is NOT an invariant; the invariant is §2.3b (listens are the
+scarce resource). "Never re-listen" is a derived engineering choice, and
+§13.3's adaptive-sampling row is the design with that choice relaxed. The
+owner's boredom observation is recorded as the strongest argument FOR the
+deep grid (kin-averaging = repeated measurement WITHOUT repetition; adaptive
+sampling's re-listens carry the familiarity confound). Decision by
+measurement, not argument: the v2.2 run implements BOTH — deep grid at the
+finest 2b-passing geometry, and adaptive-sampling MAP-Elites at 16×16 — and
+races them under synthetic noisy dwell for listens-to-fill, listens-to-
+stabilise, niches preserved, and re-listen tax. Owner chooses on the numbers;
+the boredom weighting stays a human judgement. The app ships with archive
+mode + geometry as a setting so the choice is a flip, not a rebuild.
+
+## P6 — Shadow predictor with public accuracy (owner proposal, 2026-08-31)
+
+Spec §10 gates the Predictor's USE on 2,000 attended listens and Spearman
+ρ ≥ 0.40. Nothing gates WATCHING it fail in public. P6 ships it in shadow
+mode from day one: it predicts every dwell before the listen, the actual
+dwell lands next to it, and its rolling accuracy (over the last N listens,
+N user-settable) is on the main UI. Influence on the search: none, until the
+spec's own gate unlocks it.
+
+**Two models, split by the owner's own catch.** The owner spotted that a
+predictor leaning on "the last 10 dwell values" is good at next-dwell
+prediction and bad at its actual job (evaluating creatures without session
+context, which is what autonomy needs). So: a CREATURE model (genome-derived
+features only, never renders — §10.2's second-head trick applies) whose
+accuracy is the ONLY number that gates autonomy; and a SESSION model
+(creature features + time of day, session length, last K dwells, listener id)
+for the UI's live prediction and as a diagnostic. The gap between their
+accuracies measures how much of dwell is context rather than creature — a
+finding in its own right. Both displayed beside a naive baseline (rolling
+median) so "accuracy" means skill, not flattery.
+
+**Autonomy controls.** A number field + button ("do N assignations by
+yourself") wired to the spec's Gate 4 conditions — visible always, unlocked
+only at ≥2,000 attended listens AND creature-model ρ ≥ 0.40; until then it
+shows progress toward unlock. Every predictor-assigned record is labelled
+PREDICTED (the SYNTHETIC rule's sibling): excluded from the accuracy metric
+(it does not grade its own homework — owner's phrasing: "it'll always be
+right!") and excluded from the predictor's own training data (no training on
+its own outputs). LCB fitness per §10.2 when live.
+
+**Interleaved autonomy (owner idea, logged for the vault too):** instead of
+10,000-block autonomous runs, between each human listen the predictor does
+f(current ρ) silent assignations — autonomy that scales continuously with
+demonstrated accuracy and stays permanently on the re-grounding leash. A
+candidate replacement for §10.2's checkpoint blocks. Implement behind the
+same Gate 4 lock, off by default, f conservative and documented.
+
+**Honesty about data scale:** at a few hundred listens the creature model's
+ρ will be poor. That is the point of showing it — calibrated trust, built in
+public, on the spec's own health metric.
+
+**Owner override (2026-08-31, late): the §10.2 autonomy gate is demoted from
+RULE to WISDOM.** Both predictors ship this session, both accessible from the
+UI, and either can be set running at any moment. The on-screen text near the
+autonomy controls must state plainly that worthwhile results are not expected
+below creature-model ρ ≥ 0.40, showing current ρ and attended-listen count —
+the gate becomes information, not a lock. What REMAIN hard rules: PREDICTED
+labelling on every autonomous record, exclusion of PREDICTED records from the
+accuracy metric and from predictor training data, and the shadow predictions
+influencing nothing. Session-model autonomy note: its recent-dwell context
+freezes to the last K human dwells while running alone (its guesses degrade
+without fresh human context — the UI should say so). Recorded in SPEC-DELTA
+as an owner amendment to §10.2.
