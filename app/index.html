@@ -53,6 +53,9 @@
   table { width: 100%; border-collapse: collapse; }
   td { padding: 1px 4px; } td.k { color: #7d7d88; }
   .flag { display: inline-block; padding: 0 6px; border-radius: 4px; background: #24242c; margin-right: 4px; font-size: 11px; }
+.ii{display:inline-block;width:14px;height:14px;line-height:13px;text-align:center;border:1px solid #3a3a46;border-radius:50%;font-size:10px;font-style:italic;color:#8a8a96;cursor:help;position:relative;vertical-align:middle;margin-left:6px}
+.ii .iitip{display:none;position:absolute;left:18px;top:-6px;z-index:40;width:340px;background:#141419;border:1px solid #2c2c36;border-radius:6px;padding:8px 10px;font-size:11px;color:#b9b9c4;text-align:left;font-style:normal;line-height:1.45}
+.ii:hover .iitip{display:block}
 </style>
 </head>
 <body>
@@ -89,8 +92,7 @@
       <input id="rhoN" type="number" min="5" max="500" value="40" style="width:56px;background:#0e0e12;color:#d6d6dd;border:1px solid #2c2c36;border-radius:4px;font:inherit;font-size:11px" />
     </div>
 
-    <h1 class="muted" style="margin-top:14px">AUTONOMY (§10.2 · owner-overridden to WISDOM)</h1>
-    <p class="muted" id="wisdom" style="font-size:11px;margin:2px 0 6px">—</p>
+    <h1 class="muted" style="margin-top:14px">AUTONOMY (§10.2 · owner-overridden to WISDOM)<span class="ii">i<span class="iitip" id="wisdom">—</span></span></h1>
     <div class="row" style="font-size:11px">
       <label class="muted">model&nbsp;</label>
       <select id="autoModel" style="background:#0e0e12;color:#d6d6dd;border:1px solid #2c2c36;border-radius:4px;font:inherit;font-size:11px">
@@ -102,14 +104,20 @@
       &nbsp;<button id="autoRun" style="background:#1a1a20;color:#d6d6dd;border:1px solid #3a3a46;border-radius:4px;font:inherit;font-size:11px;cursor:pointer">run N yourself</button>
     </div>
     <div class="row" style="font-size:11px;margin-top:4px">
-      <label class="muted"><input id="interleave" type="checkbox" /> interleaved (f(ρ) silent assignations between human listens — OFF by default)</label>
+      <label class="muted"><input id="interleave" type="checkbox" /> interleaved autonomy</label>
+      &nbsp;<select id="ilMode" style="background:#0e0e12;color:#d6d6dd;border:1px solid #2c2c36;border-radius:4px;font:inherit;font-size:11px">
+        <option value="frho">f(ρ) × tuning</option>
+        <option value="abs">absolute</option>
+      </select>
+      &nbsp;<input id="ilVal" type="number" min="0" max="50" step="0.5" value="3" style="width:52px;background:#0e0e12;color:#d6d6dd;border:1px solid #2c2c36;border-radius:4px;font:inherit;font-size:11px" />
+      &nbsp;<span class="muted" id="ilNow" style="font-size:11px"></span>
     </div>
     <p class="muted" id="autoStatus" style="font-size:11px;margin-top:4px"></p>
 
-    <p class="muted" id="firewall" style="margin-top:12px; font-size:11px">
+    <p class="muted" style="margin-top:12px; font-size:11px">the rules<span class="ii">i<span class="iitip" id="firewall">
       Notes are stated preference and never enter the search (§8.6). Dwell is the only fitness signal (§8.1).
       PREDICTED records are labelled, excluded from the accuracy metric and from training data (the predictor never grades its own homework).
-    </p>
+    </span></span></p>
   </div>
 </div>
 
@@ -326,9 +334,9 @@ function buildEngine() {
 async function boot() {
   db = await openDb();
   // Try to load calibrated axis ranges shipped with the build (from Gate 2b).
-  try { const r = await fetch('../output/gate-artefacts/axis-calibration.json'); if (r.ok) calibration = (await r.json()).axis_calibration; } catch {}
+  try { const r = await fetch('../output/gate-artefacts/axis-calibration.json', { cache: 'no-store' }); if (r.ok) calibration = (await r.json()).axis_calibration; } catch {}
   // Load the Lane A geometry sweep result to pin G (the shipping deep geometry).
-  try { const r = await fetch('../output/gate-artefacts/gate2b-geomsweep.json'); if (r.ok) { const j = await r.json(); const m = j.chosen_G && /^(\d+)x(\d+)$/.exec(j.chosen_G); if (m) GEOM_G = { nx: +m[1], ny: +m[2] }; } } catch {}
+  try { const r = await fetch('../output/gate-artefacts/gate2b-geomsweep.json', { cache: 'no-store' }); if (r.ok) { const j = await r.json(); const m = j.chosen_G && /^(\d+)x(\d+)$/.exec(j.chosen_G); if (m) GEOM_G = { nx: +m[1], ny: +m[2] }; } } catch {}
   logger = new IdbLogger();
   // F11: seed the favourites store from the host-curated file (non-clobbering).
   await seedFavourites();
@@ -339,10 +347,19 @@ async function boot() {
   // re-parse on demand.
   let seedJson = null;
   try {
-    const r = await fetch('../output/gate-artefacts/seed-picks.json');
+    const r = await fetch('../output/gate-artefacts/seed-picks.json', { cache: 'no-store' });
     if (r.ok) { seedJson = await r.json(); console.info('[playing-god] seed picks loaded (F2)'); }
   } catch (e) { console.warn('[playing-god] seed-picks.json not loaded; using random seed batch', e); }
   seedGenomesCache = seedJson ? () => genomesFromSeedPicks(seedJson) : null;
+  // Owner-visible confirmation of WHICH herd seeded (stale-cache incidents, 2026-08-31):
+  if (seedJson) {
+    try {
+      const gs = genomesFromSeedPicks(seedJson);
+      let mx = 0;
+      for (const g of gs) { let a = 0; for (let w = 0; w < 64; w++) if (g.getWave(w, 'active') >= 0.5) a++; if (a > mx) mx = a; }
+      setTimeout(() => { const s = document.getElementById('autoStatus'); if (s && !s.textContent) s.textContent = `herd seeded from ${gs.length} favourite parents (max ${mx} active waves)`; }, 0);
+    } catch {}
+  }
 
   // P6: the two shadow predictors + rolling scorers, warm-started from history.
   await initPredictors();
@@ -652,6 +669,7 @@ let creatureModel, sessionModel, creatureScore, sessionScore;
 const humanDwellHistory = [];   // last human dwells (session-model last-K + freeze)
 let frozenDwells = null;        // session-model recent-dwell context frozen during autonomy
 let interleaveOn = false;
+let ilMode = 'frho';            // 'frho' (f(rho) x tuning) | 'abs' (fixed per listen)
 let autonomyBusy = false;
 const LISTENER_IDX = 0;         // single listener ('local'); §12 defers multi-user
 
@@ -773,20 +791,33 @@ async function runAutonomy(nTotal, modelName) {
   step();
 }
 
-// Interleaved autonomy (owner idea, OFF by default): between human listens do f(ρ)
-// silent PREDICTED assignations. f is CONSERVATIVE and documented: 0 below ρ=0.20,
-// ramping linearly to a cap of 3 at ρ≥0.40 — autonomy that scales with demonstrated
-// accuracy and never runs when the model is unproven. Gated on the CREATURE ρ (the
-// number the spec's health metric keys on).
-function interleavedF(rho) {
+// Interleaved autonomy (owner idea, OFF by default): between human listens do some
+// silent PREDICTED assignations. Two modes (owner request 2026-08-31):
+//   f(ρ) × tuning — a ramp on demonstrated accuracy (0 below ρ=0.20, full at
+//     ρ≥0.40) multiplied by an owner-set tuning value: tuning 0 means always 0,
+//     and at a proven ρ the count is exactly the tuning value.
+//   absolute — a fixed owner-set count per human listen, ρ ignored (the §10.2
+//     gate is WISDOM not RULE, per the owner amendment; the wisdom text stands).
+// Gated on the CREATURE ρ in f(ρ) mode (the spec's health-metric number).
+function interleaveCount() {
+  const v = Math.max(0, parseFloat(document.getElementById('ilVal').value) || 0);
+  if (ilMode === 'abs') return Math.round(v);
+  const rho = creatureScore.model().rho;
   if (rho == null || rho < 0.20) return 0;
-  const t = Math.min(1, (rho - 0.20) / 0.20);
-  return Math.round(t * 3);
+  const ramp = Math.min(1, (rho - 0.20) / 0.20);
+  return Math.round(ramp * v);
+}
+function refreshIlNow() {
+  const el = document.getElementById('ilNow');
+  if (!el) return;
+  el.textContent = interleaveOn
+    ? `→ currently ${interleaveCount()} per listen`
+    : `(off — would do ${interleaveCount()} per listen)`;
 }
 function maybeInterleave() {
+  refreshIlNow();
   if (!interleaveOn || autonomyBusy) return;
-  const rho = creatureScore.model().rho;
-  const f = interleavedF(rho);
+  const f = interleaveCount();
   if (f > 0) runAutonomy(f, document.getElementById('autoModel').value);
 }
 
@@ -808,7 +839,9 @@ function wireControls() {
     runAutonomy(n, document.getElementById('autoModel').value);
   };
   const il = document.getElementById('interleave');
-  il.onchange = () => { interleaveOn = il.checked; document.getElementById('autoStatus').textContent = interleaveOn ? 'interleaved autonomy ON (f(ρ) silent assignations between human listens)' : 'interleaved autonomy OFF'; };
+  il.onchange = () => { interleaveOn = il.checked; document.getElementById('autoStatus').textContent = interleaveOn ? 'interleaved autonomy ON' : 'interleaved autonomy OFF'; refreshIlNow(); };
+  document.getElementById('ilMode').onchange = (e) => { ilMode = e.target.value; refreshIlNow(); };
+  document.getElementById('ilVal').onchange = refreshIlNow;
 }
 
 function refreshPredictorUI() {
@@ -829,6 +862,7 @@ function refreshPredictorUI() {
     ['trained on (real)', `${creatureModel ? creatureModel.n_observations : 0}`],
   ];
   el.innerHTML = rows.map(([k, v]) => `<tr><td class="k">${k}</td><td>${v}</td></tr>`).join('');
+  refreshIlNow();
   // WISDOM text (owner override): worthwhile results not expected below ρ ≥ 0.40.
   const w = document.getElementById('wisdom');
   if (w) {
