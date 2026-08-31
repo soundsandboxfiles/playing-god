@@ -15,22 +15,35 @@ import {
   GLOBAL_SCHEMA, GLOBAL_INDEX, mapValue, inverseMap, reflect01, SWITCH_NAMES,
 } from './genome.js';
 import { distance } from './distance.js';
+import { P_RATIO_JUMP_INIT } from './priors.js';
 
 const GLOBAL_BASE = WAVE_SLOTS * GENES_PER_WAVE;
 
-// Self-adaptive ES constants (§6.2, Appendix). Computed for n≈6101; the ±1 from
-// the genome-count discrepancy changes them past the 4th decimal only.
-const TAU_GLOBAL = 0.0091;  // τ' = 1/√(2n), shared across all step-size genes
-const TAU_LOCAL = 0.0800;   // τ  = 1/√(2√n), individual to each step-size gene
+// Self-adaptive ES constants (§6.2, Appendix). Recomputed for n = 6167 (P1 added
+// two genes); τ'=1/√(2n), τ=1/√(2√n). The change from v1's n≈6101 is past the 4th
+// decimal, so behaviour is unchanged; updated for correctness.
+const TAU_GLOBAL = 0.0090;  // τ' = 1/√(2·6167)
+const TAU_LOCAL = 0.0798;   // τ  = 1/√(2·√6167)
 const SIGMA_FLOOR = 0.002;  // Appendix SIGMA_FLOOR
 const SIGMA_CEIL = 0.5;     // Appendix SIGMA_CEIL
 
 const P_REROUTE = 0.02;         // §6.2b
 const REROUTE_DEPTH_SCALE = 0.05; // §4.3 / §6.2b
 const P_NODE_COUNT = 0.03;      // §6.2b
-const P_SWITCH_FLIP_BASE = 0.004; // §6.2b / Appendix
+// §6.2b / Appendix base switch-flip rate. RECALIBRATED for v2 (see the v2 report
+// and SPEC-DELTA-V2). v1 used 0.004, which under this prior (no switch class reaches
+// J=0.25, so every class stays at the base) gave ~3 flips per reproduction against
+// §13.2's target of ~1.0 (OVERNIGHT §8). The value below is set from the Gate 2a
+// J table so that 64 · base · Σ_classes min(1, 0.25/J) ≈ 1.0 at p_switch_flip_scale=1.
+export const P_SWITCH_FLIP_BASE = 0.00134;
 const DUP_SIGMA_MULT = 3.0;     // §6.3 / Appendix
 const DUP_ARRIVAL_ATTEN = 0.05; // §6.3 / Appendix
+
+// P2 (V2-PROPOSALS): probability per reproduction that a whole FUNCTIONAL BLOCK is
+// copied at a ratio from one active wave to another. PROVISIONAL, mirroring
+// p_duplicate's 0.08 (a comparable structural operator). Recorded in the v2 report;
+// could become an evolvable gene later like p_duplicate.
+const P_COPY_RATIO_BLOCK = 0.08;
 
 // ── precomputed schema index lists (built once) ──────────────────────────────
 const WAVE_CONT = [];   // continuous, non-sigma per-wave gene indices
@@ -60,6 +73,134 @@ GLOBAL_SCHEMA.forEach((d, i) => {
   else if (d.kind === 'int') GLOBAL_INT.push(i);
 });
 const SIGMA_GLOBAL_I = GLOBAL_INDEX['sigma_global'];
+const P_RATIO_WAVE_I = WAVE_INDEX['p_ratio_jump_wave'];
+const P_RATIO_SCALE_I = GLOBAL_INDEX['p_ratio_jump_scale'];
+
+// ── P1: ratio-jump mixture (§6.2 extended) ───────────────────────────────────
+// A pitch- or time-domain gene, when mutated, takes a STRUCTURED RATIO JUMP onto a
+// simple fraction with probability p_ratio_jump, else the v1 ES Gaussian step. The
+// Gaussian is RETAINED EVERYWHERE ("plus or minus some — nothing's perfect", P1):
+// jumps land a wave near a ratio relation in one step; the Gaussian supplies the
+// imperfection (detune, beating, drift) where much of what sounds alive lives.
+//
+// The ratio set is the §5 initialisation set, reused for consistency (P1: "changing
+// it is a listening-session decision, not a code decision"), P ∝ 1/r, applied in a
+// randomly chosen direction (up/down) so both regular and top-heavy fractions arise.
+// This is a designed PRIOR on which moves are cheap — it truncates nothing (the
+// Gaussian path reaches every value; §2.1) and is itself evolvable via
+// p_ratio_jump_wave/_scale, which is the complete answer to the §2.2 worry (P1).
+const RATIO_SET = [1, 2, 3, 4, 5, 6, 7, 8, 1 / 2, 1 / 3, 1 / 4, 3 / 2, 5 / 4, 5 / 3]; // §5
+const RATIO_WEIGHTS = RATIO_SET.map((r) => 1 / r);                                    // P ∝ 1/r
+
+// Per gene: how a ratio jump acts (P1 scope — every pitch- and time-domain gene):
+//   'cents'   — pitch, cents-valued: add ±1200·log2(r) cents  (a fifth up is +702c)
+//   'logmul'  — log-encoded period/tempo: multiply the value by r (or 1/r)
+//   'propmul' — proportion (duty, envelope node times): multiply the proportion by r
+//               (a subdivision move, P1). Amplitude/gain genes are NOT listed → never
+//               ratio-jumped (they are not periods, P1).
+function classifyRatio(name) {
+  if (name === 'pitch_master' || name === 'fundamental_cents') return 'cents';
+  if (/^pitch_node\d+_level$/.test(name)) return 'cents';        // pitch offsets, in cents
+  if (name === 'period' || name === 'pre_prop' || name === 'tempo_bpm') return 'logmul';
+  if (name === 'duty') return 'propmul';
+  if (/^(amp|pitch)_node\d+_time$/.test(name)) return 'propmul'; // envelope subdivisions
+  return null;
+}
+// Precompute wave-gene-index → mode and global-gene-index → mode.
+const WAVE_RATIO_MODE = new Map();
+WAVE_SCHEMA.forEach((d, i) => { const m = classifyRatio(d.name); if (m) WAVE_RATIO_MODE.set(i, m); });
+const GLOBAL_RATIO_MODE = new Map();
+GLOBAL_SCHEMA.forEach((d, i) => { const m = classifyRatio(d.name); if (m) GLOBAL_RATIO_MODE.set(i, m); });
+
+function clamp01(x) { return x < 0 ? 0 : x > 1 ? 1 : x; }
+
+// Apply one ratio jump to the stored value at `storedIdx` for gene descriptor `d`
+// in mode `mode`. Computed in STORED space and reflected at the bounds (§3), so a
+// jump past the declared range folds back rather than piling on the boundary —
+// nothing is snapped or truncated (§2.1).
+function ratioJump(data, storedIdx, d, mode, rng) {
+  const r = RATIO_SET[rng.weightedIndex(RATIO_WEIGHTS)];
+  const up = rng.bool(0.5); // both directions (P1)
+  const { lo, hi } = d.map;
+  if (mode === 'cents') {
+    // pitch cents: +1200·log2(r) added in value space → Δstored = that / (hi−lo).
+    const dCents = (up ? 1 : -1) * 1200 * Math.log2(r);
+    data[storedIdx] = reflect01(data[storedIdx] + dCents / (hi - lo));
+  } else if (mode === 'logmul') {
+    // log gene: value×r ⟺ stored += log(r)/log(hi/lo).
+    const dStored = (up ? 1 : -1) * Math.log(r) / Math.log(hi / lo);
+    data[storedIdx] = reflect01(data[storedIdx] + dStored);
+  } else {
+    // propmul: proportion in [0,1] (lo=0,hi=1), value×r ⟺ stored×r (subdivision).
+    const f = up ? r : 1 / r;
+    data[storedIdx] = reflect01(data[storedIdx] * f);
+  }
+}
+
+// ── P2: copy-at-ratio of whole functional blocks (§6.3 sibling operator) ──────
+// Copies a FUNCTIONAL BLOCK from one active wave to another active wave within the
+// same genome, with the block's period/pitch offset by a simple ratio. Finer-
+// grained than duplication (§6.3): the target keeps its OWN shape, gains, amplitude
+// envelope and modulation — it ADOPTS A RELATION rather than becoming a clone. This
+// is the "regularity and rhyming" the vault records Jon is drawn to, obtained by
+// operator rather than by construction. Two block kinds (P2):
+//   • pitch block  — pitch_master + the ENTIRE pitch envelope. Copy-at-ratio yields
+//     an octave double, a fifth, a harmonic stack in one step. Copied verbatim, then
+//     the target's master is offset by ±1200·log2(r) cents (the pitch-env node
+//     levels are cent OFFSETS, so the contour transposes with the master).
+//   • timing block — period, duty, pre_prop, mid_wait_on. Copy-at-ratio scales the
+//     copied PERIOD by r, yielding e.g. 3:4 against an existing pulse — polyrhythm in
+//     one step. duty/pre_prop/mid_wait_on copied verbatim (same character, scaled).
+// r is drawn from the §5 ratio set (P ∝ 1/r) INCLUDING 1/1 for unison (a doubling),
+// in a random direction. No soft-arrival attenuation is needed (unlike §6.3): the
+// target keeps its own gains, so nothing arrives at full strength on top of a voice.
+// Invariant-clean (§2.1): a designed bias on which relations are one step away; it
+// truncates nothing (mutation still reaches every value; the whole space stays
+// reachable via other operators). Requires ≥2 active waves — an operator precondition
+// like duplication needing an active source, not a truncation (the muted-target region
+// remains reachable via unmute + P1 ratio jump).
+const PITCH_BLOCK_INDICES = (() => {
+  const names = ['pitch_env_on', 'pitch_env_n_nodes', 'pitch_master'];
+  for (let k = 0; k < 8; k++) for (const f of ['level', 'time', 'curve', 'tension']) names.push(`pitch_node${k}_${f}`);
+  return names.map((n) => WAVE_INDEX[n]);
+})();
+const TIMING_BLOCK_INDICES = ['period', 'duty', 'pre_prop', 'mid_wait_on'].map((n) => WAVE_INDEX[n]);
+const PITCH_MASTER_I = WAVE_INDEX['pitch_master'];
+const PERIOD_I = WAVE_INDEX['period'];
+
+export function copyAtRatioBlock(gn, rng) {
+  const none = { copy_ratio_fired: false, copy_ratio_kind: null, copy_ratio_r: null, copy_ratio_up: null, copy_ratio_source: null, copy_ratio_target: null };
+  if (rng.next() >= P_COPY_RATIO_BLOCK) return none;
+  // Source and target: two DISTINCT active waves (so the relation is between two
+  // audible voices). Fewer than two active → the operator has nothing to relate.
+  const active = [];
+  for (let w = 0; w < WAVE_SLOTS; w++) if (gn.data[w * GENES_PER_WAVE + ACTIVE_I] >= 0.5) active.push(w);
+  if (active.length < 2) return none;
+  const source = rng.pick(active);
+  let target = source;
+  while (target === source) target = rng.pick(active);
+
+  const kind = rng.bool(0.5) ? 'pitch' : 'timing';
+  const r = RATIO_SET[rng.weightedIndex(RATIO_WEIGHTS)]; // includes 1/1 (unison), P2
+  const up = rng.bool(0.5);
+  const sBase = source * GENES_PER_WAVE, tBase = target * GENES_PER_WAVE;
+  const block = kind === 'pitch' ? PITCH_BLOCK_INDICES : TIMING_BLOCK_INDICES;
+
+  // Copy the block verbatim, source → target.
+  for (const gi of block) gn.data[tBase + gi] = gn.data[sBase + gi];
+
+  // Offset by the ratio (in stored space, reflected at bounds; §3, §2.1).
+  if (kind === 'pitch') {
+    const d = WAVE_SCHEMA[PITCH_MASTER_I]; // cents, linear
+    const dCents = (up ? 1 : -1) * 1200 * Math.log2(r);
+    gn.data[tBase + PITCH_MASTER_I] = reflect01(gn.data[tBase + PITCH_MASTER_I] + dCents / (d.map.hi - d.map.lo));
+  } else {
+    const d = WAVE_SCHEMA[PERIOD_I]; // log period → ×r ⟺ +log(r)/log(hi/lo)
+    const dStored = (up ? 1 : -1) * Math.log(r) / Math.log(d.map.hi / d.map.lo);
+    gn.data[tBase + PERIOD_I] = reflect01(gn.data[tBase + PERIOD_I] + dStored);
+  }
+  return { copy_ratio_fired: true, copy_ratio_kind: kind, copy_ratio_r: r, copy_ratio_up: up, copy_ratio_source: source, copy_ratio_target: target };
+}
 
 // Clamp a step-size to its declared range.
 function clampSigma(s) { return Math.max(SIGMA_FLOOR, Math.min(SIGMA_CEIL, s)); }
@@ -103,11 +244,17 @@ export function mutateGenome(gn, rng, opts = {}) {
   // One shared global normal per reproduction (§6.2, the τ'·N(0,1) term).
   const n0 = rng.gaussian();
 
+  // P1: the global ratio-jump scale, and the reference rate for the two GLOBAL
+  // pitch/time genes (fundamental_cents, tempo_bpm), which have no per-wave carrier.
+  const ratioScale = mapValue(GLOBAL_SCHEMA[P_RATIO_SCALE_I], gn.data[GLOBAL_BASE + P_RATIO_SCALE_I]);
+  const globalRatioP = clamp01(P_RATIO_JUMP_INIT * ratioScale);
+
   const summary = {
     n_continuous_genes_mutated: 0,
     sigma_min: Infinity, sigma_max: -Infinity, sigma_sum: 0, sigma_count: 0,
     n_switch_flips: 0, switch_flip_classes: {},
     n_reroutes: 0, n_node_count_changes: 0,
+    n_ratio_jumps: 0, // P1
   };
   const recordSigma = (s) => {
     summary.sigma_min = Math.min(summary.sigma_min, s);
@@ -120,7 +267,13 @@ export function mutateGenome(gn, rng, opts = {}) {
   recordSigma(sgVal);
   for (const gi of GLOBAL_CONT) {
     if (rng.next() < mutationFraction) {
-      gn.data[GLOBAL_BASE + gi] = reflect01(gn.data[GLOBAL_BASE + gi] + sgVal * rng.gaussian());
+      const mode = GLOBAL_RATIO_MODE.get(gi); // fundamental_cents / tempo_bpm (P1)
+      if (mode && rng.next() < globalRatioP) {
+        ratioJump(gn.data, GLOBAL_BASE + gi, GLOBAL_SCHEMA[gi], mode, rng);
+        summary.n_ratio_jumps++;
+      } else {
+        gn.data[GLOBAL_BASE + gi] = reflect01(gn.data[GLOBAL_BASE + gi] + sgVal * rng.gaussian());
+      }
       summary.n_continuous_genes_mutated++;
     }
   }
@@ -144,9 +297,17 @@ export function mutateGenome(gn, rng, opts = {}) {
     // Continuous genes (gated by mutation_fraction × p_mutate_wave).
     const pmut = mapValue(WAVE_SCHEMA[PMUT_I], gn.data[base + PMUT_I]);
     const rate = mutationFraction * pmut;
+    // P1: effective per-wave ratio-jump probability = p_ratio_jump_wave × scale.
+    const pRatioWave = clamp01(mapValue(WAVE_SCHEMA[P_RATIO_WAVE_I], gn.data[base + P_RATIO_WAVE_I]) * ratioScale);
     for (const ci of WAVE_CONT) {
       if (rng.next() < rate) {
-        gn.data[base + ci] = reflect01(gn.data[base + ci] + swVal * rng.gaussian());
+        const mode = WAVE_RATIO_MODE.get(ci); // pitch/time gene? (P1)
+        if (mode && rng.next() < pRatioWave) {
+          ratioJump(gn.data, base + ci, WAVE_SCHEMA[ci], mode, rng);
+          summary.n_ratio_jumps++;
+        } else {
+          gn.data[base + ci] = reflect01(gn.data[base + ci] + swVal * rng.gaussian());
+        }
         summary.n_continuous_genes_mutated++;
       }
     }
@@ -380,6 +541,10 @@ export function breed(prime, rng, opts = {}) {
   }
 
   const dup = duplicate(child, rng);
+  // P2: copy-at-ratio of a whole pitch/timing block. Applied alongside duplication,
+  // before the per-gene mutation pass (§6.1 pipeline position), so the copied block
+  // then diverges under mutation like any inherited material.
+  const copy = copyAtRatioBlock(child, rng);
   const mut = mutateGenome(child, rng, { switchRates });
   child.id = child.hash();
 
@@ -392,6 +557,7 @@ export function breed(prime, rng, opts = {}) {
       crossover_fired: crossoverFired,
       src: Array.from(child.src),
       ...dup,
+      ...copy,
       variation: mut,
     },
   };

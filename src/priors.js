@@ -13,6 +13,14 @@ import {
   GLOBAL_INDEX, inverseMap,
 } from './genome.js';
 
+// P1 (V2-PROPOSALS): provisional init for the ratio-jump bias. p_ratio_jump_wave
+// is init to this (the per-wave probability that a mutated pitch/time gene takes a
+// structured ratio jump); p_ratio_jump_scale is init 1.0 (neutral global scale).
+// PROVISIONAL — the Gate 2b sweep {0, 0.05, 0.15, 0.3} chooses the shipped default,
+// which is written back here. Recorded in the v2 report and SPEC-DELTA-V2.
+export const P_RATIO_JUMP_INIT = 0.3;   // Gate 2b sweep default: largest value passing with margin
+export const P_RATIO_JUMP_SCALE_INIT = 1.0;
+
 // ── helpers ──────────────────────────────────────────────────────────────────
 
 // Write a declared-unit value into a per-wave gene by inverting the map.
@@ -125,25 +133,52 @@ function drawPitchMaster(rng, gn, w, fundamentalCents) {
   setWave(gn, w, 'pitch_master', cents);
 }
 
-// ── the time prior (§5) ──────────────────────────────────────────────────────
-// pre_wait / mid_wait: with prob 0.6 snap to (60/tempo)·q, else log-uniform full.
+// ── the time prior (§5), v2 (P3) ─────────────────────────────────────────────
+// The v2 timing genes are period / duty / pre_prop, but the PRIOR is still
+// expressed in the v1 (pre_wait, duration, mid_wait) terms and then converted, so
+// generation-zero timing has exactly the v1 distribution — P3 changes the MUTATION
+// geometry (§6), not where the search starts (§5). Keeping the init distribution
+// identical avoids introducing an unreviewed timing prior and keeps the §5.2 sanity
+// numbers comparable to v1. PROVISIONAL choice, recorded in the v2 report.
+//
+// A wait draw: with prob 0.6 snap to (60/tempo)·q, else log-uniform full range.
 const TIME_QUANTA = [1 / 4, 1 / 3, 1 / 2, 2 / 3, 1, 3 / 2, 2, 3, 4];
-function drawWait(rng, gn, w, name, tempoBpm, maxS) {
+function drawWaitSeconds(rng, tempoBpm, maxS) {
   if (rng.bool(0.6)) {
     const q = rng.pick(TIME_QUANTA);
     let v = (60 / tempoBpm) * q;
     if (v > maxS) v = maxS; // fold into range (declared max)
-    setWave(gn, w, name, v);
-  } else {
-    setWave(gn, w, name, rng.logUniform(0.0005, maxS));
+    return v;
   }
+  return rng.logUniform(0.0005, maxS);
+}
+
+// Draw the v1 (pre_wait, duration, mid_wait) seconds exactly as v1 did, then write
+// the v2 period/duty/pre_prop that reproduce them (period = dur+mid, duty =
+// dur/period, pre_prop = pre/period — the P3 migration, applied at draw time).
+function drawTiming(rng, gn, w, tempoBpm) {
+  const preS = drawWaitSeconds(rng, tempoBpm, 30);
+  const midS = drawWaitSeconds(rng, tempoBpm, 30);
+  // duration: bimodal 50% short (5–200 ms) / 50% long (0.5–120 s), as v1.
+  const durS = rng.bool(0.5) ? rng.logUniform(0.005, 0.200) : rng.logUniform(0.5, 120);
+  const period = durS + midS;
+  setWave(gn, w, 'period', period);
+  setWave(gn, w, 'duty', period > 0 ? durS / period : 1);
+  setWave(gn, w, 'pre_prop', period > 0 ? preS / period : 0);
 }
 
 // ── the main entry point ─────────────────────────────────────────────────────
 
+// Init activation probability (§5, Appendix P_ACTIVE_AT_INIT). PROVISIONAL for the
+// herd — the owner's F3 audition (batches at 0.03/0.06/0.10) sets the shipped value.
+export const P_ACTIVE_AT_INIT = 0.03;
+
 // Draw one genome from the priors. `rng` is a seeded RNG (rng.js) so the draw is
-// reproducible.
-export function randomGenome(rng) {
+// reproducible. `opts.pActive` overrides the wave-activation probability (§5),
+// used by the F3 comparison batches; it biases only the initial draw and removes
+// no region from reach (§2.1) — a muted wave unmutes under selection either way.
+export function randomGenome(rng, opts = {}) {
+  const pActive = opts.pActive != null ? opts.pActive : P_ACTIVE_AT_INIT;
   const gn = new Genome();
 
   // ---- Global genes first (some per-wave priors depend on them) ----
@@ -173,6 +208,7 @@ export function randomGenome(rng) {
   // the effective per-gene rate is mutation_fraction × p_mutate_wave (init 0.3),
   // so a full fraction still only touches ~30% of a wave's genes per event.
   setGlobal(gn, 'mutation_fraction', 1.0);        // §5.1(8) CHOICE, PROVISIONAL
+  setGlobal(gn, 'p_ratio_jump_scale', P_RATIO_JUMP_SCALE_INIT); // P1 global scale, init 1.0
 
   // §5.1(9) CHOICE — visualiser genes. Visual only (no gate reads them). Drawn
   // uniform in their declared ranges; ranges/mappings are the implementer's
@@ -188,7 +224,7 @@ export function randomGenome(rng) {
   let anyActive = false;
   const activeFlags = new Array(WAVE_SLOTS).fill(false);
   for (let w = 0; w < WAVE_SLOTS; w++) {
-    const on = rng.bool(0.03);
+    const on = rng.bool(pActive);
     activeFlags[w] = on;
     if (on) anyActive = true;
   }
@@ -215,11 +251,9 @@ export function randomGenome(rng) {
     // about what ought to be audible, i.e. a narrowing. The consequence — a
     // substantial fraction of waves inaudible in practice — is accepted and is
     // exactly what the §5.2 sanity check measures. PROVISIONAL (independence).
-    drawWait(rng, gn, w, 'pre_wait', tempoBpm, 30);
-    drawWait(rng, gn, w, 'mid_wait', tempoBpm, 30);
-    // duration: bimodal 50% short (5–200 ms) / 50% long (0.5–120 s).
-    if (rng.bool(0.5)) setWave(gn, w, 'duration', rng.logUniform(0.005, 0.200));
-    else setWave(gn, w, 'duration', rng.logUniform(0.5, 120));
+    // v2 (P3): drawn in v1 terms then written as period/duty/pre_prop (same
+    // distribution, same RNG order — the init draw is unchanged, only the axes are).
+    drawTiming(rng, gn, w, tempoBpm);
     // mid_wait_on (§5.1(8) CHOICE, unlisted): p0.5 — half the waves repeat,
     // giving rhythmic material; half play once. PROVISIONAL.
     setWave(gn, w, 'mid_wait_on', rng.bool(0.5) ? 1 : 0);
@@ -258,6 +292,8 @@ export function randomGenome(rng) {
     // Per-wave meta (§3.1 init): sigma_wave 0.05, p_mutate_wave 0.3.
     setWave(gn, w, 'sigma_wave', 0.05);
     setWave(gn, w, 'p_mutate_wave', 0.3);
+    // p_ratio_jump_wave (P1): per-wave ratio-jump probability, init provisional.
+    setWave(gn, w, 'p_ratio_jump_wave', P_RATIO_JUMP_INIT);
   }
 
   // ---- Amplitude prior over the ACTIVE set (§5, §5.1(4) CHOICE) ----

@@ -66,7 +66,9 @@ function envValue(t, nodes) {
 }
 
 // Decode one wave's genes into a fast per-sample struct. Called once per render.
-function decodeWave(gn, w, sampleRate) {
+// `timingOverride` (P3-mig gate only) is {preS,durS,midS} in seconds, bypassing the
+// period/duty/pre_prop decode so the v1 side can be rendered without v1 synthesis.
+function decodeWave(gn, w, sampleRate, timingOverride) {
   const base = w * WAVE_SCHEMA.length;
   const raw = (name) => gn.data[base + WAVE_INDEX[name]];
   const val = (name) => gn.getWave(w, name);
@@ -86,10 +88,23 @@ function decodeWave(gn, w, sampleRate) {
   dec.phase0 = val('phase');
   dec.pitchMaster = val('pitch_master');
 
-  // Timing gate in samples (§4.2). Guard each to at least 1 sample.
-  dec.preSamp = Math.max(0, Math.round(val('pre_wait') * sampleRate));
-  dec.durSamp = Math.max(1, Math.round(val('duration') * sampleRate));
-  dec.midSamp = Math.max(1, Math.round(val('mid_wait') * sampleRate));
+  // Timing gate in samples (§4.2). v2 (P3): reconstruct the pre_wait/duration/
+  // mid_wait SECONDS from period/duty/pre_prop, then the gate logic below is
+  // exactly as v1. `timingOverride` (used only by the P3 migration gate) supplies
+  // seconds directly, so the gate can render the v1 side without a v1 synthesis.
+  let preS, durS, midS;
+  if (timingOverride) {
+    preS = timingOverride.preS; durS = timingOverride.durS; midS = timingOverride.midS;
+  } else {
+    const period = val('period');
+    const duty = val('duty');
+    durS = duty * period;            // sound portion
+    midS = (1 - duty) * period;      // gap portion
+    preS = val('pre_prop') * period; // pre_wait as a proportion of the period (P3)
+  }
+  dec.preSamp = Math.max(0, Math.round(preS * sampleRate));
+  dec.durSamp = Math.max(1, Math.round(durS * sampleRate));
+  dec.midSamp = Math.max(1, Math.round(midS * sampleRate));
   dec.midOn = raw('mid_wait_on') >= 0.5;
 
   // Amp / pitch envelopes.
@@ -198,9 +213,10 @@ export function render(gn, opts = {}) {
   // factor) and act as constant-0 modulation sources.
   const decoded = {};
   const activeSet = new Set();
+  const timingSecondsOverride = opts.timingSecondsOverride || null; // P3-mig gate only
   for (let w = 0; w < WAVE_SLOTS; w++) {
     if (gn.getWave(w, 'active') >= 0.5) {
-      decoded[w] = decodeWave(gn, w, sampleRate);
+      decoded[w] = decodeWave(gn, w, sampleRate, timingSecondsOverride ? timingSecondsOverride[w] : null);
       activeSet.add(w);
     }
   }

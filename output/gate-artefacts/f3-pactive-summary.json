@@ -1,0 +1,65 @@
+{
+  "timestamp_ms": 1788188882767,
+  "session_id": "overnight-headless-2026-08-31150156",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "f3-pactive-summary.json",
+  "note": "F3 p_active comparison. Owner auditions ~20 of each on the host (audio-only) and picks the p_active. Sameyness that persists across p_active lives in the envelope/timing priors, not wave count (F3 caveat).",
+  "batches": [
+    {
+      "p_active": 0.03,
+      "seed": "0xf30003",
+      "n": 100,
+      "near_silent_count": 15,
+      "active_wave_count_mean": 2.12,
+      "active_wave_count_hist": {
+        "1": 43,
+        "2": 22,
+        "3": 20,
+        "4": 11,
+        "5": 3,
+        "6": 1
+      },
+      "silence_frac_mean": 0.511149397163096
+    },
+    {
+      "p_active": 0.06,
+      "seed": "0xf30006",
+      "n": 100,
+      "near_silent_count": 3,
+      "active_wave_count_mean": 4.15,
+      "active_wave_count_hist": {
+        "1": 9,
+        "2": 9,
+        "3": 19,
+        "4": 19,
+        "5": 22,
+        "6": 11,
+        "7": 9,
+        "8": 2
+      },
+      "silence_frac_mean": 0.34899174703417657
+    },
+    {
+      "p_active": 0.1,
+      "seed": "0xf30010",
+      "n": 100,
+      "near_silent_count": 0,
+      "active_wave_count_mean": 6.24,
+      "active_wave_count_hist": {
+        "1": 1,
+        "2": 1,
+        "3": 3,
+        "4": 15,
+        "5": 19,
+        "6": 22,
+        "7": 13,
+        "8": 13,
+        "9": 4,
+        "10": 6,
+        "11": 2,
+        "12": 1
+      },
+      "silence_frac_mean": 0.12125693016474415
+    }
+  ]
+}

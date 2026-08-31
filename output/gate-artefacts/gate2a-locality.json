@@ -1,81 +1,81 @@
 {
-  "timestamp_ms": 1788134957414,
-  "session_id": "overnight-headless-2026-08-30235851",
+  "timestamp_ms": 1788189156982,
+  "session_id": "overnight-headless-2026-08-31150156",
   "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
   "artefact": "gate2a-locality.json",
   "gate": "2a (genotypic locality, §13.2)",
   "criterion": "p90 perceptual distance at ε=0.01 below 0.2·U",
-  "U": 285.9051822840222,
+  "U": 293.1422922713185,
   "continuous_pass": false,
   "pass": false,
   "locality_curve": [
     {
       "eps": 0.001,
-      "median": 7.169277308243904,
-      "p90": 58.97331862705088,
-      "median_over_U": 0.025075716539904633,
-      "p90_over_U": 0.20626879917295785,
+      "median": 7.102944607178259,
+      "p90": 84.92541056593852,
+      "median_over_U": 0.024230364551438083,
+      "p90_over_U": 0.28970712450912955,
       "n": 2000
     },
     {
       "eps": 0.01,
-      "median": 21.48128029156339,
-      "p90": 178.45362319592485,
-      "median_over_U": 0.07513428095270965,
-      "p90_over_U": 0.6241706490603116,
+      "median": 19.802894757167245,
+      "p90": 206.6251731602876,
+      "median_over_U": 0.06755386472463902,
+      "p90_over_U": 0.7048630600495038,
       "n": 2000
     },
     {
       "eps": 0.1,
-      "median": 76.74991972438816,
-      "p90": 289.07485859119566,
-      "median_over_U": 0.26844536049068085,
-      "p90_over_U": 1.0110864597901015,
+      "median": 96.59011144477368,
+      "p90": 365.3300617806977,
+      "median_over_U": 0.32949906578261484,
+      "p90_over_U": 1.2462550488708248,
       "n": 2000
     },
     {
       "eps": 0.5,
-      "median": 179.1569964889885,
-      "p90": 488.95272474121305,
-      "median_over_U": 0.6266308118577978,
-      "p90_over_U": 1.7101918924137605,
+      "median": 178.93836850449583,
+      "p90": 543.5434367704038,
+      "median_over_U": 0.6104147140218137,
+      "p90_over_U": 1.8541965833688914,
       "n": 2000
     }
   ],
   "per_class_at_crit_eps": {
     "shape": {
-      "p90": 0.3700555048328098,
-      "p90_over_U": 0.0012943294762149205,
+      "p90": 0.3341951552449477,
+      "p90_over_U": 0.0011400441493977015,
       "pass": true
     },
     "timing": {
-      "p90": 202.08337734292112,
-      "p90_over_U": 0.7068195676920913,
+      "p90": 240.02507524184284,
+      "p90_over_U": 0.818800567403925,
       "pass": false
     },
     "gain": {
-      "p90": 2.3139261432938167,
-      "p90_over_U": 0.008093334037559102,
+      "p90": 2.3382185265583235,
+      "p90_over_U": 0.00797639435934471,
       "pass": true
     },
     "amp_env_level": {
-      "p90": 3.189399859384018,
-      "p90_over_U": 0.011155446130443426,
+      "p90": 3.853256802665774,
+      "p90_over_U": 0.013144663544826836,
       "pass": true
     },
     "amp_env_shape": {
-      "p90": 1.203607138359643,
-      "p90_over_U": 0.004209812248747428,
+      "p90": 1.3619405057732912,
+      "p90_over_U": 0.00464600483001185,
       "pass": true
     },
     "pitch": {
-      "p90": 21.332178823180467,
-      "p90_over_U": 0.07461277425181045,
+      "p90": 23.24288702377959,
+      "p90_over_U": 0.07928875374375215,
       "pass": true
     },
     "pitch_env": {
-      "p90": 7.324005768143552,
-      "p90_over_U": 0.02561690456127438,
+      "p90": 8.986936223773762,
+      "p90_over_U": 0.03065724892215785,
       "pass": true
     },
     "mod_depth": {
@@ -96,65 +96,85 @@
   },
   "J_class_table": {
     "active": {
-      "J_median_over_U": 0.16875343598514728,
-      "p_class": 0.004,
+      "J_median_over_U": 0.19616611160523034,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "gain_out_on": {
-      "J_median_over_U": 0.1667370173428227,
-      "p_class": 0.004,
+      "J_median_over_U": 0.3807933178806745,
+      "p_class": 0.0008797423281071748,
+      "factor": 0.6565241254531154,
       "n": 60
     },
     "gain_mod_on": {
       "J_median_over_U": 0,
-      "p_class": 0.004,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "shape_sine_on": {
-      "J_median_over_U": 0.004778584015979972,
-      "p_class": 0.004,
+      "J_median_over_U": 0.0025615333361627525,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "shape_triangle_on": {
-      "J_median_over_U": 0.006999421651533497,
-      "p_class": 0.004,
+      "J_median_over_U": 0.004068278294309991,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "shape_saw_on": {
-      "J_median_over_U": 0.0019985331992183075,
-      "p_class": 0.004,
+      "J_median_over_U": 0.005746769924026841,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "shape_square_on": {
-      "J_median_over_U": 0.005212077907689889,
-      "p_class": 0.004,
+      "J_median_over_U": 0.0026183464563205,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "mid_wait_on": {
       "J_median_over_U": 0,
-      "p_class": 0.004,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "amp_env_on": {
-      "J_median_over_U": 0.004560044597386334,
-      "p_class": 0.004,
+      "J_median_over_U": 0.010098816031028142,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "pitch_env_on": {
-      "J_median_over_U": 0.0037366121168052485,
-      "p_class": 0.004,
+      "J_median_over_U": 0.00043077240878041886,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "pm_on": {
       "J_median_over_U": 0,
-      "p_class": 0.004,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     },
     "am_on": {
       "J_median_over_U": 0,
-      "p_class": 0.004,
+      "p_class": 0.00134,
+      "factor": 1,
       "n": 60
     }
+  },
+  "switch_flip_calibration": {
+    "sum_factor_over_classes": 11.656524125453116,
+    "current_base": 0.00134,
+    "expected_flips_per_reproduction_at_current_base": 0.9996635089988593,
+    "recommended_base_for_1_flip": 0.001340451049715699,
+    "target_flips": 1,
+    "note": "Set P_SWITCH_FLIP_BASE in src/variation.js to recommended_base_for_1_flip, then re-run 2a so this table ships with the matching p_class values. v1 base 0.004 gave ~3 flips (OVERNIGHT §8)."
   },
   "compatibility_distance": {
     "parent_child_no_flip": {
@@ -173,7 +193,7 @@
       "within_2x": false
     },
     "unrelated_elites": {
-      "measured": 0.6094018324221852,
+      "measured": 0.6063929415051488,
       "expected": 0.55,
       "within_2x": true
     }
@@ -190,5 +210,5 @@
       0.5
     ]
   },
-  "elapsed_s": 626.143
+  "elapsed_s": 640.155
 }

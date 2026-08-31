@@ -1,0 +1,86 @@
+{
+  "timestamp_ms": 1788190828797,
+  "session_id": "overnight-headless-2026-08-31151300",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "gate2b-sweep.json",
+  "gate": "2b sweep (behavioural locality decision, work order §6)",
+  "threshold": "p_same ≥ 0.35 AND p_near ≥ 0.7 (mutation-only), largest passing with margin",
+  "axis_calibration": {
+    "dev": {
+      "min": 0.05374537209363733,
+      "max": 330.01140510383937
+    },
+    "harm": {
+      "min": 1.2692187709218566e-8,
+      "max": 1.0000000000001905
+    }
+  },
+  "curve": [
+    {
+      "p_ratio_jump": 0,
+      "mutation_only": {
+        "p_same": 0.56675,
+        "p_near": 0.78525,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.49975,
+        "p_near": 0.70225,
+        "n": 4000
+      },
+      "H_cell": 0.39862990367919215,
+      "pass": true
+    },
+    {
+      "p_ratio_jump": 0.05,
+      "mutation_only": {
+        "p_same": 0.56075,
+        "p_near": 0.7785,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.5035,
+        "p_near": 0.71025,
+        "n": 4000
+      },
+      "H_cell": 0.33310595402363086,
+      "pass": true
+    },
+    {
+      "p_ratio_jump": 0.15,
+      "mutation_only": {
+        "p_same": 0.555,
+        "p_near": 0.77775,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.4895,
+        "p_near": 0.6965,
+        "n": 4000
+      },
+      "H_cell": 0.458105218269924,
+      "pass": true
+    },
+    {
+      "p_ratio_jump": 0.3,
+      "mutation_only": {
+        "p_same": 0.54775,
+        "p_near": 0.77575,
+        "n": 4000
+      },
+      "with_crossover": {
+        "p_same": 0.472,
+        "p_near": 0.688,
+        "n": 4000
+      },
+      "H_cell": 0.3565674297007273,
+      "pass": true
+    }
+  ],
+  "chosen_default_p_ratio_jump": 0.3,
+  "basis": "largest passing with margin ≥0.02",
+  "only_zero_passes": false,
+  "flag": null,
+  "action": "Set P_RATIO_JUMP_INIT in src/priors.js to 0.3.",
+  "elapsed_s": 1647.943
+}

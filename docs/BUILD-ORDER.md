@@ -54,6 +54,14 @@ legibility display (§12.1), and §14 logging for all of the above.
 - **Gate 1b-mech** — automated. Lineage stack correctness at arbitrary depth.
 - **Gate 1a** — human. 100 pre-rendered random genomes, auditioned. At least 10
   hold a listener past 10 seconds.
+  > **Threshold amended by the owner, 2026-08-31 (F5, V2-PROPOSALS).** Mid-audition
+  > Jon lowered the hold threshold from **10 s to 5 s** — "at absolute random 10
+  > seemed like too steep an ask" — and PASSED the gate on that basis: 13 of 38
+  > auditioned held past 5 s (the absolute count 13 also clears the original
+  > 10-of-100 bar). See `output/gate-artefacts/gate1a-verdict.md`. The 5 s figure
+  > is the standing pass condition for future 1a batches unless the owner revises
+  > it again. Note this is a threshold on the *human's* attention, not a proxy
+  > metric — the gate still needs ears and still judges nothing itself.
 
 ## Stage 2 — Locality calibration
 
@@ -94,7 +102,8 @@ should:
 
 1. Build Stage 1 and its logging. Run Gate 1b-mech.
 2. Render 100 random genomes to files and stage them in a listening harness,
-   ready to open. Do not attempt to judge them.
+   ready to open. Do not attempt to judge them. (Pass threshold amended to 5 s,
+   2026-08-31 — see the Gate 1a note above, F5.)
 3. Build Stage 2. Run Gates 2a and 2b. Write artefacts to
    `output/gate-artefacts/`.
 4. **Branch on Gate 2b.**

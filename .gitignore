@@ -13,6 +13,11 @@ output/logs/
 # regenerable, and it reaches the host via sync-back (which copies files, not git)
 # rather than through the repo. This re-ignore must come after the negation above.
 output/gate-artefacts/gate1a-batch/
+# F3 p_active comparison batches — same reasoning (large, regenerable, reach the
+# host via sync-back not git). Harness + manifest live inside and are regenerable.
+output/gate-artefacts/f3-pactive-003/
+output/gate-artefacts/f3-pactive-006/
+output/gate-artefacts/f3-pactive-010/
 
 node_modules/
 .venv/

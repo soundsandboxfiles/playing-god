@@ -21,27 +21,27 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { RNG } from '../src/rng.js';
 import { randomGenome } from '../src/priors.js';
-import { render } from '../src/synthesis.js';
-import { normalizeLoudness } from '../src/loudness.js';
+import { renderNormalized } from '../src/render.js';
 import { mfccSequence, meanVector, vecDist } from '../src/mfcc.js';
 import { developmentFromFrames, harmonicityRaw, binLog } from '../src/descriptors.js';
 import { breed } from '../src/variation.js';
 import { medianDistance } from '../src/distance.js';
 import { writeArtefact, percentile, ARTEFACT_DIR } from './_util.js';
 
-const SR = 22050;
-const LEN = 4;              // descriptor render length (consistent with Gate 2a)
-const N_PARENTS = 200;      // §13.3: "Take 200 genomes"
-const N_OFFSPRING = 20;     // §13.3: "generate 20 offspring"
+export const SR = 22050;
+export const LEN = 4;       // descriptor render length (consistent with Gate 2a)
+export const N_PARENTS = 200; // §13.3: "Take 200 genomes"
+export const N_OFFSPRING = 20; // §13.3: "generate 20 offspring"
 const N_BINS = 16;
-const P_SAME_THRESH = 0.35; // §13.3
-const P_NEAR_THRESH = 0.70; // §13.3
+export const P_SAME_THRESH = 0.35; // §13.3
+export const P_NEAR_THRESH = 0.70; // §13.3
 
 // Render → normalise → analyse. Returns { dev, harm, meanVec } computing MFCC once.
-function analyze(g) {
-  const r = render(g, { sampleRate: SR, lengthS: LEN });
+export function analyze(g) {
+  // v2: trimmed + normalised render path (F4/P4), matching the app's cell
+  // assignment (loop.js computes descriptors on the trimmed buffer).
+  const r = renderNormalized(g, { sampleRate: SR, lengthS: LEN });
   if (r.renderError) return null;
-  normalizeLoudness(r.samples, SR);
   const frames = mfccSequence(r.samples, SR);
   return {
     dev: developmentFromFrames(frames),
@@ -51,7 +51,7 @@ function analyze(g) {
 }
 
 // Load the J_class table from Gate 2a to set switch flip rates (§13.2, §3.3).
-function loadSwitchRates() {
+export function loadSwitchRates() {
   const p = join(ARTEFACT_DIR, 'J_class_table.json');
   if (!existsSync(p)) {
     console.log('  (warning: J_class_table.json not found — using base rate 0.004 for all switches)');
@@ -66,7 +66,7 @@ function loadSwitchRates() {
 // Calibrate an axis range from observed values: [p2, p98], clamped to >0 for the
 // log scale (BUILD-ORDER: "Archive axis ranges need calibrating against observed
 // distributions"). Reported so a human can see them.
-function calibrateAxis(values) {
+export function calibrateAxis(values) {
   const arr = values.filter((v) => v > 0).sort((a, b) => a - b);
   if (arr.length < 2) return { min: 1e-6, max: 1 };
   let min = percentile(arr, 2), max = percentile(arr, 98);
@@ -85,7 +85,7 @@ function neighbours8(x, y) {
   return out;
 }
 
-function runPass(parents, parentAnalyses, rng, opts, cal) {
+export function runPass(parents, parentAnalyses, rng, opts, cal) {
   // For each parent, breed N_OFFSPRING, analyse, and check cell locality.
   let same = 0, near = 0, total = 0;
   const byCell = new Map(); // "x,y" → array of meanVec (for H_cell, mutation-only)
@@ -122,7 +122,7 @@ function runPass(parents, parentAnalyses, rng, opts, cal) {
 // H_cell (§13.3): mean within-cell MFCC distance as a fraction of U. Uses the
 // per-render mean MFCC vector as the timbre point; U is the median pairwise
 // distance of those vectors between unrelated genomes.
-function computeHcell(byCell, allVecs, rng) {
+export function computeHcell(byCell, allVecs, rng) {
   // U over unrelated pairs.
   const un = [];
   for (let i = 0; i < 400 && allVecs.length > 1; i++) {
@@ -207,4 +207,4 @@ function main() {
 }
 
 function fmtRange(r) { return `[${r.min.toExponential(2)}, ${r.max.toExponential(2)}]`; }
-main();
+if (import.meta.url === `file://${process.argv[1]}`) main();

@@ -28,6 +28,14 @@
 // thing this project forbids. The ±1 difference is a rounding error against the
 // 10^14,693 cardinality claim and changes the ES constants only past the 4th
 // decimal. Flagged, not silently reconciled.
+//
+// v2 UPDATE (P1). Two evolvable meta-genes were APPENDED: a per-wave
+// `p_ratio_jump_wave` (96 genes per wave now, not 95) and a global
+// `p_ratio_jump_scale` (23 globals now, not 22). So GENOME_SIZE = 64×96 + 23 =
+// 6167. They were appended, not inserted, so all pre-existing gene indices are
+// unchanged and the v1→v2 migration is a simple per-wave/global extension
+// (src/migrate.js). P3 separately reparameterised the 3 timing genes in place, so
+// their indices are unchanged too.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const WAVE_SLOTS = 64;      // §3, Appendix WAVE_SLOTS
@@ -42,12 +50,12 @@ export const ENV_MAX_NODES = 8;    // §3.1 amplitude/pitch envelopes, Appendix 
 // 'map' converts stored [0,1] → declared value. type 'linear' is value =
 // lo + s·(hi−lo); type 'log' is value = lo·(hi/lo)^s and REQUIRES lo>0.
 //
-// WHY some log genes have a tiny positive floor instead of 0 (pre_wait, gain_mod,
-// pm_depth, am_depth are declared 0..X but mapped from ~0.0005/0.001): a log map
+// WHY some log genes have a tiny positive floor instead of 0 (gain_mod, pm_depth,
+// am_depth are declared 0..X but mapped from ~0.001; pre_prop from 1e-6): a log map
 // cannot reach 0, and the true "off" for these is provided by a companion switch
-// (gain_mod_on, pm_on, am_on) or is sub-perceptual (0.5 ms of pre-wait). This
-// does not truncate the space in the §2.1 sense — every audible value remains
-// reachable and the off-state is reachable via the switch.
+// (gain_mod_on, pm_on, am_on) or is sub-perceptual (a pre_prop of 1e-6 period is a
+// zero delay). This does not truncate the space in the §2.1 sense — every audible
+// value remains reachable and the off-state is reachable via the switch.
 
 function g(name, kind, mapType, lo, hi) {
   return { name, kind, map: { type: mapType, lo, hi } };
@@ -73,11 +81,30 @@ function buildWaveSchema() {
   s.push(g('shape_triangle_on', 'binary'));
   s.push(g('shape_saw_on', 'binary'));
   s.push(g('shape_square_on', 'binary'));
-  // Timing — 5 (§3.1). The pre_wait / duration / mid_wait trio is "load-bearing
-  // and must not be simplified": it is where rhythm and polyrhythm live.
-  s.push(g('pre_wait', 'cont', 'log', 0.0005, 30));   // declared 0–30 s
-  s.push(g('duration', 'cont', 'log', 0.0005, 120));  // 0.5 ms – 120 s
-  s.push(g('mid_wait', 'cont', 'log', 0.0005, 30));   // 0.5 ms – 30 s
+  // Timing — 5. v2 REPARAMETERISATION (P3, V2-PROPOSALS). v1 stored the trio
+  // pre_wait / duration / mid_wait directly. v2 stores a PERIOD and a DUTY that
+  // splits it into sound and gap, and PRE_PROP (pre_wait as a proportion of the
+  // period). Bijective with the v1 trio: period = duration + mid_wait,
+  // duty = duration/period, pre_prop = pre_wait/period. WHY (P3): ratio relations
+  // *between periods* are what polyrhythm is, so P1/P2 ratio jumps act on the
+  // period; mutating the period then scales the whole pattern (same character,
+  // different tempo) while mutating duty changes character on a fixed grid — the
+  // mutation axes line up with perceptually coherent moves. Still "load-bearing
+  // and must not be simplified": the same rhythm/polyrhythm space, re-axed.
+  // Positions are unchanged from v1 (period↔pre_wait, duty↔duration,
+  // pre_prop↔mid_wait slots), so every later gene index is stable and the delta
+  // store (§14) is unaffected. The migration lives in src/migrate.js.
+  //   period   log 0.001–150 s   (min = 2×0.5 ms floor; max = 120 + 30 s)
+  //   duty     linear 0–1        (fraction of the period that is sound)
+  //   pre_prop log 1e-6–1e5      (pre_wait ÷ period; "free to exceed 1", P3). Wide
+  //            so migration is loss-free at both extremes (pre 0.5 ms / period 150
+  //            → 3e-6; pre 30 s / period 1 ms → 3e4) and no delay is unreachable
+  //            (§2.1). Locality cost of the wide range noted in the v2 report; it
+  //            is the least consequential timing gene (F4/P4 neutralises the
+  //            leading pre_wait anyway).
+  s.push(g('period', 'cont', 'log', 0.001, 150));
+  s.push(g('duty', 'cont', 'linear', 0, 1));
+  s.push(g('pre_prop', 'cont', 'log', 1e-6, 1e5));
   s.push(g('mid_wait_on', 'binary'));                 // off = play once
   s.push(g('phase', 'cont', 'linear', 0, 1));         // wrapping, 0–1
   // Gains — 2 (§3.1). gain_out in dB scales the audio destination; gain_mod
@@ -111,10 +138,21 @@ function buildWaveSchema() {
   s.push(g('am_source', 'int', 'linear', 0, 63));
   s.push(g('am_depth', 'cont', 'log', 0.001, 8));
   s.push(g('am_on', 'binary'));
-  // Per-wave meta — 2 (§3.1). sigma_wave is a step-size (self-adaptive ES),
+  // Per-wave meta — 3 (§3.1 + P1). sigma_wave is a step-size (self-adaptive ES),
   // p_mutate_wave modulates how many of this wave's genes get a draw (§6.2).
   s.push(g('sigma_wave', 'sigma', 'linear', 0.002, 0.5));  // Appendix SIGMA_FLOOR/CEIL
   s.push(g('p_mutate_wave', 'cont', 'linear', 0, 1));
+  // p_ratio_jump_wave (P1, V2-PROPOSALS): per-wave probability that a pitch- or
+  // time-domain gene, when mutated, takes a STRUCTURED RATIO JUMP onto a simple
+  // fraction of the §5 set rather than the ES Gaussian step (§6.2). A self-adaptive
+  // meta-gene "in the pattern of sigma_wave / p_mutate_wave" — the search turns the
+  // bias up where ratio moves pay and down where they do not, which is the complete
+  // answer to the §2.2 worry (a bias the system can evolve away is a prior on moves,
+  // not an instrument with an opinion). APPENDED (not inserted) so all earlier
+  // per-wave indices are unchanged; the global scale is p_ratio_jump_scale. Init is
+  // set in priors.js (the Gate 2b sweep chooses the default). Amplitude/gain genes
+  // are out of scope (not periods, P1) and never see a ratio jump.
+  s.push(g('p_ratio_jump_wave', 'cont', 'linear', 0, 1));
   return s;
 }
 
@@ -147,6 +185,13 @@ function buildGlobalSchema() {
   s.push(g('symmetry_order', 'int', 'linear', 1, 8));
   s.push(g('field_blend_mode', 'int', 'linear', 0, 3));
   s.push(g('background_drift', 'cont', 'linear', 0, 1));
+  // p_ratio_jump_scale (P1, V2-PROPOSALS): the GLOBAL SCALE on the per-wave
+  // p_ratio_jump_wave (effective per-wave probability = wave × scale, clamped to
+  // [0,1]) — same shape as p_switch_flip_scale scaling the per-class switch rate
+  // (§6.2b). It also governs the two global pitch/time genes (fundamental_cents,
+  // tempo_bpm). Evolvable; init 1.0 (neutral). APPENDED at the end so v1→v2
+  // migration only adds one global (src/migrate.js).
+  s.push(g('p_ratio_jump_scale', 'cont', 'linear', 0, 4));
   return s;
 }
 

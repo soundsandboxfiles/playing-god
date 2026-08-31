@@ -18,10 +18,10 @@
 
 import { RNG } from '../src/rng.js';
 import { randomGenome } from '../src/priors.js';
-import { render } from '../src/synthesis.js';
-import { normalizeLoudness } from '../src/loudness.js';
+import { renderNormalized } from '../src/render.js';
 import { mfccSequence, sequenceDistance } from '../src/mfcc.js';
 import { distance } from '../src/distance.js';
+import { P_SWITCH_FLIP_BASE } from '../src/variation.js';
 import {
   WAVE_SLOTS, GENES_PER_WAVE, WAVE_SCHEMA, WAVE_INDEX, GLOBAL_SCHEMA, GLOBAL_INDEX,
   SWITCH_NAMES, reflect01, mapValue, inverseMap,
@@ -40,14 +40,14 @@ const CRIT_FRACTION = 0.20; // §13.2: p90 < 0.20·U
 // class to locate any class that fails"). Grouped by musical role.
 const CONT_CLASSES = {
   shape: ['shape_sine', 'shape_triangle', 'shape_saw', 'shape_square'],
-  timing: ['pre_wait', 'duration', 'mid_wait', 'phase'],
+  timing: ['period', 'duty', 'pre_prop', 'phase'], // v2 timing genes (P3)
   gain: ['gain_out', 'gain_mod'],
   amp_env_level: nodeGenes('amp', 'level'),
   amp_env_shape: [...nodeGenes('amp', 'time'), ...nodeGenes('amp', 'curve'), ...nodeGenes('amp', 'tension')],
   pitch: ['pitch_master'],
   pitch_env: [...nodeGenes('pitch', 'level'), ...nodeGenes('pitch', 'time'), ...nodeGenes('pitch', 'curve'), ...nodeGenes('pitch', 'tension')],
   mod_depth: ['pm_depth', 'am_depth'],
-  meta: ['sigma_wave', 'p_mutate_wave'],
+  meta: ['sigma_wave', 'p_mutate_wave', 'p_ratio_jump_wave'], // v2 adds p_ratio_jump_wave (P1)
 };
 function nodeGenes(kind, field) {
   const out = [];
@@ -59,9 +59,10 @@ function nodeGenes(kind, field) {
 // representation used everywhere in the locality tests (§4.7: descriptors read
 // the normalised buffer).
 function mfccOf(g) {
-  const r = render(g, { sampleRate: SR, lengthS: LEN });
+  // v2: the trimmed + normalised render path (F4/P4), so locality is measured on
+  // exactly what the app produces and the listener hears.
+  const r = renderNormalized(g, { sampleRate: SR, lengthS: LEN });
   if (r.renderError) return null;
-  normalizeLoudness(r.samples, SR); // in place; near-silent left as-is (§4.7)
   return mfccSequence(r.samples, SR);
 }
 
@@ -198,6 +199,7 @@ function main() {
   // as a fraction of U; p_class = 0.004·min(1, 0.25/J).
   const jTable = {};
   const SW_PARENTS = Math.min(60, parents.length);
+  let sumFactor = 0; // Σ_classes min(1, 0.25/J), for the recalibration below
   for (const name of SWITCH_NAMES) {
     const dists = [];
     for (let i = 0; i < SW_PARENTS; i++) {
@@ -206,9 +208,28 @@ function main() {
     }
     const st = stats(dists);
     const J = st.median / U;
-    const p_class = 0.004 * Math.min(1, 0.25 / Math.max(1e-6, J));
-    jTable[name] = { J_median_over_U: J, p_class, n: st.n };
+    const factor = Math.min(1, 0.25 / Math.max(1e-6, J));
+    // p_class uses the CURRENT base (imported from variation.js) — the shipped
+    // effective per-class rate that loop.js / gate2b / gate3 read from this table.
+    const p_class = P_SWITCH_FLIP_BASE * factor;
+    jTable[name] = { J_median_over_U: J, p_class, factor, n: st.n };
+    sumFactor += factor;
   }
+  // Recalibration readout (V2-PROPOSALS, OVERNIGHT §8). Expected flips per
+  // reproduction at p_switch_flip_scale=1 is 64 · base · Σ min(1,0.25/J) over the
+  // 12 switch classes (64 switches per class). The base that hits §13.2's ~1.0 is
+  // 1 / (64 · sumFactor), independent of the base used to measure J.
+  const N_WAVES = 64;
+  const expectedFlipsAtCurrentBase = N_WAVES * P_SWITCH_FLIP_BASE * sumFactor;
+  const recommendedBaseForOneFlip = 1 / (N_WAVES * sumFactor);
+  const switchCalibration = {
+    sum_factor_over_classes: sumFactor,
+    current_base: P_SWITCH_FLIP_BASE,
+    expected_flips_per_reproduction_at_current_base: expectedFlipsAtCurrentBase,
+    recommended_base_for_1_flip: recommendedBaseForOneFlip,
+    target_flips: 1.0,
+    note: 'Set P_SWITCH_FLIP_BASE in src/variation.js to recommended_base_for_1_flip, then re-run 2a so this table ships with the matching p_class values. v1 base 0.004 gave ~3 flips (OVERNIGHT §8).',
+  };
 
   // Compatibility-distance distribution (§6.5) — Gate 2a also confirms the worked
   // intuitions within a factor of two, since λ (§6.6) is calibrated against D_med.
@@ -222,6 +243,7 @@ function main() {
     locality_curve: curve,
     per_class_at_crit_eps: perClass,
     J_class_table: jTable,
+    switch_flip_calibration: switchCalibration,
     compatibility_distance: dCheck,
     config: { sample_rate: SR, length_s: LEN, n_parents: parents.length, n_mutants: N_MUTANTS, epsilons: EPSILONS },
     elapsed_s: (Date.now() - t0) / 1000,
@@ -233,6 +255,9 @@ function main() {
   console.log('  continuous criterion p90/U at ε=0.01:', critPoint.p90_over_U.toFixed(3), '<', CRIT_FRACTION, '→', continuousPass ? 'PASS' : 'FAIL');
   console.log('  J_class (median/U):');
   for (const [k, v] of Object.entries(jTable)) console.log(`    ${k}: J=${v.J_median_over_U.toFixed(3)} → p_class=${v.p_class.toExponential(2)}`);
+  console.log('  switch-flip calibration (V2, OVERNIGHT §8):');
+  console.log(`    current base=${switchCalibration.current_base} → expected flips/repro=${expectedFlipsAtCurrentBase.toFixed(3)}`);
+  console.log(`    recommended base for ~1.0 flip = ${recommendedBaseForOneFlip.toExponential(3)}`);
   console.log('  D-distribution vs §6.5 intuitions:');
   for (const [k, v] of Object.entries(dCheck)) console.log(`    ${k}: measured=${v.measured.toFixed(4)} expected≈${v.expected} within2x=${v.within_2x}`);
   console.log('  PASS:', pass, '| artefact:', path);

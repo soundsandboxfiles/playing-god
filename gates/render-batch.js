@@ -30,7 +30,7 @@ const SAMPLE_RATE = 44100; // full audio quality for a human verdict
 // Compact per-active-wave summary so the harness's (optional) visuals can draw
 // the genome slow-channel — the one structural advantage this project has over a
 // generic visualiser (§11). Pitch → hue, gain → size, slot → position.
-function genomeSummary(g) {
+export function genomeSummary(g) {
   const waves = [];
   for (let w = 0; w < WAVE_SLOTS; w++) {
     if (g.getWave(w, 'active') < 0.5) continue;
@@ -77,28 +77,53 @@ function main() {
   }
 
   // Manifest lives OUTSIDE the (git-ignored) wav dir so it is committed as evidence.
-  writeArtefact('gate1a-batch-manifest.json', {
+  const manifestPayload = {
     gate: '1a (human audition — this script judges nothing)',
     length_s: LENGTH_S, sample_rate: SAMPLE_RATE, n: N,
-    pass_condition: 'At least 10 of 100 hold a listener past 10 seconds (BUILD-ORDER).',
+    // F5 (V2-PROPOSALS): the owner amended the 1a threshold mid-audition from 10 s
+    // to 5 s ("at absolute random 10 seemed like too steep an ask"). Both are
+    // recorded; the batch does not judge either — Gate 1a needs ears (BUILD-ORDER).
+    pass_condition: 'Owner-amended: at least 10 of 100 hold a listener past 5 seconds (originally 10 s; gate1a-verdict.md, F5).',
     clips: manifest,
-  });
+  };
+  writeArtefact('gate1a-batch-manifest.json', manifestPayload);
+  // F1 (V2-PROPOSALS): ALSO write the manifest INTO the batch dir, because the
+  // harness fetches './gate1a-batch-manifest.json' (same dir as index.html). v1
+  // wrote it only one directory up, so the harness 404'd and a host-side copy was
+  // needed as a workaround (2026-08-31). Writing both fixes the pathing at source.
+  // The batch-dir copy is git-ignored (the wav dir is), the artefact copy is the
+  // committed evidence — same JSON, two locations.
+  writeFileSync(join(batchDir, 'gate1a-batch-manifest.json'), JSON.stringify(manifestPayload, null, 2));
 
   // The harness itself.
   writeFileSync(join(batchDir, 'index.html'), harnessHtml(manifest.length));
 
   console.log('── Gate 1a batch staged ──');
   console.log(`  ${manifest.filter((m) => m.filename).length}/${N} WAVs written to output/gate-artefacts/gate1a-batch/`);
-  console.log('  open output/gate-artefacts/gate1a-batch/index.html on the HOST to audition.');
+  console.log('  On the HOST, from the batch dir: python3 -m http.server 8000');
+  console.log('  then open http://localhost:8000/ (fetch() is blocked over file://, F1).');
   console.log('  (this script makes NO judgement — Gate 1a needs a human, by construction)');
 }
 
 // A single-file harness. Plays the batch in sequence, audio-only by default,
 // visuals behind a toggle. Keys let the listener tally how many held them past
 // 10 s (the Gate 1a threshold) without the tool judging anything for them.
-function harnessHtml(count) {
+export function harnessHtml(count) {
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
+<!--
+  Gate 1a listening harness.
+
+  MUST BE SERVED OVER LOCALHOST, NOT OPENED AS file:// (F1, V2-PROPOSALS). This
+  page fetch()es its manifest and the WAVs, and browsers block fetch() from a
+  file:// origin (CORS). From the batch directory on the host, run:
+
+      python3 -m http.server 8000
+
+  then open  http://localhost:8000/  in a browser. (Any static server works;
+  python3's is always to hand.) The manifest gate1a-batch-manifest.json now sits
+  in THIS directory, so the fetch below resolves without a workaround.
+-->
 <title>Playing God — Gate 1a audition</title>
 <style>
   :root { color-scheme: dark; }
@@ -213,4 +238,6 @@ load(0);
 </script></body></html>`;
 }
 
-main();
+// Only stage the default Gate 1a batch when run directly — importing this module
+// (e.g. from the F3 script) reuses harnessHtml/genomeSummary without side effects.
+if (import.meta.url === `file://${process.argv[1]}`) main();

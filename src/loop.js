@@ -63,14 +63,45 @@ export class Engine {
     // ancestors and Predictor training data (§12).
     this.registry = new Map();
 
+    // F2: the owner's Gate 1a picks, as an array of Genome seed-parents (optional).
+    // When present the archive is seeded from them; otherwise the v1 fallback
+    // (one random draw + mutants) is used, so gates that do not care about the
+    // picks still run.
+    this.seedGenomes = opts.seedGenomes || null;
+
     this.listenId = 0;
     this.seedQueue = [];
     this._initSeeds();
   }
 
-  // §5 seeded initial batch: one random genome + 31 mutations of it at σ = 0.2,
-  // held in a pending queue and played in sequence (§5, §7.5 ordering).
+  // §5 seeded initial batch, F2-amended. If seed-parent picks are supplied, the
+  // batch is the picks plus σ=0.2 mutants of them to fill SEED_BATCH (32); else the
+  // v1 behaviour (one random genome + 31 mutations of it at σ=0.2). Either way the
+  // batch is held in a pending queue and played in sequence, inserted only after it
+  // has been heard (§5, §7.5 ordering — unchanged).
   _initSeeds() {
+    if (this.seedGenomes && this.seedGenomes.length > 0) {
+      // F2: seed parents = the owner's picks. Add each pick as a root, then fill to
+      // 32 with σ=0.2 mutants, cycling through the picks so each contributes mutants.
+      const picks = this.seedGenomes;
+      for (const p of picks) {
+        p.src = new Int8Array(WAVE_SLOTS); // roots for provenance (§8.2)
+        this.seedQueue.push(p);
+      }
+      let i = 0;
+      while (this.seedQueue.length < SEED_BATCH) {
+        const parent = picks[i % picks.length];
+        const m = parent.clone();
+        forceSigma(m, SEED_SIGMA); // σ=0.2 seed mutation scale (§5)
+        mutateGenome(m, this.rng, { switchRates: this.switchRates });
+        m.id = m.hash();
+        m.src = new Int8Array(WAVE_SLOTS);
+        this.seedQueue.push(m);
+        i++;
+      }
+      return;
+    }
+    // v1 fallback: one random genome + 31 mutations of it at σ = 0.2.
     const base = randomGenome(this.rng);
     this.seedQueue.push(base);
     for (let i = 0; i < SEED_BATCH - 1; i++) {
@@ -97,17 +128,32 @@ export class Engine {
   // ARCHIVE (§7.3), breed, render, play. Returns a `candidate`.
   nextCandidate() {
     this.listenId++;
-    const occupied = this.archive.occupiedCount();
 
-    if (occupied === 0 && this.seedQueue.length > 0) {
-      // Empty archive — play from the seed queue (§7.3a-edge). No breeding.
+    // Play the WHOLE seeded batch in sequence before any breeding (§5: "held in a
+    // pending queue and played in sequence; each is inserted after it has been
+    // heard"). v1 drained the queue only while zero cells were occupied, so after
+    // the first seed was inserted it began breeding and the other 31 seeds were
+    // never heard — which made the F2 seed-from-picks change meaningless (only one
+    // of seven picks would ever have played). Draining the full queue honours §5's
+    // "played in sequence" and does not touch the heard-before-insert rule (§7.5):
+    // seeds still go play → record → insert, one at a time. Flagged in V2 report.
+    if (this.seedQueue.length > 0) {
       const genome = this.seedQueue.shift();
       const provenance = { prime_parent_id: null, partner_ids: [], k_partners: 0, crossover_fired: false, src: Array.from(genome.src || new Int8Array(WAVE_SLOTS)), duplication_fired: false, duplication_targets: [], duplication_hit_active_slot: false, variation: null, from_seed: true };
       return this._finishCandidate(genome, provenance, null, null, 0, false);
     }
     // Select prime parent (§7.3). Until two cells are occupied, crossover is 0
     // (§7.3a-edge): the partner draw excludes the prime, so it cannot return one.
-    const cell = this.archive.selectCell(this.rng);
+    let cell = this.archive.selectCell(this.rng);
+    if (!cell) {
+      // Defensive: the queue drained but nothing was inserted (e.g. every seed was a
+      // discarded double-tap in a degenerate run). Emergency-reseed one random genome
+      // rather than dereference a null cell. Should not occur in real or synthetic use.
+      const genome = randomGenome(this.rng);
+      genome.src = new Int8Array(WAVE_SLOTS);
+      const provenance = { prime_parent_id: null, partner_ids: [], k_partners: 0, crossover_fired: false, src: Array.from(genome.src), duplication_fired: false, duplication_targets: [], duplication_hit_active_slot: false, variation: null, from_seed: true };
+      return this._finishCandidate(genome, provenance, null, null, 0, false);
+    }
     const resident = this.archive.selectResident(cell, this.rng);
     return this._breedFrom(resident.genome, { x: cell.x, y: cell.y });
   }
@@ -150,7 +196,15 @@ export class Engine {
   // Render + normalise (§4.7), compute descriptors on the normalised buffer, find
   // the target cell, and package the candidate.
   _finishCandidate(genome, provenance, primeParent, parentCell, cooldownCollisions, acceptedDespiteCollision) {
+    // F9: time the render so render_wall_ms is recorded, not null. The v1 app logged
+    // null, so the owner's 5–10 s stalls at L=300 (the F8 servo runaway) could not be
+    // confirmed from the log. performance.now() is present in node ≥16 and browsers;
+    // Date.now() is the fallback. Measured here so it covers both the headless gates
+    // and the app, which share this render path.
+    const _clk = (typeof performance !== 'undefined' && performance.now) ? performance : Date;
+    const _t0 = _clk.now();
     const r = renderNormalized(genome, { sampleRate: this.renderSampleRate, lengthS: this.renderLength, captureVisEnv: this.captureVisEnv });
+    r.render_wall_ms = Math.round((_clk.now() - _t0) * 1000) / 1000;
     let descriptors = { development_raw: 0, harmonicity_raw: 0 };
     let cell = { cell_x: 0, cell_y: 0, clamped_to_edge: true };
     if (!r.renderError) {
@@ -167,6 +221,11 @@ export class Engine {
       cooldownCollisions, acceptedDespiteCollision,
       render: r, descriptors, cell,
       L_at_listen: this.renderLength,
+      // F4/P4: the actual audible duration after the leading-silence trim. The app
+      // censors dwell and fires `completed` at THIS length, not nominal L, so a
+      // listener who hears the whole trimmed render is flagged completed correctly.
+      played_length_s: r.played_length_s != null ? r.played_length_s : this.renderLength,
+      leading_trim_s: r.leading_trim_s || 0,
     };
   }
 
@@ -303,11 +362,20 @@ export class Engine {
       duplication_fired: provenance.duplication_fired,
       duplication_targets: provenance.duplication_targets,
       duplication_hit_active_slot: provenance.duplication_hit_active_slot,
+      // P2 copy-at-ratio (§14)
+      copy_ratio_fired: provenance.copy_ratio_fired,
+      copy_ratio_kind: provenance.copy_ratio_kind,
+      copy_ratio_r: provenance.copy_ratio_r,
+      copy_ratio_up: provenance.copy_ratio_up,
+      copy_ratio_source: provenance.copy_ratio_source,
+      copy_ratio_target: provenance.copy_ratio_target,
       // variation actually applied (§14.1)
       n_continuous_genes_mutated: v.n_continuous_genes_mutated,
       sigma_mean: v.sigma_mean, sigma_min: v.sigma_min, sigma_max: v.sigma_max,
       n_switch_flips: v.n_switch_flips, switch_flip_classes: v.switch_flip_classes,
       n_reroutes: v.n_reroutes, n_node_count_changes: v.n_node_count_changes,
+      n_ratio_jumps: v.n_ratio_jumps, // P1
+
       // partner selection (§14.1)
       D_med_at_selection: this.archive.dMed,
       n_cells_occupied_at_selection: this.archive.occupiedCount(),
@@ -322,7 +390,9 @@ export class Engine {
       cell_x: cell.cell_x, cell_y: cell.cell_y, clamped_to_edge: cell.clamped_to_edge,
       // render (§14.1)
       L_at_listen: candidate.L_at_listen,
-      render_wall_ms: null,
+      leading_trim_s: candidate.leading_trim_s,      // F4/P4
+      played_length_s: candidate.played_length_s,    // F4/P4 (nominal L minus trim)
+      render_wall_ms: r.render_wall_ms != null ? r.render_wall_ms : null, // F9
       sample_peak: r.samplePeak,
       clipped: r.clipped,
       render_error: r.renderError,
@@ -366,7 +436,7 @@ function expressedCount(g) {
   for (let w = 0; w < WAVE_SLOTS; w++) {
     if (g.getWave(w, 'active') < 0.5) continue;
     n += 4; // pitch_master, gain_out, gain_mod, phase
-    n += 3; // pre_wait, duration, mid_wait
+    n += 3; // period, duty, pre_prop (v2 timing trio, P3)
     for (const s of ['shape_sine_on', 'shape_triangle_on', 'shape_saw_on', 'shape_square_on']) if (g.isOn(w, s)) n++;
     if (g.isOn(w, 'amp_env_on')) n += 4 * g.getWave(w, 'amp_env_n_nodes');
     if (g.isOn(w, 'pitch_env_on')) n += 4 * g.getWave(w, 'pitch_env_n_nodes');

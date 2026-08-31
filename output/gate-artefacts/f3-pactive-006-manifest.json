@@ -1,0 +1,4038 @@
+{
+  "timestamp_ms": 1788188721345,
+  "session_id": "overnight-headless-2026-08-31150156",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "f3-pactive-006-manifest.json",
+  "gate": "1a-style audition (F3 p_active=0.06) — this script judges nothing",
+  "length_s": 30,
+  "sample_rate": 44100,
+  "n": 100,
+  "p_active": 0.06,
+  "seed": "0xf30006",
+  "pass_condition": "Owner ears (F5 threshold: hold past 5 s). Compare sameyness across p_active batches.",
+  "sanity_summary": {
+    "p_active": 0.06,
+    "seed": "0xf30006",
+    "n": 100,
+    "near_silent_count": 3,
+    "active_wave_count_mean": 4.15,
+    "active_wave_count_hist": {
+      "1": 9,
+      "2": 9,
+      "3": 19,
+      "4": 19,
+      "5": 22,
+      "6": 11,
+      "7": 9,
+      "8": 2
+    },
+    "silence_frac_mean": 0.34899174703417657
+  },
+  "clips": [
+    {
+      "index": 0,
+      "filename": "creature-000.wav",
+      "genome_id": "94f63f6b",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.359,
+      "waves": [
+        {
+          "slot": 5,
+          "pitch_hz": 158.06,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 34,
+          "pitch_hz": 158.06,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "filename": "creature-001.wav",
+      "genome_id": "03f85422",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.25,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 3.14,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 42.13,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 47,
+          "pitch_hz": 505.55,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 84.26,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "filename": "creature-002.wav",
+      "genome_id": "98c6b54a",
+      "active_wave_count": 7,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.003,
+      "waves": [
+        {
+          "slot": 10,
+          "pitch_hz": 1830.91,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 21,
+          "pitch_hz": 59.26,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 23,
+          "pitch_hz": 8.67,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 42,
+          "pitch_hz": 711.08,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 48,
+          "pitch_hz": 296.29,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 51,
+          "pitch_hz": 0.25,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 4268.91,
+          "gain_out_db": -16.9,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "filename": "creature-003.wav",
+      "genome_id": "814f2fc0",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.001,
+      "waves": [
+        {
+          "slot": 0,
+          "pitch_hz": 275.43,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 23,
+          "pitch_hz": 41.31,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 24,
+          "pitch_hz": 41.31,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 38,
+          "pitch_hz": 275.43,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 51,
+          "pitch_hz": 82.63,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "filename": "creature-004.wav",
+      "genome_id": "9ddf614e",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.591,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 0.37,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 9,
+          "pitch_hz": 104.12,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 17,
+          "pitch_hz": 0.45,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 28,
+          "pitch_hz": 0.33,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 55,
+          "pitch_hz": 104.12,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "filename": "creature-005.wav",
+      "genome_id": "ec8140af",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.272,
+      "waves": [
+        {
+          "slot": 40,
+          "pitch_hz": 38.82,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 41,
+          "pitch_hz": 17.38,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 58,
+          "pitch_hz": 7.31,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 516.1,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "filename": "creature-006.wav",
+      "genome_id": "c8c13d14",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.097,
+      "waves": [
+        {
+          "slot": 17,
+          "pitch_hz": 132.02,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 56,
+          "pitch_hz": 99.01,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 198.03,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 99.01,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "filename": "creature-007.wav",
+      "genome_id": "e7f7c7e6",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.125,
+      "waves": [
+        {
+          "slot": 17,
+          "pitch_hz": 219.76,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 51,
+          "pitch_hz": 280.13,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 140.06,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 62,
+          "pitch_hz": 116.72,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "filename": "creature-008.wav",
+      "genome_id": "cf017572",
+      "active_wave_count": 4,
+      "has_feedback_cycle": true,
+      "near_silent": false,
+      "leading_trim_s": 0.007,
+      "waves": [
+        {
+          "slot": 18,
+          "pitch_hz": 35.3,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 176.52,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 56,
+          "pitch_hz": 35.3,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 62,
+          "pitch_hz": 176.52,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 9,
+      "filename": "creature-009.wav",
+      "genome_id": "962896e9",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.238,
+      "waves": [
+        {
+          "slot": 38,
+          "pitch_hz": 15.37,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 48,
+          "pitch_hz": 30.74,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 52,
+          "pitch_hz": 245.96,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 10,
+      "filename": "creature-010.wav",
+      "genome_id": "29ddc124",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.394,
+      "waves": [
+        {
+          "slot": 20,
+          "pitch_hz": 19600.6,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 26,
+          "pitch_hz": 9.47,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 287.9,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 11,
+      "filename": "creature-011.wav",
+      "genome_id": "801c0af0",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.107,
+      "waves": [
+        {
+          "slot": 21,
+          "pitch_hz": 21.36,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 170.91,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 37,
+          "pitch_hz": 106.82,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 40,
+          "pitch_hz": 21.36,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 46,
+          "pitch_hz": 28.48,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 12,
+      "filename": "creature-012.wav",
+      "genome_id": "be530f98",
+      "active_wave_count": 7,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.214,
+      "waves": [
+        {
+          "slot": 10,
+          "pitch_hz": 49.42,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 21,
+          "pitch_hz": 593,
+          "gain_out_db": -15.6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 26,
+          "pitch_hz": 8.24,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 0.24,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 46,
+          "pitch_hz": 7373,
+          "gain_out_db": -16.9,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 52,
+          "pitch_hz": 3.31,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 56,
+          "pitch_hz": 65.89,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "filename": "creature-013.wav",
+      "genome_id": "71d49f4a",
+      "active_wave_count": 7,
+      "has_feedback_cycle": true,
+      "near_silent": false,
+      "leading_trim_s": 0.179,
+      "waves": [
+        {
+          "slot": 7,
+          "pitch_hz": 99.47,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 16,
+          "pitch_hz": 198.94,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 25,
+          "pitch_hz": 497.36,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 34,
+          "pitch_hz": 99.47,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 99.47,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 55,
+          "pitch_hz": 99.47,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 62,
+          "pitch_hz": 497.36,
+          "gain_out_db": -16.9,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "filename": "creature-014.wav",
+      "genome_id": "87bd13ce",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.473,
+      "waves": [
+        {
+          "slot": 17,
+          "pitch_hz": 4.21,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 94.18,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 15,
+      "filename": "creature-015.wav",
+      "genome_id": "7f703760",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.48,
+      "waves": [
+        {
+          "slot": 7,
+          "pitch_hz": 122.75,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 16,
+      "filename": "creature-016.wav",
+      "genome_id": "5b6e34b5",
+      "active_wave_count": 7,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.064,
+      "waves": [
+        {
+          "slot": 11,
+          "pitch_hz": 396.97,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 330.81,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 28,
+          "pitch_hz": 88.22,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 34,
+          "pitch_hz": 66.16,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 793.94,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 43,
+          "pitch_hz": 66.16,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 13393.75,
+          "gain_out_db": -16.9,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 17,
+      "filename": "creature-017.wav",
+      "genome_id": "c328aef9",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.73,
+      "waves": [
+        {
+          "slot": 2,
+          "pitch_hz": 400.9,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 21,
+          "pitch_hz": 1069.07,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 47,
+          "pitch_hz": 44.54,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 18,
+      "filename": "creature-018.wav",
+      "genome_id": "26dfe1a4",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.132,
+      "waves": [
+        {
+          "slot": 19,
+          "pitch_hz": 46.02,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 22,
+          "pitch_hz": 30.68,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 25,
+          "pitch_hz": 23.01,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 43,
+          "pitch_hz": 46.02,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 460.19,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 19,
+      "filename": "creature-019.wav",
+      "genome_id": "d9f335e5",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.014,
+      "waves": [
+        {
+          "slot": 19,
+          "pitch_hz": 23.88,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 159.17,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 41,
+          "pitch_hz": 191.01,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 52,
+          "pitch_hz": 0.12,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 18322.52,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 20,
+      "filename": "creature-020.wav",
+      "genome_id": "efeb6b06",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.217,
+      "waves": [
+        {
+          "slot": 3,
+          "pitch_hz": 0.6,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 31,
+          "pitch_hz": 40.07,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 20.04,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 50,
+          "pitch_hz": 20.04,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 56,
+          "pitch_hz": 160.29,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 21,
+      "filename": "creature-021.wav",
+      "genome_id": "acbe445b",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.024,
+      "waves": [
+        {
+          "slot": 0,
+          "pitch_hz": 24.66,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 20,
+          "pitch_hz": 24.66,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 690.5,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 36,
+          "pitch_hz": 98.64,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 46,
+          "pitch_hz": 4.76,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 22,
+      "filename": "creature-022.wav",
+      "genome_id": "8f0f44b5",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.003,
+      "waves": [
+        {
+          "slot": 4,
+          "pitch_hz": 134.59,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 5,
+          "pitch_hz": 2.17,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 33,
+          "pitch_hz": 35.89,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 37,
+          "pitch_hz": 215.34,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 38,
+          "pitch_hz": 26.92,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 0.03,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 23,
+      "filename": "creature-023.wav",
+      "genome_id": "ab38cb71",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 2.678,
+      "waves": [
+        {
+          "slot": 34,
+          "pitch_hz": 0.06,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 47,
+          "pitch_hz": 24.32,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 0.05,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 0.19,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 1090.43,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 24,
+      "filename": "creature-024.wav",
+      "genome_id": "decdd087",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.001,
+      "waves": [
+        {
+          "slot": 4,
+          "pitch_hz": 648.31,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 23,
+          "pitch_hz": 243.11,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 27,
+          "pitch_hz": 25.26,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 2.57,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 57,
+          "pitch_hz": 270.13,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 59,
+          "pitch_hz": 202.6,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 25,
+      "filename": "creature-025.wav",
+      "genome_id": "05552024",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.284,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 76.19,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 3,
+          "pitch_hz": 76.19,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 17.4,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 51,
+          "pitch_hz": 57.14,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 26,
+      "filename": "creature-026.wav",
+      "genome_id": "2ac4e4f1",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 5.055,
+      "waves": [
+        {
+          "slot": 53,
+          "pitch_hz": 5.14,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 27,
+      "filename": "creature-027.wav",
+      "genome_id": "cb70263f",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.024,
+      "waves": [
+        {
+          "slot": 22,
+          "pitch_hz": 105.03,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 37,
+          "pitch_hz": 259.65,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 41,
+          "pitch_hz": 51.87,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 2.06,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 59,
+          "pitch_hz": 350.09,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 28,
+      "filename": "creature-028.wav",
+      "genome_id": "3974937f",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.116,
+      "waves": [
+        {
+          "slot": 34,
+          "pitch_hz": 42.52,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 43,
+          "pitch_hz": 42.52,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 52,
+          "pitch_hz": 21.26,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 141.74,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 21.26,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 29,
+      "filename": "creature-029.wav",
+      "genome_id": "1834da1f",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.399,
+      "waves": [
+        {
+          "slot": 9,
+          "pitch_hz": 64.26,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 13,
+          "pitch_hz": 85.68,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 19,
+          "pitch_hz": 64.26,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 30,
+      "filename": "creature-030.wav",
+      "genome_id": "302a3f81",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.571,
+      "waves": [
+        {
+          "slot": 0,
+          "pitch_hz": 41.69,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 34,
+          "pitch_hz": 14.9,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 41.69,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 31,
+      "filename": "creature-031.wav",
+      "genome_id": "b7e38c91",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.002,
+      "waves": [
+        {
+          "slot": 10,
+          "pitch_hz": 35.21,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 35.21,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 16,
+          "pitch_hz": 35.21,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 20,
+          "pitch_hz": 0.29,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 42,
+          "pitch_hz": 35.21,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 35.21,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 32,
+      "filename": "creature-032.wav",
+      "genome_id": "49958d52",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.408,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 78.4,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 56,
+          "pitch_hz": 15.68,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 33,
+      "filename": "creature-033.wav",
+      "genome_id": "e7a79dff",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 1.096,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 18.56,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 18,
+          "pitch_hz": 27.48,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 10127.62,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 34,
+      "filename": "creature-034.wav",
+      "genome_id": "16ee5b90",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.001,
+      "waves": [
+        {
+          "slot": 3,
+          "pitch_hz": 14.86,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 0.02,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 25,
+          "pitch_hz": 19.82,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 52,
+          "pitch_hz": 178.35,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 35,
+      "filename": "creature-035.wav",
+      "genome_id": "80bbb51d",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.003,
+      "waves": [
+        {
+          "slot": 8,
+          "pitch_hz": 3515.82,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 19,
+          "pitch_hz": 0.37,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 24,
+          "pitch_hz": 120.9,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 0.07,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 36,
+      "filename": "creature-036.wav",
+      "genome_id": "a76e933f",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 2.741,
+      "waves": [
+        {
+          "slot": 30,
+          "pitch_hz": 182.43,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 54,
+          "pitch_hz": 0.2,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 37,
+      "filename": "creature-037.wav",
+      "genome_id": "6fe88ef2",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.013,
+      "waves": [
+        {
+          "slot": 3,
+          "pitch_hz": 2253.81,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 12,
+          "pitch_hz": 0.7,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 109.54,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 25,
+          "pitch_hz": 2.21,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 29,
+          "pitch_hz": 43.82,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 56,
+          "pitch_hz": 29.21,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 38,
+      "filename": "creature-038.wav",
+      "genome_id": "26cad8e4",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.718,
+      "waves": [
+        {
+          "slot": 24,
+          "pitch_hz": 41.32,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 33,
+          "pitch_hz": 0.13,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 36,
+          "pitch_hz": 123.97,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 58,
+          "pitch_hz": 41.32,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 63,
+          "pitch_hz": 247.94,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 39,
+      "filename": "creature-039.wav",
+      "genome_id": "862b6c41",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.166,
+      "waves": [
+        {
+          "slot": 25,
+          "pitch_hz": 155.43,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 40,
+      "filename": "creature-040.wav",
+      "genome_id": "2e3b85f6",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.004,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 100.78,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 9,
+          "pitch_hz": 0.3,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 17,
+          "pitch_hz": 87.44,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 54,
+          "pitch_hz": 40.31,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 55,
+          "pitch_hz": 134.37,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 41,
+      "filename": "creature-041.wav",
+      "genome_id": "8b73c4af",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.187,
+      "waves": [
+        {
+          "slot": 5,
+          "pitch_hz": 18.42,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 21,
+          "pitch_hz": 0.59,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 42,
+          "pitch_hz": 31.35,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 250.77,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 46,
+          "pitch_hz": 16.91,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 42,
+      "filename": "creature-042.wav",
+      "genome_id": "f20f83a7",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.016,
+      "waves": [
+        {
+          "slot": 19,
+          "pitch_hz": 54.85,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 42,
+          "pitch_hz": 0.15,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 0.57,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 62,
+          "pitch_hz": 36.56,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 43,
+      "filename": "creature-043.wav",
+      "genome_id": "dba84bdd",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.778,
+      "waves": [
+        {
+          "slot": 20,
+          "pitch_hz": 29.94,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 43,
+          "pitch_hz": 44.91,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 48,
+          "pitch_hz": 449.07,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 51,
+          "pitch_hz": 134.72,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 55,
+          "pitch_hz": 22.45,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 44,
+      "filename": "creature-044.wav",
+      "genome_id": "a34c0883",
+      "active_wave_count": 7,
+      "has_feedback_cycle": true,
+      "near_silent": false,
+      "leading_trim_s": 0.232,
+      "waves": [
+        {
+          "slot": 14,
+          "pitch_hz": 0.84,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 26,
+          "pitch_hz": 1299.75,
+          "gain_out_db": -16.9,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 31,
+          "pitch_hz": 25.91,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 32,
+          "pitch_hz": 0.23,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 36,
+          "pitch_hz": 40.62,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 50,
+          "pitch_hz": 81.23,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 0.14,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 45,
+      "filename": "creature-045.wav",
+      "genome_id": "e03c05ea",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.4,
+      "waves": [
+        {
+          "slot": 4,
+          "pitch_hz": 35.91,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 53.81,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 46,
+      "filename": "creature-046.wav",
+      "genome_id": "07854869",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.065,
+      "waves": [
+        {
+          "slot": 6,
+          "pitch_hz": 112.81,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 9,
+          "pitch_hz": 305.7,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 11,
+          "pitch_hz": 84.61,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 34,
+          "pitch_hz": 1.65,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 423.03,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 63,
+          "pitch_hz": 2368.97,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 47,
+      "filename": "creature-047.wav",
+      "genome_id": "700642a8",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.002,
+      "waves": [
+        {
+          "slot": 38,
+          "pitch_hz": 23.34,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 46.67,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 48,
+      "filename": "creature-048.wav",
+      "genome_id": "c19a1c64",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.003,
+      "waves": [
+        {
+          "slot": 10,
+          "pitch_hz": 13.63,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 20,
+          "pitch_hz": 90.86,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 45,
+          "pitch_hz": 436.14,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 55,
+          "pitch_hz": 27.26,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 49,
+      "filename": "creature-049.wav",
+      "genome_id": "be54a99a",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.004,
+      "waves": [
+        {
+          "slot": 8,
+          "pitch_hz": 0.11,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 21,
+          "pitch_hz": 166.75,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 26,
+          "pitch_hz": 83.38,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 2.44,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 41,
+          "pitch_hz": 55.58,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 51,
+          "pitch_hz": 6.81,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 50,
+      "filename": "creature-050.wav",
+      "genome_id": "ced24a70",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.022,
+      "waves": [
+        {
+          "slot": 25,
+          "pitch_hz": 19.63,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 28,
+          "pitch_hz": 235.59,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 34,
+          "pitch_hz": 26.18,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 51,
+      "filename": "creature-051.wav",
+      "genome_id": "5c0e672e",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 1.284,
+      "waves": [
+        {
+          "slot": 17,
+          "pitch_hz": 0.55,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 58,
+          "pitch_hz": 159.58,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 52,
+      "filename": "creature-052.wav",
+      "genome_id": "17e391ca",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.003,
+      "waves": [
+        {
+          "slot": 6,
+          "pitch_hz": 51.69,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 24,
+          "pitch_hz": 310.13,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 32,
+          "pitch_hz": 68.92,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 408.13,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 53,
+      "filename": "creature-053.wav",
+      "genome_id": "c8b12725",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.007,
+      "waves": [
+        {
+          "slot": 0,
+          "pitch_hz": 45.27,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 16,
+          "pitch_hz": 90.54,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 17,
+          "pitch_hz": 0.04,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 0.74,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 226.36,
+          "gain_out_db": -15.6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 45.27,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 54,
+      "filename": "creature-054.wav",
+      "genome_id": "0df996bf",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.348,
+      "waves": [
+        {
+          "slot": 12,
+          "pitch_hz": 33.39,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 30,
+          "pitch_hz": 166.97,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 31,
+          "pitch_hz": 2852.63,
+          "gain_out_db": -15.6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 37,
+          "pitch_hz": 0.03,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 44.53,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 222.63,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 55,
+      "filename": "creature-055.wav",
+      "genome_id": "1cb7bab8",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.427,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 2.06,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 312.95,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 54,
+          "pitch_hz": 1.75,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 56,
+      "filename": "creature-056.wav",
+      "genome_id": "77c98491",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.293,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 36.03,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 17,
+          "pitch_hz": 72.05,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 24,
+          "pitch_hz": 10079.6,
+          "gain_out_db": -15.6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 32,
+          "pitch_hz": 1.14,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 36.03,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 62,
+          "pitch_hz": 3057.65,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 57,
+      "filename": "creature-057.wav",
+      "genome_id": "727dc3ba",
+      "active_wave_count": 4,
+      "has_feedback_cycle": true,
+      "near_silent": false,
+      "leading_trim_s": 1.677,
+      "waves": [
+        {
+          "slot": 7,
+          "pitch_hz": 134.33,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 20.15,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 54,
+          "pitch_hz": 4.11,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 100.75,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 58,
+      "filename": "creature-058.wav",
+      "genome_id": "d28e7829",
+      "active_wave_count": 7,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.497,
+      "waves": [
+        {
+          "slot": 10,
+          "pitch_hz": 90.92,
+          "gain_out_db": -15.6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 15.15,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 18,
+          "pitch_hz": 14.01,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 75.77,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 57,
+          "pitch_hz": 3463.3,
+          "gain_out_db": -16.9,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 60.61,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 62,
+          "pitch_hz": 30.31,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 59,
+      "filename": "creature-059.wav",
+      "genome_id": "81030b4b",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.215,
+      "waves": [
+        {
+          "slot": 16,
+          "pitch_hz": 448.43,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 25,
+          "pitch_hz": 89.69,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 26,
+          "pitch_hz": 119.58,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 36,
+          "pitch_hz": 89.69,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 0.1,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 60,
+      "filename": "creature-060.wav",
+      "genome_id": "842fe5ee",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.108,
+      "waves": [
+        {
+          "slot": 2,
+          "pitch_hz": 44.85,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 43,
+          "pitch_hz": 403.63,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 47,
+          "pitch_hz": 44.85,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 61,
+      "filename": "creature-061.wav",
+      "genome_id": "ab046639",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.007,
+      "waves": [
+        {
+          "slot": 8,
+          "pitch_hz": 91.22,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 25,
+          "pitch_hz": 0.28,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 33,
+          "pitch_hz": 3.67,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 57,
+          "pitch_hz": 68.41,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 62,
+      "filename": "creature-062.wav",
+      "genome_id": "1e678ebb",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.176,
+      "waves": [
+        {
+          "slot": 41,
+          "pitch_hz": 2.57,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 51,
+          "pitch_hz": 20.84,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 15.63,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 63,
+      "filename": "creature-063.wav",
+      "genome_id": "be625085",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.001,
+      "waves": [
+        {
+          "slot": 0,
+          "pitch_hz": 7343.38,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 2,
+          "pitch_hz": 90.18,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 9,
+          "pitch_hz": 58.41,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 120.24,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 62,
+          "pitch_hz": 450.9,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 64,
+      "filename": "creature-064.wav",
+      "genome_id": "8bed8316",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.412,
+      "waves": [
+        {
+          "slot": 32,
+          "pitch_hz": 22.6,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 65,
+      "filename": "creature-065.wav",
+      "genome_id": "b14b8e4b",
+      "active_wave_count": 7,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.472,
+      "waves": [
+        {
+          "slot": 3,
+          "pitch_hz": 700.72,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 19,
+          "pitch_hz": 56.84,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 21,
+          "pitch_hz": 1167.87,
+          "gain_out_db": -15.6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 23,
+          "pitch_hz": 58.39,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 0.04,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 41,
+          "pitch_hz": 1635.02,
+          "gain_out_db": -16.9,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 77.86,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 66,
+      "filename": "creature-066.wav",
+      "genome_id": "5da57c51",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.001,
+      "waves": [
+        {
+          "slot": 37,
+          "pitch_hz": 107.29,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 67,
+      "filename": "creature-067.wav",
+      "genome_id": "30f94a4d",
+      "active_wave_count": 8,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.001,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 3162.29,
+          "gain_out_db": -18.1,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 12,
+          "pitch_hz": 13.82,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 13,
+          "pitch_hz": 22.26,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 22.26,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 15,
+          "pitch_hz": 0.01,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 51,
+          "pitch_hz": 29.68,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 54,
+          "pitch_hz": 44.53,
+          "gain_out_db": -16.9,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 22.26,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 68,
+      "filename": "creature-068.wav",
+      "genome_id": "cebb4408",
+      "active_wave_count": 7,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.005,
+      "waves": [
+        {
+          "slot": 4,
+          "pitch_hz": 90.15,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 16,
+          "pitch_hz": 0.02,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 27,
+          "pitch_hz": 135.22,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 34,
+          "pitch_hz": 135.22,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 45,
+          "pitch_hz": 135.22,
+          "gain_out_db": -16.9,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 46,
+          "pitch_hz": 90.15,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 57,
+          "pitch_hz": 67.61,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 69,
+      "filename": "creature-069.wav",
+      "genome_id": "1a8f3a02",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.002,
+      "waves": [
+        {
+          "slot": 18,
+          "pitch_hz": 960.73,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 30,
+          "pitch_hz": 0.72,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 38,
+          "pitch_hz": 82.83,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 52,
+          "pitch_hz": 110.45,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 55,
+          "pitch_hz": 497,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 70,
+      "filename": "creature-070.wav",
+      "genome_id": "40d3fcb6",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.016,
+      "waves": [
+        {
+          "slot": 15,
+          "pitch_hz": 59.87,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 39.22,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 9.65,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 71,
+      "filename": "creature-071.wav",
+      "genome_id": "3bdf406f",
+      "active_wave_count": 4,
+      "has_feedback_cycle": true,
+      "near_silent": false,
+      "leading_trim_s": 0.286,
+      "waves": [
+        {
+          "slot": 20,
+          "pitch_hz": 0.57,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 21,
+          "pitch_hz": 0.03,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 29,
+          "pitch_hz": 228.66,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 36,
+          "pitch_hz": 19.05,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 72,
+      "filename": "creature-072.wav",
+      "genome_id": "f705fa8c",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.006,
+      "waves": [
+        {
+          "slot": 11,
+          "pitch_hz": 86.59,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 1487.11,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 86.59,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 73,
+      "filename": "creature-073.wav",
+      "genome_id": "75e47de4",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.436,
+      "waves": [
+        {
+          "slot": 21,
+          "pitch_hz": 144.99,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 37,
+          "pitch_hz": 173.99,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 0.11,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 40,
+          "pitch_hz": 58,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 74,
+      "filename": "creature-074.wav",
+      "genome_id": "0a4083c8",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.002,
+      "waves": [
+        {
+          "slot": 18,
+          "pitch_hz": 0.29,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 32,
+          "pitch_hz": 40.45,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 41,
+          "pitch_hz": 40.45,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 75,
+      "filename": "creature-075.wav",
+      "genome_id": "9c548cc4",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.375,
+      "waves": [
+        {
+          "slot": 28,
+          "pitch_hz": 296.68,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 38,
+          "pitch_hz": 16.24,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 76,
+      "filename": "creature-076.wav",
+      "genome_id": "743c9faf",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.266,
+      "waves": [
+        {
+          "slot": 7,
+          "pitch_hz": 31.07,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 19,
+          "pitch_hz": 31.07,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 38,
+          "pitch_hz": 31.07,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 77,
+      "filename": "creature-077.wav",
+      "genome_id": "47ce8215",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.003,
+      "waves": [
+        {
+          "slot": 3,
+          "pitch_hz": 0.03,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 13,
+          "pitch_hz": 660.96,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 0.05,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 24,
+          "pitch_hz": 39.95,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 42,
+          "pitch_hz": 0.02,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 78,
+      "filename": "creature-078.wav",
+      "genome_id": "94b73e40",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.026,
+      "waves": [
+        {
+          "slot": 20,
+          "pitch_hz": 309.67,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 22,
+          "pitch_hz": 154.84,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 31,
+          "pitch_hz": 119.65,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 129.03,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 79,
+      "filename": "creature-079.wav",
+      "genome_id": "bc7430c1",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.088,
+      "waves": [
+        {
+          "slot": 0,
+          "pitch_hz": 0.22,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 100.82,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 53,
+          "pitch_hz": 25.2,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 80,
+      "filename": "creature-080.wav",
+      "genome_id": "908ea0d7",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.166,
+      "waves": [
+        {
+          "slot": 7,
+          "pitch_hz": 2476.13,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 13,
+          "pitch_hz": 90.82,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 45,
+          "pitch_hz": 36.33,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 81,
+      "filename": "creature-081.wav",
+      "genome_id": "306362dc",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.003,
+      "waves": [
+        {
+          "slot": 14,
+          "pitch_hz": 287.46,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 19,
+          "pitch_hz": 2609.69,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 25,
+          "pitch_hz": 0.16,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 61,
+          "pitch_hz": 3287.7,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 82,
+      "filename": "creature-082.wav",
+      "genome_id": "47551b71",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": true,
+      "leading_trim_s": 0,
+      "waves": [
+        {
+          "slot": 33,
+          "pitch_hz": 77.47,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 83,
+      "filename": "creature-083.wav",
+      "genome_id": "a163eeae",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": true,
+      "leading_trim_s": 0,
+      "waves": [
+        {
+          "slot": 7,
+          "pitch_hz": 3809.67,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 84,
+      "filename": "creature-084.wav",
+      "genome_id": "0114a0a1",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.369,
+      "waves": [
+        {
+          "slot": 32,
+          "pitch_hz": 83.22,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 85,
+      "filename": "creature-085.wav",
+      "genome_id": "56bf39d1",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.422,
+      "waves": [
+        {
+          "slot": 6,
+          "pitch_hz": 69.83,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 13,
+          "pitch_hz": 190.06,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 26,
+          "pitch_hz": 2.37,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 28,
+          "pitch_hz": 18.62,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 13.97,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 57,
+          "pitch_hz": 55.86,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 86,
+      "filename": "creature-086.wav",
+      "genome_id": "b93dd071",
+      "active_wave_count": 7,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.007,
+      "waves": [
+        {
+          "slot": 0,
+          "pitch_hz": 1187.72,
+          "gain_out_db": -15.6,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 2,
+          "pitch_hz": 131.97,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 20,
+          "pitch_hz": 3.82,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 24,
+          "pitch_hz": 2.19,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 29,
+          "pitch_hz": 0.09,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 56,
+          "pitch_hz": 395.91,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 58,
+          "pitch_hz": 1249.34,
+          "gain_out_db": -16.9,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 87,
+      "filename": "creature-087.wav",
+      "genome_id": "cc5b8075",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.006,
+      "waves": [
+        {
+          "slot": 41,
+          "pitch_hz": 74.66,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 43,
+          "pitch_hz": 0.01,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 48,
+          "pitch_hz": 49.56,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 88,
+      "filename": "creature-088.wav",
+      "genome_id": "da64b96e",
+      "active_wave_count": 3,
+      "has_feedback_cycle": true,
+      "near_silent": false,
+      "leading_trim_s": 0.461,
+      "waves": [
+        {
+          "slot": 17,
+          "pitch_hz": 0.16,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 37.3,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 27.98,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 89,
+      "filename": "creature-089.wav",
+      "genome_id": "64d30eab",
+      "active_wave_count": 3,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.635,
+      "waves": [
+        {
+          "slot": 47,
+          "pitch_hz": 2766.69,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 49,
+          "pitch_hz": 64,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 52,
+          "pitch_hz": 0.02,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 90,
+      "filename": "creature-090.wav",
+      "genome_id": "ce200f99",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.023,
+      "waves": [
+        {
+          "slot": 13,
+          "pitch_hz": 51.65,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 1.6,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 17,
+          "pitch_hz": 51.65,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 58,
+          "pitch_hz": 51.65,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 63,
+          "pitch_hz": 51.65,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 91,
+      "filename": "creature-091.wav",
+      "genome_id": "b4be812f",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.002,
+      "waves": [
+        {
+          "slot": 8,
+          "pitch_hz": 36.2,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 28.35,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 25,
+          "pitch_hz": 28.35,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 44,
+          "pitch_hz": 56.71,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 47,
+          "pitch_hz": 37.81,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 92,
+      "filename": "creature-092.wav",
+      "genome_id": "64f4ad1e",
+      "active_wave_count": 8,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.005,
+      "waves": [
+        {
+          "slot": 9,
+          "pitch_hz": 8479.39,
+          "gain_out_db": -18.1,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 26,
+          "pitch_hz": 56.55,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 35,
+          "pitch_hz": 1.47,
+          "gain_out_db": -6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 36,
+          "pitch_hz": 6368.48,
+          "gain_out_db": -16.9,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 43,
+          "pitch_hz": 0.65,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 50,
+          "pitch_hz": 8.45,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 52,
+          "pitch_hz": 226.21,
+          "gain_out_db": -15.6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 56,
+          "pitch_hz": 75.4,
+          "gain_out_db": -14,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 93,
+      "filename": "creature-093.wav",
+      "genome_id": "ff286745",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.002,
+      "waves": [
+        {
+          "slot": 13,
+          "pitch_hz": 60.38,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 22,
+          "pitch_hz": 1.43,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 24,
+          "pitch_hz": 100.54,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 45,
+          "pitch_hz": 25.14,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 55,
+          "pitch_hz": 51.89,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 94,
+      "filename": "creature-094.wav",
+      "genome_id": "ad609d6d",
+      "active_wave_count": 4,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.308,
+      "waves": [
+        {
+          "slot": 1,
+          "pitch_hz": 2459.11,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 38,
+          "pitch_hz": 25.73,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 42,
+          "pitch_hz": 171.55,
+          "gain_out_db": -9.5,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 63,
+          "pitch_hz": 25.73,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 95,
+      "filename": "creature-095.wav",
+      "genome_id": "10a28f63",
+      "active_wave_count": 2,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.004,
+      "waves": [
+        {
+          "slot": 14,
+          "pitch_hz": 31.03,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 21,
+          "pitch_hz": 461.01,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 96,
+      "filename": "creature-096.wav",
+      "genome_id": "d77a3413",
+      "active_wave_count": 4,
+      "has_feedback_cycle": true,
+      "near_silent": false,
+      "leading_trim_s": 0.155,
+      "waves": [
+        {
+          "slot": 2,
+          "pitch_hz": 0.16,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 6,
+          "pitch_hz": 563.92,
+          "gain_out_db": -12,
+          "carrier": false,
+          "modulator": false
+        },
+        {
+          "slot": 12,
+          "pitch_hz": 70.49,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 27,
+          "pitch_hz": 70.49,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    },
+    {
+      "index": 97,
+      "filename": "creature-097.wav",
+      "genome_id": "1d937f0c",
+      "active_wave_count": 6,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.002,
+      "waves": [
+        {
+          "slot": 9,
+          "pitch_hz": 136.06,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 32,
+          "pitch_hz": 0.03,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 33,
+          "pitch_hz": 163.27,
+          "gain_out_db": -15.6,
+          "carrier": false,
+          "modulator": true
+        },
+        {
+          "slot": 42,
+          "pitch_hz": 136.06,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 60,
+          "pitch_hz": 108.85,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 63,
+          "pitch_hz": 36.28,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 98,
+      "filename": "creature-098.wav",
+      "genome_id": "3f6f944c",
+      "active_wave_count": 1,
+      "has_feedback_cycle": false,
+      "near_silent": true,
+      "leading_trim_s": 0,
+      "waves": [
+        {
+          "slot": 27,
+          "pitch_hz": 23.54,
+          "gain_out_db": 0,
+          "carrier": false,
+          "modulator": true
+        }
+      ]
+    },
+    {
+      "index": 99,
+      "filename": "creature-099.wav",
+      "genome_id": "fa1c788e",
+      "active_wave_count": 5,
+      "has_feedback_cycle": false,
+      "near_silent": false,
+      "leading_trim_s": 0.001,
+      "waves": [
+        {
+          "slot": 9,
+          "pitch_hz": 30.84,
+          "gain_out_db": -6,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 10,
+          "pitch_hz": 8350.11,
+          "gain_out_db": -14,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 14,
+          "pitch_hz": 30.84,
+          "gain_out_db": -9.5,
+          "carrier": true,
+          "modulator": true
+        },
+        {
+          "slot": 39,
+          "pitch_hz": 0.96,
+          "gain_out_db": 0,
+          "carrier": true,
+          "modulator": false
+        },
+        {
+          "slot": 48,
+          "pitch_hz": 41.12,
+          "gain_out_db": -12,
+          "carrier": true,
+          "modulator": false
+        }
+      ]
+    }
+  ]
+}

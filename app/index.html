@@ -11,6 +11,21 @@
   runs headless under node (README) — so the substance is upstream and this page
   is deliberately light.
 
+  ┌─ CANONICAL SERVING PORT: localhost:8766 (F6, V2-PROPOSALS) ─────────────────┐
+  │ Browser storage (IndexedDB) is per-ORIGIN, so http://localhost:8766 and     │
+  │ http://localhost:8765 are DIFFERENT databases. The first real session       │
+  │ (213 listens, 2026-08-31) was recorded on :8766, so that is now the          │
+  │ canonical port — always serve this page there so a run continues the same    │
+  │ database rather than silently starting an empty one. On the host, from the   │
+  │ project root:   python3 -m http.server 8766   then open                      │
+  │ http://localhost:8766/app/  . Do NOT open as file:// (module + fetch CORS).  │
+  └─────────────────────────────────────────────────────────────────────────────┘
+
+  This build is v2 (period/duty timing schema, P3). It MUST NOT clobber the v1
+  database that already holds the owner's first real session — the openDb() path
+  below versions the DB up and only ADDS stores, never dropping data (F6).-->
+<!--
+
   It implements: the keyboard table (§1, table-driven so bindings extend without
   restructuring), attention gating through ONE suspension code path (§8.7), the
   annotation field firewalled from the search (§8.6), the render-length servo via
@@ -45,7 +60,7 @@
 <div id="ui">
   <div id="left" class="panel">
     <h1>PLAYING GOD <span class="muted" id="status">— loading —</span></h1>
-    <div class="row"><span id="dwell">0.0</span><span class="muted"> s dwell</span> · <span class="muted" id="listenmeta"></span></div>
+    <div class="row"><span id="dwell">0.0</span><span class="muted"> s dwell</span><span class="muted" id="dwellmark"></span> · <span class="muted" id="listenmeta"></span></div>
     <div class="row" id="flags"></div>
     <canvas id="legibility"></canvas>
     <div class="row" style="margin-top:8px">
@@ -68,6 +83,7 @@
 import { RNG } from '../src/rng.js';
 import { Engine } from '../src/loop.js';
 import { WAVE_SLOTS } from '../src/genome.js';
+import { genomesFromSeedPicks } from '../src/seedpicks.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // IndexedDB logging (§14, docs/EXPORTING-LOGS.md). One db, one store per stream.
@@ -76,13 +92,42 @@ import { WAVE_SLOTS } from '../src/genome.js';
 // ─────────────────────────────────────────────────────────────────────────────
 const DB_NAME = 'playing-god';
 const STORES = ['listens', 'genomes', 'snapshots', 'servo', 'notes', 'anomalies'];
+// F6: bumped 1 → 2 for the v2 build. A real session's data already lives in this
+// origin's v1 database (213 listens on :8766, 2026-08-31), so the upgrade must be
+// PURELY ADDITIVE — never delete or recreate an existing store (that would clobber
+// the owner's data). onupgradeneeded below only creates stores that are MISSING,
+// and adds a `meta` store recording the schema version so a later reader can tell
+// v1 records (v1 timing genes) from v2 records (period/duty, P3) in the same DB.
+const DB_VERSION = 2;
+const SCHEMA_VERSION = 'v2'; // period/duty timing schema (P3)
+const META_STORE = 'meta';
 let db;
 function openDb() {
   return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = () => { const d = req.result; for (const s of STORES) if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { autoIncrement: true }); };
-    req.onsuccess = () => resolve(req.result);
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = (ev) => {
+      const d = req.result;
+      // Additive only: create any store that does not already exist. Existing
+      // stores (and every record in them) are left exactly as they are — versioning
+      // the DB up does not clear data, and we never call deleteObjectStore (F6).
+      for (const s of STORES) if (!d.objectStoreNames.contains(s)) d.createObjectStore(s, { autoIncrement: true });
+      if (!d.objectStoreNames.contains(META_STORE)) d.createObjectStore(META_STORE, { keyPath: 'key' });
+      console.info('[playing-god] IndexedDB upgrade', ev.oldVersion, '->', ev.newVersion, '(additive; v1 data preserved)');
+    };
+    req.onsuccess = () => {
+      const d = req.result;
+      // Stamp the schema version WITHOUT touching prior records. A v1 DB that had
+      // no meta store gets one on upgrade; we record that this session writes v2.
+      try {
+        const tx = d.transaction(META_STORE, 'readwrite');
+        tx.objectStore(META_STORE).put({ key: 'schema:' + SESSION_ID, schema_version: SCHEMA_VERSION, session_id: SESSION_ID, timestamp_ms: Date.now() });
+      } catch {}
+      resolve(d);
+    };
     req.onerror = () => reject(req.error);
+    // If a v1 tab is still open elsewhere it can block the version change; surface
+    // it rather than clobbering.
+    req.onblocked = () => console.warn('[playing-god] IndexedDB upgrade blocked — close other Playing God tabs.');
   });
 }
 function put(store, record) {
@@ -163,15 +208,29 @@ let engine, logger, calibration = { dev: { min: 0.5, max: 60 }, harm: { min: 0.0
 let current = null;             // current candidate
 let lineageStack = [];          // app-side B stack of candidates (mutation/back)
 let noteComposing = false, noteStartMs = 0, nNotesThisListen = 0;
+// F7: once the render reaches its end the dwell is censored at the render length
+// (§8.3: "Time spent after the render ends does not accrue"). v1 kept the VISIBLE
+// timer counting past the end (owner note, listen 180). This flag freezes the
+// display at the render's end and stops idle-detection from firing on a listen that
+// has already completed.
+let renderEnded = false;
 
 async function boot() {
   db = await openDb();
   // Try to load calibrated axis ranges shipped with the build (from Gate 2b).
   try { const r = await fetch('../output/gate-artefacts/axis-calibration.json'); if (r.ok) calibration = (await r.json()).axis_calibration; } catch {}
   logger = new IdbLogger();
+  // F2: seed the archive from the owner's Gate 1a picks (seed-picks.json), each plus
+  // σ=0.2 mutants to fill 32 (§5, amended). If the file is missing the engine falls
+  // back to the v1 random-seed batch, so the app still runs.
+  let seedGenomes = null;
+  try {
+    const r = await fetch('../output/gate-artefacts/seed-picks.json');
+    if (r.ok) { seedGenomes = genomesFromSeedPicks(await r.json()); console.info('[playing-god] seeded from', seedGenomes.length, 'Gate 1a picks (F2)'); }
+  } catch (e) { console.warn('[playing-god] seed-picks.json not loaded; using random seed batch', e); }
   engine = new Engine({
-    rng, calibration, logger,
-    // v1 renders at the descriptor rate (22.05 kHz) for consistency with the
+    rng, calibration, logger, seedGenomes,
+    // v2 renders at the descriptor rate (22.05 kHz) for consistency with the
     // gates and the axis calibration; §12 permits 44.1 kHz audio with descriptor
     // downsampling as a future refinement (noted in the overnight report).
     renderOpts: { sampleRate: 22050, captureVisEnv: true },
@@ -208,18 +267,27 @@ function playCandidate(cand) {
   playStartCtxTime = AC.currentTime; accruedDwellMs = 0; renderAccruedMs = 0;
   nSuspensions = 0; totalSuspendedMs = 0; suspended = false; suspensionReasons.clear();
   nNotesThisListen = 0; idleTriggered = false; lastInputMs = Date.now();
-  src.onended = () => { /* render reached its end; dwell censors at L on next key (§8.3) */ };
+  renderEnded = false; // F7: new listen, timer runs again
+  // Natural end of playback → the render reached its end; freeze the dwell display
+  // and stop accrual (§8.3). Also fires on .stop() for the next Creature, which is
+  // harmless because we have already committed by then.
+  src.onended = () => { renderEnded = true; };
 }
 
 // Finalise the current listen with a measured outcome, then start the next.
 function commitAndAdvance(action) {
   if (current) {
     const L = current.L_at_listen;
+    // F4/P4: the audio actually plays for played_length_s (nominal L minus the
+    // trimmed leading silence), so completion and the dwell ceiling key off THAT,
+    // not nominal L. Otherwise a fully-heard trimmed render would never flag
+    // completed (renderS tops out at the shorter buffer length).
+    const playedL = current.played_length_s != null ? current.played_length_s : L;
     let dwellS = liveDwellMs() / 1000;
     const renderS = liveRenderMs() / 1000;
-    const completed = renderS >= L - 0.02; // reached the end → censored at L (§8.3)
-    if (completed) dwellS = L;
-    dwellS = Math.min(dwellS, L);
+    const completed = renderS >= playedL - 0.02; // reached the render's end → censored (§8.3)
+    if (completed) dwellS = playedL;
+    dwellS = Math.min(dwellS, playedL);
     const unattended = idleTriggered;
     const outcome = {
       dwell_s: dwellS, completed, unattended,
@@ -246,7 +314,9 @@ function persistNewGenomes() {
   const entries = [...engine.genomeStore.entries.entries()];
   for (; _genomeCursor < entries.length; _genomeCursor++) {
     const [id, e] = entries[_genomeCursor];
-    put('genomes', { timestamp_ms: Date.now(), session_id: SESSION_ID, genome_id: id, ...e });
+    // Tag with the schema version (F6/P3): a v1 genome delta and a v2 genome delta
+    // live in the same store but decode differently (timing genes reinterpreted).
+    put('genomes', { timestamp_ms: Date.now(), session_id: SESSION_ID, schema_version: SCHEMA_VERSION, genome_id: id, ...e });
   }
 }
 
@@ -404,8 +474,10 @@ function drawLegibility() {
     const hue = (Math.log2(Math.max(1, hz)) / 14) * 360;
     const gain = g.getWave(w, 'gain_out');
     const h = Math.max(3, (gain + 80) / 86 * (laneH - 4));
-    // Gate pattern across the render (pre_wait / duration / mid_wait, §12.1).
-    const pre = g.getWave(w, 'pre_wait'), dur = g.getWave(w, 'duration'), mid = g.getWave(w, 'mid_wait');
+    // Gate pattern across the render (§12.1). v2 (P3): reconstruct the
+    // pre_wait / duration / mid_wait seconds from period / duty / pre_prop.
+    const period = g.getWave(w, 'period'), duty = g.getWave(w, 'duty');
+    const dur = duty * period, mid = (1 - duty) * period, pre = g.getWave(w, 'pre_prop') * period;
     const midOn = g.isOn(w, 'mid_wait_on');
     cx.fillStyle = `hsl(${hue},55%,45%)`;
     const px = (s) => (s / L) * W;
@@ -429,9 +501,23 @@ let showViz = true;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches; // §11.1
 function frame() {
   requestAnimationFrame(frame);
-  // Idle → unattended (§8.3): 90 s with no input pauses nothing but flags the listen.
-  if (!suspended && Date.now() - lastInputMs > 90000) idleTriggered = true;
-  document.getElementById('dwell').textContent = (liveDwellMs() / 1000).toFixed(1);
+  // F7: detect render end (render position reached the played length) and freeze.
+  const playedL = current ? (current.played_length_s != null ? current.played_length_s : current.L_at_listen) : 0;
+  if (current && !renderEnded && (liveRenderMs() / 1000) >= playedL - 0.02) renderEnded = true;
+  // Idle → unattended (§8.3): 90 s with no input flags the listen — but NOT once the
+  // render has ended, since a completed listen that is then left alone is not the
+  // inattention confound the rule guards against.
+  if (!suspended && !renderEnded && Date.now() - lastInputMs > 90000) idleTriggered = true;
+  // F7: freeze the visible dwell at the render's end (censored at L). Before the end
+  // it counts live; after, it holds and shows a marker so the owner sees it stopped.
+  const dwellMark = document.getElementById('dwellmark');
+  if (current && renderEnded) {
+    document.getElementById('dwell').textContent = playedL.toFixed(1);
+    if (dwellMark) dwellMark.textContent = ' · render ended (censored at L)';
+  } else {
+    document.getElementById('dwell').textContent = (liveDwellMs() / 1000).toFixed(1);
+    if (dwellMark) dwellMark.textContent = '';
+  }
   const cx = vizEl.getContext('2d');
   const W = vizEl.width = innerWidth, H = vizEl.height = innerHeight;
   cx.fillStyle = '#08080b'; cx.fillRect(0, 0, W, H);

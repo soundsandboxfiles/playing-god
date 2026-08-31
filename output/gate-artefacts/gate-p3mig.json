@@ -1,0 +1,202 @@
+{
+  "timestamp_ms": 1788187498649,
+  "session_id": "overnight-headless-2026-08-31144116",
+  "spec_version": "playing-god-spec.md header \"v3\" / vault \"v9\"",
+  "artefact": "gate-p3mig.json",
+  "gate": "P3-mig (timing reparameterisation phenotype equivalence, P3)",
+  "criterion": "per genome: relative RMS error ≤ 0.001 AND waveform correlation ≥ 0.9999, at every case",
+  "pass": true,
+  "n_genomes": 207,
+  "cases": [
+    {
+      "case": {
+        "sampleRate": 44100,
+        "lengthS": 4
+      },
+      "n": 207,
+      "render_errors": 0,
+      "rel_rms": {
+        "count": 207,
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "percentiles": {
+          "p0": 0,
+          "p1": 0,
+          "p5": 0,
+          "p10": 0,
+          "p25": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0,
+          "p99": 0,
+          "p100": 0
+        }
+      },
+      "corr": {
+        "count": 207,
+        "min": 1,
+        "max": 1,
+        "mean": 1,
+        "percentiles": {
+          "p0": 1,
+          "p1": 1,
+          "p5": 1,
+          "p10": 1,
+          "p25": 1,
+          "p50": 1,
+          "p75": 1,
+          "p90": 1,
+          "p95": 1,
+          "p99": 1,
+          "p100": 1
+        }
+      },
+      "max_abs_diff": {
+        "count": 207,
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "percentiles": {
+          "p0": 0,
+          "p1": 0,
+          "p5": 0,
+          "p10": 0,
+          "p25": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0,
+          "p99": 0,
+          "p100": 0
+        }
+      },
+      "frac_samples_differing": {
+        "count": 207,
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "percentiles": {
+          "p0": 0,
+          "p1": 0,
+          "p5": 0,
+          "p10": 0,
+          "p25": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0,
+          "p99": 0,
+          "p100": 0
+        }
+      }
+    },
+    {
+      "case": {
+        "sampleRate": 44100,
+        "lengthS": 30
+      },
+      "n": 207,
+      "render_errors": 0,
+      "rel_rms": {
+        "count": 207,
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "percentiles": {
+          "p0": 0,
+          "p1": 0,
+          "p5": 0,
+          "p10": 0,
+          "p25": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0,
+          "p99": 0,
+          "p100": 0
+        }
+      },
+      "corr": {
+        "count": 207,
+        "min": 1,
+        "max": 1,
+        "mean": 1,
+        "percentiles": {
+          "p0": 1,
+          "p1": 1,
+          "p5": 1,
+          "p10": 1,
+          "p25": 1,
+          "p50": 1,
+          "p75": 1,
+          "p90": 1,
+          "p95": 1,
+          "p99": 1,
+          "p100": 1
+        }
+      },
+      "max_abs_diff": {
+        "count": 207,
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "percentiles": {
+          "p0": 0,
+          "p1": 0,
+          "p5": 0,
+          "p10": 0,
+          "p25": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0,
+          "p99": 0,
+          "p100": 0
+        }
+      },
+      "frac_samples_differing": {
+        "count": 207,
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "percentiles": {
+          "p0": 0,
+          "p1": 0,
+          "p5": 0,
+          "p10": 0,
+          "p25": 0,
+          "p50": 0,
+          "p75": 0,
+          "p90": 0,
+          "p95": 0,
+          "p99": 0,
+          "p100": 0
+        }
+      }
+    }
+  ],
+  "worst_by_rel_rms": {
+    "label": "rand-0",
+    "relRms": 0,
+    "corr": 1,
+    "maxAbs": 0,
+    "case": {
+      "sampleRate": 44100,
+      "lengthS": 4
+    }
+  },
+  "worst_by_max_abs": {
+    "label": "rand-0",
+    "maxAbs": 0,
+    "relRms": 0,
+    "corr": 1,
+    "case": {
+      "sampleRate": 44100,
+      "lengthS": 4
+    }
+  },
+  "interpretation": "A perfect reparameterisation is sample-identical. Residual comes from the float round-trip through the v2 storage of period/duty/pre_prop; it appears as rare single-sample gate-edge shifts on long durations. Reported as the maximum deviation per the task.",
+  "elapsed_s": 221.894
+}

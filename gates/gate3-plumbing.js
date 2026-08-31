@@ -16,7 +16,16 @@ import { join } from 'node:path';
 import { RNG } from '../src/rng.js';
 import { Engine } from '../src/loop.js';
 import { Logger } from '../src/logging.js';
+import { genomesFromSeedPicks } from '../src/seedpicks.js';
 import { writeArtefact, ARTEFACT_DIR } from './_util.js';
+
+// Load the owner's Gate 1a picks as seed parents (F2), so the plumbing run exercises
+// the same picks-seeded herd the app uses. Fresh Genome objects each call (the engine
+// mutates them).
+function loadSeedPicks() {
+  const p = join(ARTEFACT_DIR, 'seed-picks.json');
+  return existsSync(p) ? genomesFromSeedPicks(JSON.parse(readFileSync(p, 'utf8'))) : null;
+}
 
 const N_LISTENS = 2500; // enough to fill many cells to depth and exercise eviction
 const RENDER_LEN = 2;   // short renders — plumbing only, realism irrelevant (SYNTHETIC)
@@ -35,6 +44,7 @@ function main() {
   const logger = new Logger('SYNTHETIC-' + '0x3B00', () => Date.now());
   const engine = new Engine({
     rng, calibration: cal, switchRates, logger,
+    seedGenomes: loadSeedPicks(), // F2 picks-seeded herd
     renderOpts: { sampleRate: 22050, lengthOverride: RENDER_LEN },
     synthetic: true,
   });
