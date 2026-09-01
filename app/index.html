@@ -37,7 +37,8 @@
   :root { color-scheme: dark; }
   * { box-sizing: border-box; }
   body { margin: 0; background: #08080b; color: #d6d6dd; font: 13px/1.5 ui-monospace, monospace; overflow: hidden; }
-  #viz { position: fixed; inset: 0; z-index: 0; }
+  #viz { position: fixed; inset: 0; z-index: 0; cursor: grab; touch-action: none; }
+  #viz.dragging { cursor: grabbing; }
   #ui { position: relative; z-index: 1; padding: 16px; display: grid; grid-template-columns: 1fr 380px; gap: 16px; height: 100vh; pointer-events: none; }
   .panel { background: rgba(12,12,16,0.72); border: 1px solid #23232c; border-radius: 8px; padding: 12px; pointer-events: auto; backdrop-filter: blur(3px); }
   #left { align-self: end; }
@@ -68,6 +69,7 @@
     <canvas id="legibility"></canvas>
     <div class="row" style="margin-top:8px">
       <kbd>Space</kbd> new · <kbd>M</kbd> mutate · <kbd>B</kbd> back · <kbd>P</kbd> pause · <kbd>F</kbd> note · <kbd>K</kbd> ★ favourite · <kbd>E</kbd> export · <kbd>V</kbd> visuals
+      <span class="muted"> · background: wheel zoom · drag pan · double-click reset</span>
     </div>
     <textarea id="note" placeholder="Annotation (F). Firewalled from the search — §8.6. Enter submits, Esc discards."></textarea>
   </div>
@@ -127,6 +129,7 @@ import { Engine, activeCount, modEdgeCount, expressedCount } from '../src/loop.j
 import { WAVE_SLOTS, complexity } from '../src/genome.js';
 import { genomesFromSeedPicks } from '../src/seedpicks.js';
 import { DwellPredictor, RollingScore, creatureFeaturesFromScalars, sessionExtras, PRED_K } from '../src/predictor.js';
+import { VisualViewport } from '../src/visual-viewport.js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // IndexedDB logging (§14, docs/EXPORTING-LOGS.md). One db, one store per stream.
@@ -960,6 +963,41 @@ function drawLegibility() {
 // ─────────────────────────────────────────────────────────────────────────────
 const vizEl = document.getElementById('viz');
 let showViz = true;
+const visualViewport = new VisualViewport();
+let visualDrag = null;
+
+vizEl.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  // Exponential scaling handles mouse wheels and trackpads consistently while
+  // preserving the sign and magnitude supplied by the browser.
+  const factor = Math.exp(-e.deltaY * 0.0015);
+  visualViewport.zoomAt(factor, e.clientX, e.clientY, innerWidth / 2, innerHeight / 2);
+}, { passive: false });
+
+vizEl.addEventListener('pointerdown', (e) => {
+  if (e.button !== 0) return;
+  visualDrag = { pointerId: e.pointerId, x: e.clientX, y: e.clientY };
+  vizEl.setPointerCapture(e.pointerId);
+  vizEl.classList.add('dragging');
+});
+
+vizEl.addEventListener('pointermove', (e) => {
+  if (!visualDrag || visualDrag.pointerId !== e.pointerId) return;
+  visualViewport.panBy(e.clientX - visualDrag.x, e.clientY - visualDrag.y);
+  visualDrag.x = e.clientX;
+  visualDrag.y = e.clientY;
+});
+
+function finishVisualDrag(e) {
+  if (!visualDrag || visualDrag.pointerId !== e.pointerId) return;
+  visualDrag = null;
+  vizEl.classList.remove('dragging');
+  if (vizEl.hasPointerCapture(e.pointerId)) vizEl.releasePointerCapture(e.pointerId);
+}
+vizEl.addEventListener('pointerup', finishVisualDrag);
+vizEl.addEventListener('pointercancel', finishVisualDrag);
+vizEl.addEventListener('dblclick', () => visualViewport.reset());
+
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches; // §11.1
 function frame() {
   requestAnimationFrame(frame);
@@ -987,7 +1025,9 @@ function frame() {
   const r = current.render;
   const env = r.visEnv; const hz = r.visEnvHz || 60;
   const frameIdx = Math.floor((liveRenderMs() / 1000) * hz * (reducedMotion ? 0.1 : 1));
-  const g = current.genome; const cxc = W / 2, cyc = H / 2, R = Math.min(W, H) * 0.32;
+  const g = current.genome;
+  const cxc = W / 2 + visualViewport.panX, cyc = H / 2 + visualViewport.panY;
+  const R = Math.min(W, H) * 0.32 * visualViewport.zoom;
   for (let w = 0; w < WAVE_SLOTS; w++) {
     if (g.getWave(w, 'active') < 0.5) continue;
     const a = (w / WAVE_SLOTS) * Math.PI * 2;
@@ -995,7 +1035,7 @@ function frame() {
     const hue = (Math.log2(Math.max(1, f)) / 14) * 360;
     let amp = 0;
     if (env && env[w]) amp = env[w][Math.min(env[w].length - 1, Math.max(0, frameIdx))] || 0;
-    const rad = (18 + (g.getWave(w, 'gain_out') + 80) / 86 * 60) * (1 + amp * 3);
+    const rad = (18 + (g.getWave(w, 'gain_out') + 80) / 86 * 60) * (1 + amp * 3) * visualViewport.zoom;
     const grd = cx.createRadialGradient(cxc + Math.cos(a) * R, cyc + Math.sin(a) * R, 0, cxc + Math.cos(a) * R, cyc + Math.sin(a) * R, rad);
     grd.addColorStop(0, `hsla(${hue},70%,${40 + amp * 40}%,0.55)`);
     grd.addColorStop(1, 'hsla(0,0%,0%,0)');
