@@ -401,3 +401,15 @@ as an owner amendment to §10.2.
 | P7 | **Descriptor head → genome-only autonomy.** Owner hit the render cost ("run 10 takes a while"). Path: train a genome→descriptor predictor on the unlimited free labels every real render produces; display its objective filing accuracy (fraction placed in correct / adjacent cell); switch autonomous placement to genome-only once proven — same public-accuracy pattern as the dwell predictor. Until then rendering stays (honest filing). | next sandbox run |
 | P8 | **Background autonomy rendering**: move autonomous renders into a worker so the UI never blocks; progress readout. Immediate relief independent of P7. | next sandbox run |
 | P9 | **Visualiser v2 (owner, 2026-08-31): broaden its phase space** — far more visual variety than pitch-hue/gain-size — while keeping dynamic responsiveness, and strengthen family similarity AND out-of-family difference through **genome similarity, explicitly NOT genealogy** (§6.7's genotypic-not-genealogical principle, visually). The clean mechanism: make appearance a deterministic function of the genome — wire the 14 dormant §11 visualiser genes plus derived genome features into the visual, so near genomes look near and distant genomes look distant automatically, with no lineage data consulted anywhere. Spec §11.1 explicitly invites this proposal. | next full version |
+
+---
+
+## Wishlist additions (owner, 2026-09-01)
+
+| # | Item | Notes |
+|---|---|---|
+| P10 | **Speculative pre-render** — dense creatures load slowly; the fix is breeding+rendering candidate N+1 in a background worker while creature N plays, from the archive state at that moment. Honest cost, stated: the selection producing N+1 is one listen stale. MAP-Elites permits this. | with P8 |
+| P11 | **Genome ↔ text string** — any genome serialisable to a version-tagged string (e.g. `PG2:` + base64 of the gene array); a copy key on the playing creature and a paste box that displays/plays any string. Version tag mandatory (schema will change; the P3 migration is precedent). Enables sharing creatures person-to-person. | next sandbox run |
+| W2 | **Phone app with swipe gestures — FLAGGED, needs an owner ruling made knowingly.** Owner proposal: swipe-no = huge fitness penalty; swipe-yes = record dwell and advance. The yes-swipe is just advance. **The no-swipe penalty is the first proposal ever to put STATED PREFERENCE into F(g)** — §8.1 says dwell seconds and nothing else, and the §8.6 annotation firewall exists precisely because stated preference is rejected by the mission statement. Possible readings: (a) on a phone the swipe IS the native dwell-ending gesture, so a no-swipe is just a skip and should carry no extra penalty; (b) the owner deliberately amends §8.1 for the phone context (their right — record it as an owner amendment if so). Do not implement the penalty without that explicit ruling. | v3, ruling pending |
+
+| F12 | Pointer activity (pan/drag/wheel on the visuals — PR #1) should refresh `lastInputMs` so attentive mouse-only listening isn't flagged idle at 90 s. One line, next pass. | next sandbox run |
