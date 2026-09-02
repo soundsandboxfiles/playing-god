@@ -1,0 +1,8 @@
+# Per-run deliverables — regenerable, reach the host via sync-back, not git.
+output/
+# WAV audio is bulk + regenerable everywhere EXCEPT the committed target.
+*.wav
+!targets/*.wav
+# Node
+node_modules/
+.DS_Store

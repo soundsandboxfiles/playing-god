@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MIMIC — evolve a sound toward a target</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, sans-serif; background:#0e0e10; color:#e8e8ea; margin:0; padding:20px; }
+  h1 { font-size:20px; margin:0 0 2px; }
+  .sub { color:#8a8a90; font-size:13px; margin-bottom:18px; }
+  .wrap { display:grid; grid-template-columns: 340px 1fr; gap:20px; align-items:start; }
+  .panel { background:#161619; border:1px solid #262629; border-radius:12px; padding:16px; }
+  fieldset { border:1px solid #2a2a2e; border-radius:8px; margin:0 0 12px; padding:10px 12px; }
+  legend { color:#9a9aa2; font-size:12px; padding:0 6px; }
+  label { display:block; font-size:13px; margin:8px 0 3px; color:#c8c8ce; }
+  input, select, button, textarea { font-size:13px; font-family:inherit; }
+  input[type=number], select, textarea { width:100%; padding:7px 8px; background:#0d0d0f; color:#eee;
+    border:1px solid #33333a; border-radius:6px; }
+  .row2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  button { padding:9px 14px; border:0; border-radius:8px; background:#2a2a30; color:#eee; cursor:pointer; margin:3px 4px 3px 0; }
+  button:hover { background:#3a3a42; }
+  button.primary { background:#2563eb; } button.primary:hover { background:#3b76f0; }
+  button.stop { background:#7a2530; } button:disabled { opacity:.45; cursor:not-allowed; }
+  canvas { width:100%; height:280px; background:#0b0b0d; border:1px solid #232327; border-radius:10px; display:block; }
+  .stat { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; border-bottom:1px solid #1e1e22; }
+  .stat b { color:#6cf; font-variant-numeric: tabular-nums; }
+  .note { font-size:12px; color:#8a8a90; margin-top:8px; line-height:1.5; }
+  textarea { height:64px; resize:vertical; font-family:ui-monospace, monospace; font-size:11px; }
+  #log { font-family:ui-monospace, monospace; font-size:11px; color:#9a9; white-space:pre-wrap; max-height:120px; overflow:auto; }
+  .pill { display:inline-block; font-size:11px; background:#20242c; color:#8ab; border-radius:20px; padding:2px 8px; margin-left:6px; }
+</style>
+</head>
+<body>
+  <h1>MIMIC <span class="pill" id="modePill">—</span></h1>
+  <div class="sub">Evolve Playing-God genomes toward a target waveform. Fitness = 1 / (sum of squared sample differences) — the blunt owner's spec. All computed; no listens spent.</div>
+
+  <div class="wrap">
+    <!-- ── controls ── -->
+    <div class="panel">
+      <fieldset>
+        <legend>Target</legend>
+        <label>Upload a WAV (16/24-bit PCM)</label>
+        <input type="file" id="file" accept=".wav,audio/wav">
+        <div class="row2" style="margin-top:8px">
+          <button id="btnChimes">Big Ben chimes</button>
+          <select id="synthSel">
+            <option value="">— synthetic —</option>
+            <option value="sine">sine 220 Hz</option>
+            <option value="chirp">chirp 110→880</option>
+            <option value="decay">decay 440 Hz</option>
+          </select>
+        </div>
+        <div class="note" id="targetInfo">No target loaded.</div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Algorithm & herd</legend>
+        <label>Algorithm</label>
+        <select id="algorithm">
+          <option value="ga">GA — one population, elitism + tournament</option>
+          <option value="island">Island — 4 demes + migration</option>
+          <option value="mapelites">MAP-Elites — diverse archive</option>
+        </select>
+        <div class="row2">
+          <div><label>Population</label><input type="number" id="population" value="120" min="4"></div>
+          <div><label>Generations</label><input type="number" id="generations" value="80" min="1"></div>
+        </div>
+        <div class="row2">
+          <div><label>Elitism</label><input type="number" id="elitism" value="2" min="0"></div>
+          <div><label>Tournament k</label><input type="number" id="tournamentK" value="3" min="1"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Variation</legend>
+        <div class="row2">
+          <div><label>Mutation scale</label><input type="number" id="mutationScale" value="1" step="0.1" min="0"></div>
+          <div><label>Crossover rate</label><input type="number" id="crossoverRate" value="0.5" step="0.05" min="0" max="1"></div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Window & length</legend>
+        <div class="row2">
+          <div><label>Total length (s)</label><input type="number" id="totalLength" placeholder="auto" step="0.1" min="0"></div>
+          <div><label>Window start (s)</label><input type="number" id="windowStart" value="0" step="0.1" min="0"></div>
+        </div>
+        <div class="note">The target is matched in [window start, window start + target length). Outside it the sound is free.</div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Run</legend>
+        <div class="row2">
+          <div><label>Seed</label><input type="number" id="seed" value="1" min="0"></div>
+          <div><label>Workers</label><input type="number" id="workers" value="4" min="0"></div>
+        </div>
+        <label>Metric</label>
+        <select id="metric">
+          <option value="sse">sse — owner's spec (default)</option>
+          <option value="sse-normalized">sse-normalized — diagnostic</option>
+          <option value="spectral">spectral — diagnostic (phase-insensitive)</option>
+        </select>
+      </fieldset>
+
+      <button class="primary" id="btnStart">▶ Start evolving</button>
+      <button class="stop" id="btnStop" disabled>■ Stop</button>
+    </div>
+
+    <!-- ── output ── -->
+    <div class="panel">
+      <canvas id="chart" width="900" height="280"></canvas>
+      <div style="margin-top:12px">
+        <div class="stat"><span>Generation</span><b id="sGen">—</b></div>
+        <div class="stat"><span>Best SSE (lower is better)</span><b id="sSSE">—</b></div>
+        <div class="stat"><span>Similarity = 1 / SSE</span><b id="sSim">—</b></div>
+        <div class="stat"><span>Silence-floor SSE (beat this to truly match)</span><b id="sFloor">—</b></div>
+        <div class="stat"><span>Renders so far</span><b id="sRenders">—</b></div>
+        <div class="stat"><span>Renders / sec</span><b id="sRps">—</b></div>
+      </div>
+
+      <div style="margin-top:14px">
+        <button id="btnListen" disabled>🔊 Listen to current fittest</button>
+        <button id="btnListenTarget" disabled>🎯 Listen to target</button>
+        <button id="btnExportWav" disabled>⬇ Export fittest WAV</button>
+        <button id="btnExportStr" disabled>⧉ Copy genome string</button>
+        <audio id="audio" controls style="width:100%; margin-top:10px"></audio>
+      </div>
+
+      <fieldset style="margin-top:14px">
+        <legend>Genome string (PG2) — paste to audition / seed</legend>
+        <textarea id="genStr" placeholder="PG2:..."></textarea>
+        <button id="btnPasteListen">🔊 Listen to pasted</button>
+        <label style="display:inline"><input type="checkbox" id="seedFromStr"> seed next run with pasted genome</label>
+      </fieldset>
+
+      <div id="log"></div>
+    </div>
+  </div>
+
+<script type="module">
+import { RNG } from '../src/rng.js';
+import { render } from '../src/synthesis.js';
+import { decodeWav, encodeWav, ENGINE_RATE } from './lib/wavio.js';
+import { makeScorePlan } from './lib/fitness.js';
+import { makeAlgorithm, needsDescriptors } from './lib/algorithms/index.js';
+import { makeSerialEvaluator } from './lib/evaluator.js';
+import { makeBrowserPool } from './lib/browser-pool.js';
+import { encodeGenomeString, decodeGenomeString } from './lib/genome-string.js';
+import { genomeFromData, randomPopulation } from './lib/algorithms/common.js';
+
+const $ = (id) => document.getElementById(id);
+const logEl = $('log');
+function log(m){ logEl.textContent = (m + '\n' + logEl.textContent).slice(0, 4000); }
+
+// ── inlined synthetic targets (targets.js uses node fs, so not importable here) ──
+const TWO_PI = Math.PI*2;
+function synthSine(){ const N=2*ENGINE_RATE, s=new Float32Array(N); for(let n=0;n<N;n++) s[n]=0.6*Math.sin(TWO_PI*220*n/ENGINE_RATE); return s; }
+function synthChirp(){ const N=2*ENGINE_RATE, s=new Float32Array(N), dur=N/ENGINE_RATE; for(let n=0;n<N;n++){const t=n/ENGINE_RATE; s[n]=0.6*Math.sin(TWO_PI*(110*t+0.5*(880-110)*t*t/dur));} return s; }
+function synthDecay(){ const N=2*ENGINE_RATE, s=new Float32Array(N); for(let n=0;n<N;n++){const t=n/ENGINE_RATE; s[n]=0.9*Math.exp(-t/0.6)*Math.sin(TWO_PI*440*t);} return s; }
+
+let target = null, targetLabel = 'none', bestData = null, running = false, stopFlag = false;
+
+function setTarget(samples, label){
+  target = samples; targetLabel = label; bestData = null;
+  let energy=0, peak=0; for(const x of samples){energy+=x*x; const a=Math.abs(x); if(a>peak)peak=a;}
+  $('targetInfo').textContent = `${label}: ${(samples.length/ENGINE_RATE).toFixed(2)}s, ${samples.length} samples, peak ${peak.toFixed(3)}, silence-floor SSE ${energy.toExponential(3)}`;
+  $('sFloor').textContent = energy.toExponential(4);
+  $('btnListenTarget').disabled = false;
+  log(`target set: ${label}`);
+}
+
+$('file').addEventListener('change', async (e) => {
+  const f = e.target.files[0]; if(!f) return;
+  try { const buf = new Uint8Array(await f.arrayBuffer()); const t = decodeWav(buf); setTarget(t.samples, f.name); }
+  catch(err){ log('WAV decode error: ' + err.message); alert('Could not read that WAV: ' + err.message); }
+});
+$('btnChimes').addEventListener('click', async () => {
+  try { const r = await fetch('targets/westminster-chimes.wav?t=' + Date.now()); const buf = new Uint8Array(await r.arrayBuffer()); const t = decodeWav(buf); setTarget(t.samples, 'Big Ben chimes'); }
+  catch(err){ log('chimes load error: ' + err.message); alert('Could not load bundled chimes (is the server rooted at the project?): ' + err.message); }
+});
+$('synthSel').addEventListener('change', (e) => {
+  const v = e.target.value; if(!v) return;
+  setTarget(v==='sine'?synthSine():v==='chirp'?synthChirp():synthDecay(), 'synthetic ' + v);
+});
+
+// ── fitness curve chart ──
+const chart = $('chart'), ctx = chart.getContext('2d');
+let curve = [], floorSSE = 1;
+function draw(){
+  const W = chart.width, H = chart.height; ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#0b0b0d'; ctx.fillRect(0,0,W,H);
+  if(curve.length<1) return;
+  const pad = 40;
+  const xs = curve.map(c=>c.generation), gmax = Math.max(1, xs[xs.length-1]);
+  const vals = curve.map(c=>Math.log10(Math.max(1e-9, c.bestSSE)));
+  const lf = Math.log10(Math.max(1e-9, floorSSE));
+  let lo = Math.min(lf, ...vals), hi = Math.max(lf, ...vals); if(hi-lo<0.5){hi+=0.25;lo-=0.25;}
+  const X = g => pad + (W-2*pad)*(g/gmax);
+  const Y = v => H-pad - (H-2*pad)*((v-lo)/(hi-lo));
+  // silence floor line
+  ctx.strokeStyle = '#664'; ctx.setLineDash([5,4]); ctx.beginPath(); ctx.moveTo(pad,Y(lf)); ctx.lineTo(W-pad,Y(lf)); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = '#997'; ctx.font='11px system-ui'; ctx.fillText('silence floor', W-pad-70, Y(lf)-4);
+  // curve
+  ctx.strokeStyle = '#2563eb'; ctx.lineWidth=2; ctx.beginPath();
+  curve.forEach((c,i)=>{ const x=X(c.generation), y=Y(Math.log10(Math.max(1e-9,c.bestSSE))); i?ctx.lineTo(x,y):ctx.moveTo(x,y); }); ctx.stroke();
+  ctx.fillStyle='#777'; ctx.font='11px system-ui';
+  ctx.fillText('best SSE (log) vs generation', pad, 16);
+  ctx.fillText('gen '+gmax, W-pad-30, H-pad+16);
+}
+
+// ── build an evaluator (worker pool, serial fallback) ──
+async function buildEvaluator(plan, withDesc, metric, nWorkers){
+  if(nWorkers >= 1){
+    try {
+      const pool = makeBrowserPool(plan, { withDescriptors: withDesc, nWorkers, metric, workerUrl: './app-worker.js' });
+      // probe: evaluate a trivial empty batch to force worker init/ready
+      await pool.evaluate([]);
+      $('modePill').textContent = nWorkers + ' web workers';
+      return pool;
+    } catch(err){ log('workers unavailable ('+err.message+') — using single core'); }
+  }
+  $('modePill').textContent = 'single core';
+  return makeSerialEvaluator(plan, { withDescriptors: withDesc, metric });
+}
+
+// ── the run loop ──
+$('btnStart').addEventListener('click', start);
+$('btnStop').addEventListener('click', () => { stopFlag = true; });
+
+async function start(){
+  if(running) return;
+  if(!target){ alert('Load a target first (upload a WAV, or pick chimes / a synthetic target).'); return; }
+  running = true; stopFlag = false; curve = [];
+  $('btnStart').disabled = true; $('btnStop').disabled = false;
+  ['btnListen','btnExportWav','btnExportStr'].forEach(id=>$(id).disabled=true);
+
+  const cfg = {
+    algorithm: $('algorithm').value,
+    population: +$('population').value, generations: +$('generations').value,
+    elitism: +$('elitism').value, tournamentK: +$('tournamentK').value,
+    mutationScale: +$('mutationScale').value, crossoverRate: +$('crossoverRate').value,
+    windowStart: +$('windowStart').value, seed: +$('seed').value,
+    workers: +$('workers').value, metric: $('metric').value,
+  };
+  const targetLenS = target.length / ENGINE_RATE;
+  const totalLen = $('totalLength').value ? +$('totalLength').value : (cfg.windowStart + targetLenS);
+
+  let floor=0; for(const x of target) floor+=x*x; floorSSE = floor;
+
+  const plan = makeScorePlan({ target, totalLengthS: totalLen, windowStartS: cfg.windowStart, sampleRate: ENGINE_RATE });
+  const withDesc = needsDescriptors(cfg.algorithm);
+  const evaluator = await buildEvaluator(plan, withDesc, cfg.metric, cfg.workers);
+
+  const rng = new RNG(cfg.seed>>>0);
+  const alg = makeAlgorithm(cfg.algorithm, {
+    config: { population: cfg.population, elitism: cfg.elitism, tournamentK: cfg.tournamentK,
+      mutationScale: cfg.mutationScale, crossoverRate: cfg.crossoverRate },
+    plan, rng, evaluate: evaluator.evaluate,
+  });
+
+  // Optional: seed gen-0 with a pasted genome (handled inside init by monkey-patching
+  // is messy; instead we just note it — a full seeding hook would need algorithm support).
+  const seedStr = $('seedFromStr').checked ? $('genStr').value.trim() : '';
+
+  log(`start: ${cfg.algorithm} pop ${cfg.population} gen ${cfg.generations} seed ${cfg.seed}`);
+  const t0 = performance.now();
+
+  let s = await alg.init();
+  // Seed injection: if requested and valid, replace the worst member with the pasted genome.
+  if(seedStr){
+    try { const g = decodeGenomeString(seedStr); const r = (await evaluator.evaluate([g]))[0];
+      injectSeed(alg, cfg.algorithm, g, r); log('seeded gen-0 with pasted genome (SSE '+r.sse.toExponential(3)+')'); }
+    catch(err){ log('seed genome invalid: '+err.message); }
+  }
+  recordGen(s, t0);
+
+  for(let g=1; g<=cfg.generations && !stopFlag; g++){
+    s = await alg.step();
+    recordGen(s, t0);
+    bestData = alg.best.data;
+    if(g % 2 === 0) await new Promise(r=>setTimeout(r,0)); // yield to UI periodically
+  }
+
+  await evaluator.close();
+  bestData = alg.best.data;
+  running = false;
+  $('btnStart').disabled = false; $('btnStop').disabled = true;
+  ['btnListen','btnExportWav','btnExportStr'].forEach(id=>$(id).disabled=false);
+  log(`done: best SSE ${alg.best.sse.toExponential(4)} @ gen ${alg.best.generation}` +
+      (alg.best.sse < floorSSE ? ' (below silence floor ✓)' : ' (did not beat silence — phase deception)'));
+}
+
+function injectSeed(alg, name, g, r){
+  const m = { genome: g, sse: r.sse, similarity: r.similarity };
+  if(name==='ga'){ alg.pop[alg.pop.length-1] = m; alg.pop.sort((a,b)=>a.sse-b.sse); alg._consider(m, 0); }
+  else if(name==='island'){ const p=alg.islands[0]; p[p.length-1]=m; p.sort((a,b)=>a.sse-b.sse); alg._consider(m,0); }
+  else if(name==='mapelites'){ alg._place(g, r, 0); }
+}
+
+function recordGen(s, t0){
+  curve.push({ generation: s.generation, bestSSE: s.bestSSE });
+  $('sGen').textContent = s.generation;
+  $('sSSE').textContent = s.bestSSE.toExponential(4);
+  $('sSim').textContent = s.bestSimilarity === Number.MAX_VALUE ? 'PERFECT' : s.bestSimilarity.toExponential(3);
+  $('sRenders').textContent = s.renders;
+  const secs = (performance.now()-t0)/1000;
+  $('sRps').textContent = (s.renders/Math.max(0.001,secs)).toFixed(1);
+  draw();
+}
+
+// ── render a genome to a WAV blob for listening / export ──
+function renderToWav(data, { normalize=false } = {}){
+  const g = genomeFromData(data);
+  const totalLen = $('totalLength').value ? +$('totalLength').value : (+$('windowStart').value + target.length/ENGINE_RATE);
+  const r = render(g, { sampleRate: ENGINE_RATE, lengthS: totalLen });
+  let samples = r.samples;
+  if(normalize){ let peak=0; for(const x of samples){const a=Math.abs(x); if(a>peak)peak=a;} if(peak>0){ const gain=0.97/peak; samples=Float32Array.from(samples,x=>x*gain); } }
+  return new Blob([encodeWav(samples, ENGINE_RATE)], { type:'audio/wav' });
+}
+function playBlob(blob){ const url = URL.createObjectURL(blob); const a=$('audio'); a.src=url; a.play().catch(()=>{}); }
+
+$('btnListen').addEventListener('click', () => { if(bestData) playBlob(renderToWav(bestData,{normalize:true})); });
+$('btnListenTarget').addEventListener('click', () => {
+  if(!target) return; playBlob(new Blob([encodeWav(target, ENGINE_RATE)], {type:'audio/wav'}));
+});
+$('btnExportWav').addEventListener('click', () => {
+  if(!bestData) return; const blob = renderToWav(bestData,{normalize:false});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='mimic-fittest.wav'; a.click();
+});
+$('btnExportStr').addEventListener('click', async () => {
+  if(!bestData) return; const str = encodeGenomeString(genomeFromData(bestData));
+  $('genStr').value = str;
+  try { await navigator.clipboard.writeText(str); log('genome string copied to clipboard'); }
+  catch { log('genome string shown below (clipboard blocked)'); }
+});
+$('btnPasteListen').addEventListener('click', () => {
+  const str = $('genStr').value.trim(); if(!str) return;
+  try { const g = decodeGenomeString(str); if(!target){ alert('Load a target first to set the render length.'); return; }
+    playBlob(renderToWav(g.data,{normalize:true})); log('auditioning pasted genome'); }
+  catch(err){ alert('Not a valid PG2 genome string: ' + err.message); }
+});
+
+log('ready. Load a target and press Start. (Serve from the project root so ../src and targets/ resolve.)');
+</script>
+</body>
+</html>

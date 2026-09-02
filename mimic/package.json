@@ -1,0 +1,12 @@
+{
+  "name": "mimic",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MIMIC — autonomous evolution of Playing God genomes toward a target waveform. Imports ../src/* read-only.",
+  "scripts": {
+    "run": "node run.js",
+    "bench": "node bench/race.js",
+    "test": "node test/all.js"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "targetName": "decay-440",
+  "algorithm": "ga",
+  "population": 80,
+  "generations": 60,
+  "seed": 3,
+  "workers": 8,
+  "run": "quick-demo"
+}

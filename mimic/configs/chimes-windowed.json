@@ -1,0 +1,11 @@
+{
+  "targetName": "chimes",
+  "algorithm": "ga",
+  "population": 300,
+  "generations": 300,
+  "totalLength": 13.5,
+  "windowStart": 2.0,
+  "seed": 2,
+  "workers": 8,
+  "run": "chimes-windowed"
+}
