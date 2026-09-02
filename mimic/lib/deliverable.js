@@ -49,8 +49,13 @@ export function streamSavedGen(state, savedGen, meta) {
   const { samples, peak } = renderFull(savedGen.data, meta.totalLengthS, sr);
   const wavName = `gen-${pad4(savedGen.generation)}.wav`;
   writeFileSync(join(state.outDir, wavName), encodeWav(samples, sr));
+  // Owner request (2026-09-03): every saved generation keeps its genome beside its
+  // WAV, matched by number, so any point on the ascent can be replayed, inspected
+  // or reseeded later. Same PG2 string format as the final fittest.
+  const pg2Name = `gen-${pad4(savedGen.generation)}.pg2.txt`;
+  writeFileSync(join(state.outDir, pg2Name), encodeGenomeString(genomeFromData(savedGen.data)) + '\n');
   state.gens.push({
-    generation: savedGen.generation, file: wavName, sse: savedGen.sse,
+    generation: savedGen.generation, file: wavName, genomeFile: pg2Name, sse: savedGen.sse,
     similarity: savedGen.similarity === Number.MAX_VALUE ? 'PERFECT' : savedGen.similarity, peak,
   });
   const manifest = { run: state.runName, streaming: true, gain: 1,
