@@ -14,6 +14,10 @@ if ! command -v node > /dev/null 2>&1; then
   echo "Tell Claude and we'll re-plan (the runs can go in the cloud instead)."
   exit 1
 fi
+# Idempotent: if a previous attempt left runs going, stop them first.
+pkill -f "chimes-24h-random.json" 2>/dev/null && echo "(stopped an already-running run 1)"
+pkill -f "chimes-24h-artisan.json" 2>/dev/null && echo "(stopped an already-running run 2)"
+sleep 2
 mkdir -p output
 nohup caffeinate -ims node run.js --config configs/chimes-24h-random.json  > output/chimes-24h-random.log  2>&1 &
 echo "Run 1 (random start)   launched — PID $!"
