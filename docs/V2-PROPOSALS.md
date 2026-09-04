@@ -415,3 +415,37 @@ as an owner amendment to §10.2.
 | F12 | Pointer activity (pan/drag/wheel on the visuals — PR #1) should refresh `lastInputMs` so attentive mouse-only listening isn't flagged idle at 90 s. One line, next pass. | next sandbox run |
 
 | M1 | MIMIC: every run folder must save a copy of its target as `target.wav`, and player.html gets a "play target" button — the owner asked "where can I hear what they're aiming for?" and the answer should be one click, not a regeneration. Also: docs' `node serve.js` lines need a "no node? use `python3 -m http.server`" alternative (owner's Mac has no node). | next mimic pass |
+
+| M2 | MIMIC performance profile (owner, 2026-09-03): break the ~25.5 s/generation cost into its constituents — breeding/variation, genome→samples render (and the render's own parts: routing, envelopes, per-wave synthesis), SSE scoring, worker marshalling, WAV writes — and hunt for savings. Owner noticed cost rose 15× as champions densified then plateaued; a profile says where the money goes and whether typed-array/algorithmic wins exist. | next mimic pass |
+
+## P12 — Meta-genes must not gate their own mutation (owner-diagnosed, 2026-09-03, CONFIRMED in code)
+
+The owner's morning question — "unless the mutation-rate gene's mutation rate is set at a constant, surely it will always tend lower and lower" — turned out to name a real structural hole, confirmed by reading `src/variation.js` during the 24h speech run:
+
+- `sigma_global` / `sigma_wave` are kind `'sigma'` and are updated **unconditionally every reproduction** by `updateSigmaGene` (fixed τ/τ′ log-normal). These are immune to the loop. The earlier reassurance was correct **for the sigmas only**.
+- `mutation_fraction` is a plain `'cont'` global, so it sits in `GLOBAL_CONT` and is mutated **with probability `mutationFraction` — it gates itself.** The same self-gating applies to every cont meta-gene: `p_duplicate`, `p_switch_flip_scale`, `n_partners`, `partner_influence`, `p_ratio_jump_scale`.
+
+Why the speech run didn't collapse to zero anyway (mitigations, not guarantees): at mf≈0.011 and λ=600, ~6–7 children/gen still receive a mutation_fraction draw; the step uses σ_global (which grew to 0.2–0.4 on a 0–1 linear map), so a single draw can jump it right back up ("rare but bold" cuts both ways); `reflect01` bounces steps off 0; and crossover keeps blending values across the herd. The absorbing failure mode remains reachable: herd homogenised near 0 **and** σ_global small → effectively frozen.
+
+**Proposed fix (fits the invariant better than a floor):** mutate the cont meta-genes ungated — either unconditionally each reproduction with a modest fixed-σ Gaussian, or gated at a small fixed constant (e.g. 0.05) instead of at `mutationFraction`. No floor needed, no strategy-space truncation; it simply removes the self-reference. A floor (analogue of SIGMA_FLOOR) is the fallback if ungating proves too hot. Next sandbox pass; not urgent for the live run, whose trace shows healthy behaviour.
+
+## M3 — Record per-island stats in the streaming manifest (owner question, 2026-09-03)
+
+The owner asked how different the islands have remained. Currently **unanswerable from disk**: `island.js#_stats()` reports only global bestSSE / meanSSE / popBestSSE; the per-generation curve is held in memory until finalize; saved gen-*.pg2.txt genomes are the single global champion with no island attribution. Fix: at each streaming save, also write per-island bestSSE + meanSSE, the champion's island id, and a cheap between-island divergence measure (e.g. mean pairwise L2 distance between island-best genomes). Costs a few floats every 25 gens; would have answered today's question read-only.
+
+## M4 — Gene-convergence analysis on the two 24h chimes runs (owner, 2026-09-04)
+
+Run `mimic/tools/gene-convergence.mjs <run-dir>` on **chimes-24h-random** and
+**chimes-24h-artisan** once each completes (needs the full save series; a
+partial run at gen ~600 is marked `*.PARTIAL-*` and should be ignored). The tool
+is committed and reusable — writes `gene-convergence.html` + `-data.json` into
+the run folder. Findings from the first application (speech run) are in
+`mimic/docs/FINDINGS.md`.
+
+The point is the **A/B**: random start vs ARTISAN-seeded start. Prediction to
+test — a seeded start converges with a *shorter τ and fewer early crown trades*
+(less lineage churn) because it doesn't spend the first ~800 generations
+discovering basic structure. If the ARTISAN-seeded run instead shows the *same*
+churn, that says the seed's advantage is erased fast and the landscape re-decides
+structure regardless — itself worth knowing. Cross-ref M3 (per-island stats)
+which would let convergence be split by island.

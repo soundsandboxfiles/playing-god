@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gene convergence</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb; --page: #f9f9f7;
+    --ink-1: #0b0b0b; --ink-2: #52514e; --ink-3: #898781;
+    --grid: #e1e0d9; --baseline: #c3c2b7;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --band: rgba(42,120,214,0.14);
+    --spag: rgba(137,135,129,0.13); --era: rgba(235,104,52,0.06);
+    --border: rgba(11,11,11,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --surface-1: #1a1a19; --page: #0d0d0d;
+      --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+      --grid: #2c2c2a; --baseline: #383835;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --band: rgba(57,135,229,0.18);
+      --spag: rgba(195,194,183,0.11); --era: rgba(217,89,38,0.10);
+      --border: rgba(255,255,255,0.10);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d;
+    --ink-1: #ffffff; --ink-2: #c3c2b7; --ink-3: #898781;
+    --grid: #2c2c2a; --baseline: #383835;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --band: rgba(57,135,229,0.18);
+    --spag: rgba(195,194,183,0.11); --era: rgba(217,89,38,0.10);
+    --border: rgba(255,255,255,0.10);
+  }
+  html, body { margin: 0; background: var(--page); color: var(--ink-1);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px 40px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--ink-2); font-size: 13px; margin: 0 0 18px; }
+  .card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 14px 10px; margin-bottom: 14px; }
+  .card h2 { font-size: 14px; margin: 0 0 2px; }
+  .card .note { font-size: 12px; color: var(--ink-2); margin: 0 0 8px; }
+  .chart { position: relative; }
+  svg { display: block; width: 100%; height: auto; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12px; color: var(--ink-2); margin: 6px 0 2px; }
+  .legend i { display: inline-block; width: 22px; height: 0; vertical-align: middle; margin-right: 5px; }
+  .tip { position: absolute; pointer-events: none; background: var(--surface-1);
+    border: 1px solid var(--border); border-radius: 6px; padding: 5px 8px;
+    font-size: 12px; color: var(--ink-1); box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    white-space: nowrap; display: none; z-index: 2; }
+  .tip b { font-variant-numeric: tabular-nums; }
+  .foot { margin-top: 12px; font-size: 12.5px; color: var(--ink-2); max-width: 920px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 780px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>How individual genes converged — MIMIC speech run</h1>
+  <p class="sub" id="sub"></p>
+
+  <div class="card">
+    <h2>Each gene aligned to its own birth — the annealing test</h2>
+    <p class="note">Every expressed gene re-based so x = generations since its wave switched on (0 = birth). 1,576 continuous genes: active in the final creature, with a final on-stretch ≥ 4 saves (~75 gens+), and real movement (not amplified noise). This is the fair way to ask "does a gene anneal once selection can see it?" — because founding genes and late joiners now share an origin.</p>
+    <div class="legend">
+      <span><i style="border-top:2px solid var(--s1)"></i>mean gene</span>
+      <span><i style="border-top:2px dashed var(--ink-1)"></i>median gene</span>
+      <span><i style="border-top:12px solid var(--band); height:0"></i>middle 50%</span>
+      <span><i style="border-top:2px dotted var(--s2)"></i>pure exponential (τ matched)</span>
+    </div>
+    <div class="chart" id="c-birth"></div>
+    <p class="foot" id="story"></p>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Real time — when each cohort joined</h2>
+      <p class="note">Same genes on the actual generation axis, each curve starting at its onset. Coloured by when the wave switched on. Grey line: how many genes are live. The staircase and the crown-trade bunching before gen 800 are both visible.</p>
+      <div class="chart" id="c-abs"></div>
+      <div class="legend">
+        <span><i style="border-top:2px solid var(--s1)"></i>founding (≤200)</span>
+        <span><i style="border-top:2px solid var(--s3)"></i>mid (200–1k)</span>
+        <span><i style="border-top:2px solid var(--s2)"></i>late (&gt;1k)</span>
+        <span><i style="border-top:2px solid var(--ink-3)"></i>live-gene count</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Birth-aligned median, by gene role</h2>
+      <p class="note">Do different kinds of gene relax at different speeds from birth?</p>
+      <div class="chart" id="c-roles"></div>
+      <div class="legend" id="role-leg"></div>
+    </div>
+  </div>
+</div>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const D = JSON.parse(document.getElementById('data').textContent);
+const B = D.birth, GEN = D.gens, T = GEN.length, GMAX = GEN[T-1];
+const expRef = B.off.map(g => Math.exp(-g/D.tau));
+const ROLE_COLORS = ['#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#4a3aa7','#e34948','#008300'];
+
+document.getElementById('sub').textContent =
+  `${D.N.toLocaleString()} expressed, moving genes across ${D.onset.count} onset generations (${D.onset.early} founding · ${D.onset.mid} mid · ${D.onset.late} late) · 1 save in 25 generations · normalized to start +1, end 0.`;
+
+function plot(el, opt){
+  const W=opt.W||1010, H=opt.H||330, m={l:44,r:opt.r||14,t:12,b:30};
+  const xmax=opt.xmax, ymin=opt.ymin??-0.2, ymax=opt.ymax??1.2;
+  const X=x=>m.l+Math.min(x,xmax)/xmax*(W-m.l-m.r);
+  const Y=v=>H-m.b-(v-ymin)/(ymax-ymin)*(H-m.t-m.b);
+  let s=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${opt.aria}">`;
+  if (opt.era){ const g=Math.min(825,xmax);
+    s+=`<rect x="${X(0)}" y="${m.t}" width="${X(g)-X(0)}" height="${H-m.b-m.t}" fill="var(--era)"/>`;
+    s+=`<text x="${X(g)-4}" y="${m.t+13}" text-anchor="end" font-size="10" fill="var(--ink-3)">crown-trade era</text>`; }
+  for (const v of [1,0.75,0.5,0.25,0,-0.2]){ const y=Y(v);
+    s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${y}" y2="${y}" stroke="var(--grid)"/>`;
+    s+=`<text x="${m.l-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--ink-3)">${v}</text>`; }
+  const xstep = xmax>2500?1000:(xmax>1200?500:250);
+  for(let g=0; g<=xmax; g+=xstep) s+=`<text x="${X(g)}" y="${H-9}" text-anchor="middle" font-size="10" fill="var(--ink-3)">${g>=1000?g/1000+'k':g}</text>`;
+  s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--baseline)"/>`;
+  const line=(xs,ys,attr)=>{ let p=''; for(let k=0;k<xs.length;k++){ if(ys[k]==null||xs[k]>xmax)continue; p+=(p?'L':'M')+X(xs[k]).toFixed(1)+' '+Y(ys[k]).toFixed(1);} return `<path d="${p}" ${attr}/>`; };
+  opt.body(s2=>s+=s2, {X,Y,line,W,H,m,xmax});
+  s+=`</svg>`;
+  el.innerHTML=s+`<div class="tip"></div>`;
+  if (opt.hover) opt.hover(el, {X,Y,W,H,m,xmax});
+}
+
+// ---- birth-aligned ----
+plot(document.getElementById('c-birth'), { aria:'Genes aligned to birth', H:360, xmax:B.off[B.off.length-1],
+  body:(add,{X,Y,line})=>{
+    for (const tr of D.sampleBirth){ const xs=tr.map((_,k)=>k*25); add(line(xs,tr,'fill="none" stroke="var(--spag)" stroke-width="1"')); }
+    let up='',dn=''; for(let k=0;k<B.off.length;k++) up+=(up?'L':'M')+X(B.off[k]).toFixed(1)+' '+Y(B.q75[k]).toFixed(1);
+    for(let k=B.off.length-1;k>=0;k--) dn+='L'+X(B.off[k]).toFixed(1)+' '+Y(B.q25[k]).toFixed(1);
+    add(`<path d="${up+dn}Z" fill="var(--band)"/>`);
+    add(line(B.off,expRef,'fill="none" stroke="var(--s2)" stroke-width="2" stroke-dasharray="2 4"'));
+    add(line(B.off,B.median,'fill="none" stroke="var(--ink-1)" stroke-width="1.6" stroke-dasharray="5 4"'));
+    add(line(B.off,B.mean,'fill="none" stroke="var(--s1)" stroke-width="2.4"'));
+  },
+  hover:(el,{X,W,m,xmax})=>{ const svg=el.querySelector('svg'),tip=el.querySelector('.tip');
+    svg.addEventListener('mousemove',e=>{ const r=svg.getBoundingClientRect();
+      const g=((e.clientX-r.left)/r.width*W-m.l)/(W-m.l-m.r)*xmax; let k=0; for(let j=0;j<B.off.length;j++) if(Math.abs(B.off[j]-g)<Math.abs(B.off[k]-g))k=j;
+      tip.style.display='block'; tip.style.left=Math.min(X(B.off[k])/W*r.width+10,r.width-230)+'px'; tip.style.top='8px';
+      tip.innerHTML=`+${B.off[k].toLocaleString()} gens · mean <b>${B.mean[k].toFixed(2)}</b> · median ${B.median[k].toFixed(2)} · n=${B.count[k]}`; });
+    svg.addEventListener('mouseleave',()=>tip.style.display='none'); }
+});
+
+// ---- absolute frame ----
+plot(document.getElementById('c-abs'), { aria:'Genes in real time', xmax:GMAX, W:500, H:320, era:true, r:36,
+  body:(add,{X,Y,line,W,H,m})=>{
+    for (const q of D.sampleAbs){ const og=GEN[q.s];
+      const col = og<=200?'rgba(42,120,214,0.12)':(og<=1000?'rgba(27,175,122,0.13)':'rgba(235,104,52,0.30)');
+      const xs=q.v.map((_,k)=>GEN[q.s+k]); add(line(xs,q.v,`fill="none" stroke="${col}" stroke-width="1"`)); }
+    add(line(GEN,D.abs.median,'fill="none" stroke="var(--ink-1)" stroke-width="1.6" stroke-dasharray="5 4"'));
+    const yR=v=> H-m.b-(v/D.N)*(H-m.t-m.b);
+    let lp=''; for(let t=0;t<T;t++) lp+=(lp?'L':'M')+X(GEN[t]).toFixed(1)+' '+yR(D.abs.live[t]).toFixed(1);
+    add(`<path d="${lp}" fill="none" stroke="var(--ink-3)" stroke-width="1.4" opacity="0.8"/>`);
+    add(`<text x="${W-2}" y="${yR(D.N)+9}" text-anchor="end" font-size="9" fill="var(--ink-3)">${D.N}</text>`);
+    add(`<text x="${W-2}" y="${H-m.b-2}" text-anchor="end" font-size="9" fill="var(--ink-3)">0 live</text>`);
+  }
+});
+
+// ---- roles ----
+plot(document.getElementById('c-roles'), { aria:'Median by role, birth-aligned', xmax:B.off[B.off.length-1], W:500, H:320,
+  body:(add,{line})=>{ let i=0; for(const [r,o] of Object.entries(D.roleMed)){ add(line(B.off,o.med,`fill="none" stroke="${ROLE_COLORS[i%8]}" stroke-width="2"`)); i++; } }
+});
+document.getElementById('role-leg').innerHTML = Object.entries(D.roleMed).map(([r,o],i)=>
+  `<span><i style="border-top:2px solid ${ROLE_COLORS[i%8]}"></i>${r} (${o.n})</span>`).join('');
+
+const half = B.off[B.median.findIndex(v=>v<=0.5)];
+document.getElementById('story').innerHTML =
+  `<b>From a gene's own birth, it does look like annealing — with a lag.</b> The median gene holds near its starting value for the first ~250 generations of life, then relaxes, crossing halfway at about ${half.toLocaleString()} generations and effectively settling by ~1,000. A pure exponential (orange) would drop immediately; the real curve waits, then falls — a gene doesn't move until its lineage starts winning, then it converges fast. This is the opposite conclusion from the founding-waves-only cut: those 283 looked front-loaded only because they rode the very first error collapse. Across all 1,576 expressed genes, re-based to when selection could actually see each one, the annealing shape is real. The blue mean rides above the median because a stubborn minority (the top of the band) never fully settles — the fine-polish genes that carried the last stretch of error.`;
+</script>
+</body>
+</html>
