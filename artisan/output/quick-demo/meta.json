@@ -1,0 +1,40 @@
+{
+  "targetName": "recover-2wave",
+  "targetKind": "recoverability",
+  "sampleRate": 22050,
+  "renderLengthS": 2,
+  "offsetSamples": 0,
+  "winLen": 44100,
+  "reportedSSE": 8.055471026349411e-9,
+  "reportedSimilarity": 124139233.66231525,
+  "silenceFloor": 1561.6584113183717,
+  "wallMs": 5780,
+  "config": {
+    "target": "recover-2wave",
+    "offset": 0,
+    "offsetSamples": null,
+    "renderLength": null,
+    "maxWaves": 24,
+    "maxMinutes": null,
+    "workers": null,
+    "run": "quick-demo",
+    "seed": 1,
+    "maxAtoms": 24,
+    "shapeSearch": true,
+    "refineRounds": 4,
+    "cmaes": false,
+    "cmaesIters": 400,
+    "sampleRate": 22050,
+    "quiet": false
+  },
+  "source": {
+    "builtin": true,
+    "note": null
+  },
+  "files": {
+    "genome": "genome.pg2.txt",
+    "finalWav": "final.wav",
+    "targetScoredWav": "target-scored.wav",
+    "targetRaw": "target-scored.f32"
+  }
+}

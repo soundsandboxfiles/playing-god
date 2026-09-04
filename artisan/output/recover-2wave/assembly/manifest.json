@@ -1,0 +1,12 @@
+[
+  {
+    "nWaves": 1,
+    "sse": 8.134293238981627e-9,
+    "file": "assembly/assembly-001.wav"
+  },
+  {
+    "nWaves": 2,
+    "sse": 7.889866537880152e-11,
+    "file": "assembly/assembly-002.wav"
+  }
+]

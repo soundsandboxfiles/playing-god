@@ -1,0 +1,43 @@
+{
+  "targetName": "recover-6wave",
+  "targetKind": "recoverability",
+  "sampleRate": 22050,
+  "renderLengthS": 2,
+  "offsetSamples": 0,
+  "winLen": 44100,
+  "reportedSSE": 9.963188542051114,
+  "reportedSimilarity": 0.10036947466961524,
+  "silenceFloor": 4583.687694304466,
+  "wallMs": 3603164,
+  "config": {
+    "target": "recover-6wave",
+    "offset": 0,
+    "offsetSamples": null,
+    "renderLength": null,
+    "maxWaves": 56,
+    "maxMinutes": 60,
+    "workers": 1,
+    "run": "recover6-final",
+    "seed": 1,
+    "maxAtoms": 56,
+    "shapeSearch": true,
+    "ampEnv": true,
+    "pitchEnv": true,
+    "gateRepeat": true,
+    "refineRounds": 8,
+    "cmaes": true,
+    "cmaesIters": 120,
+    "sampleRate": 22050,
+    "quiet": false
+  },
+  "source": {
+    "builtin": true,
+    "note": null
+  },
+  "files": {
+    "genome": "genome.pg2.txt",
+    "finalWav": "final.wav",
+    "targetScoredWav": "target-scored.wav",
+    "targetRaw": "target-scored.f32"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "recover-2wave": {
+    "v1_sse": 0,
+    "silenceFloor": 1561.6584113183717,
+    "winLen": 44100,
+    "renderLengthS": 2,
+    "targetName": "recover-2wave"
+  },
+  "recover-6wave": {
+    "v1_sse": 33.28999657812696,
+    "silenceFloor": 4583.687694304466,
+    "winLen": 44100,
+    "renderLengthS": 2,
+    "targetName": "recover-6wave"
+  },
+  "chimes": {
+    "v1_sse": 1935.2019618660165,
+    "silenceFloor": 7975.961637623608,
+    "winLen": 209475,
+    "renderLengthS": 9.5,
+    "targetName": "westminster-chimes.wav"
+  },
+  "speech": {
+    "v1_sse": 306.48431483306797,
+    "silenceFloor": 407.24833568545836,
+    "winLen": 40706,
+    "renderLengthS": 1.8460770975056688,
+    "targetName": "SpeechSignalProcessing.wav"
+  },
+  "decay-440": {
+    "silenceFloor": 2675.6645467900426,
+    "winLen": 44100,
+    "renderLengthS": 2
+  },
+  "chirp-110-880": {
+    "silenceFloor": 7937.992741947291,
+    "winLen": 44100,
+    "renderLengthS": 2
+  },
+  "sine-220": {
+    "silenceFloor": 7938.00000055084,
+    "winLen": 44100,
+    "renderLengthS": 2
+  },
+  "MIMIC_BESTS": {
+    "recover-2wave": 1524.4,
+    "recover-6wave": 130.92,
+    "westminster-chimes.wav": 7943.73
+  }
+}

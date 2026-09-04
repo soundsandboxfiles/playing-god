@@ -1,0 +1,322 @@
+[
+  {
+    "nWaves": 1,
+    "sse": 7572.558307980959,
+    "file": "assembly/assembly-001.wav"
+  },
+  {
+    "nWaves": 2,
+    "sse": 7329.871928605118,
+    "file": "assembly/assembly-002.wav"
+  },
+  {
+    "nWaves": 3,
+    "sse": 6974.497499585943,
+    "file": "assembly/assembly-003.wav"
+  },
+  {
+    "nWaves": 4,
+    "sse": 6549.737129149059,
+    "file": "assembly/assembly-004.wav"
+  },
+  {
+    "nWaves": 5,
+    "sse": 6247.826837735403,
+    "file": "assembly/assembly-005.wav"
+  },
+  {
+    "nWaves": 6,
+    "sse": 5931.395034181078,
+    "file": "assembly/assembly-006.wav"
+  },
+  {
+    "nWaves": 7,
+    "sse": 5412.428344613814,
+    "file": "assembly/assembly-007.wav"
+  },
+  {
+    "nWaves": 8,
+    "sse": 5279.317492577593,
+    "file": "assembly/assembly-008.wav"
+  },
+  {
+    "nWaves": 9,
+    "sse": 4952.915420593162,
+    "file": "assembly/assembly-009.wav"
+  },
+  {
+    "nWaves": 10,
+    "sse": 4798.856236082169,
+    "file": "assembly/assembly-010.wav"
+  },
+  {
+    "nWaves": 11,
+    "sse": 4661.781760323407,
+    "file": "assembly/assembly-011.wav"
+  },
+  {
+    "nWaves": 12,
+    "sse": 4510.812191435965,
+    "file": "assembly/assembly-012.wav"
+  },
+  {
+    "nWaves": 13,
+    "sse": 4372.595270947151,
+    "file": "assembly/assembly-013.wav"
+  },
+  {
+    "nWaves": 14,
+    "sse": 4230.880834702613,
+    "file": "assembly/assembly-014.wav"
+  },
+  {
+    "nWaves": 15,
+    "sse": 4113.877835988809,
+    "file": "assembly/assembly-015.wav"
+  },
+  {
+    "nWaves": 16,
+    "sse": 3998.5847748323067,
+    "file": "assembly/assembly-016.wav"
+  },
+  {
+    "nWaves": 17,
+    "sse": 3881.650269578021,
+    "file": "assembly/assembly-017.wav"
+  },
+  {
+    "nWaves": 18,
+    "sse": 3764.8525513595805,
+    "file": "assembly/assembly-018.wav"
+  },
+  {
+    "nWaves": 19,
+    "sse": 3626.8193573016815,
+    "file": "assembly/assembly-019.wav"
+  },
+  {
+    "nWaves": 20,
+    "sse": 3470.539042518596,
+    "file": "assembly/assembly-020.wav"
+  },
+  {
+    "nWaves": 21,
+    "sse": 3365.5706379331414,
+    "file": "assembly/assembly-021.wav"
+  },
+  {
+    "nWaves": 22,
+    "sse": 3326.536394933607,
+    "file": "assembly/assembly-022.wav"
+  },
+  {
+    "nWaves": 23,
+    "sse": 3261.587711373564,
+    "file": "assembly/assembly-023.wav"
+  },
+  {
+    "nWaves": 24,
+    "sse": 3225.3412477875318,
+    "file": "assembly/assembly-024.wav"
+  },
+  {
+    "nWaves": 25,
+    "sse": 3158.2789189680525,
+    "file": "assembly/assembly-025.wav"
+  },
+  {
+    "nWaves": 26,
+    "sse": 3092.4339382564904,
+    "file": "assembly/assembly-026.wav"
+  },
+  {
+    "nWaves": 27,
+    "sse": 3032.109863920782,
+    "file": "assembly/assembly-027.wav"
+  },
+  {
+    "nWaves": 28,
+    "sse": 2978.335210975378,
+    "file": "assembly/assembly-028.wav"
+  },
+  {
+    "nWaves": 29,
+    "sse": 2944.2655532766003,
+    "file": "assembly/assembly-029.wav"
+  },
+  {
+    "nWaves": 30,
+    "sse": 2919.6668557321173,
+    "file": "assembly/assembly-030.wav"
+  },
+  {
+    "nWaves": 31,
+    "sse": 2887.8082563965854,
+    "file": "assembly/assembly-031.wav"
+  },
+  {
+    "nWaves": 32,
+    "sse": 2846.5121085393102,
+    "file": "assembly/assembly-032.wav"
+  },
+  {
+    "nWaves": 33,
+    "sse": 2805.5325612253982,
+    "file": "assembly/assembly-033.wav"
+  },
+  {
+    "nWaves": 34,
+    "sse": 2768.5220082289634,
+    "file": "assembly/assembly-034.wav"
+  },
+  {
+    "nWaves": 35,
+    "sse": 2714.581365383432,
+    "file": "assembly/assembly-035.wav"
+  },
+  {
+    "nWaves": 36,
+    "sse": 2670.877529106422,
+    "file": "assembly/assembly-036.wav"
+  },
+  {
+    "nWaves": 37,
+    "sse": 2627.159028847549,
+    "file": "assembly/assembly-037.wav"
+  },
+  {
+    "nWaves": 38,
+    "sse": 2580.7437422804715,
+    "file": "assembly/assembly-038.wav"
+  },
+  {
+    "nWaves": 39,
+    "sse": 2534.4029741300765,
+    "file": "assembly/assembly-039.wav"
+  },
+  {
+    "nWaves": 40,
+    "sse": 2505.5812702462026,
+    "file": "assembly/assembly-040.wav"
+  },
+  {
+    "nWaves": 41,
+    "sse": 2466.7379695814197,
+    "file": "assembly/assembly-041.wav"
+  },
+  {
+    "nWaves": 42,
+    "sse": 2431.3168077870287,
+    "file": "assembly/assembly-042.wav"
+  },
+  {
+    "nWaves": 43,
+    "sse": 2418.96035614661,
+    "file": "assembly/assembly-043.wav"
+  },
+  {
+    "nWaves": 44,
+    "sse": 2368.8166443457894,
+    "file": "assembly/assembly-044.wav"
+  },
+  {
+    "nWaves": 45,
+    "sse": 2348.278183731226,
+    "file": "assembly/assembly-045.wav"
+  },
+  {
+    "nWaves": 46,
+    "sse": 2325.421479456728,
+    "file": "assembly/assembly-046.wav"
+  },
+  {
+    "nWaves": 47,
+    "sse": 2290.6035681607,
+    "file": "assembly/assembly-047.wav"
+  },
+  {
+    "nWaves": 48,
+    "sse": 2275.2710537356133,
+    "file": "assembly/assembly-048.wav"
+  },
+  {
+    "nWaves": 49,
+    "sse": 2258.947791222863,
+    "file": "assembly/assembly-049.wav"
+  },
+  {
+    "nWaves": 50,
+    "sse": 2233.656401374892,
+    "file": "assembly/assembly-050.wav"
+  },
+  {
+    "nWaves": 51,
+    "sse": 2222.997221043959,
+    "file": "assembly/assembly-051.wav"
+  },
+  {
+    "nWaves": 52,
+    "sse": 2198.681244640975,
+    "file": "assembly/assembly-052.wav"
+  },
+  {
+    "nWaves": 53,
+    "sse": 2169.3036559555285,
+    "file": "assembly/assembly-053.wav"
+  },
+  {
+    "nWaves": 54,
+    "sse": 2153.786158061009,
+    "file": "assembly/assembly-054.wav"
+  },
+  {
+    "nWaves": 55,
+    "sse": 2128.993174505048,
+    "file": "assembly/assembly-055.wav"
+  },
+  {
+    "nWaves": 56,
+    "sse": 2103.961663752343,
+    "file": "assembly/assembly-056.wav"
+  },
+  {
+    "nWaves": 57,
+    "sse": 2079.638050005482,
+    "file": "assembly/assembly-057.wav"
+  },
+  {
+    "nWaves": 58,
+    "sse": 2062.64749911144,
+    "file": "assembly/assembly-058.wav"
+  },
+  {
+    "nWaves": 59,
+    "sse": 2044.686504830238,
+    "file": "assembly/assembly-059.wav"
+  },
+  {
+    "nWaves": 60,
+    "sse": 2028.955997878118,
+    "file": "assembly/assembly-060.wav"
+  },
+  {
+    "nWaves": 61,
+    "sse": 2011.8280988414353,
+    "file": "assembly/assembly-061.wav"
+  },
+  {
+    "nWaves": 62,
+    "sse": 1994.1359770556073,
+    "file": "assembly/assembly-062.wav"
+  },
+  {
+    "nWaves": 63,
+    "sse": 1981.3157661736623,
+    "file": "assembly/assembly-063.wav"
+  },
+  {
+    "nWaves": 64,
+    "sse": 1966.6951844520609,
+    "file": "assembly/assembly-064.wav"
+  }
+]

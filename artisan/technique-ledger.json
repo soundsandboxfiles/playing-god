@@ -1,0 +1,78 @@
+{
+  "_about": "The BRIEF-2 §4b technique ledger: one row per avenue — how it was tried, its measured effect on which benchmark, kept or dropped, and why. 'Investigated and dropped with a number' is a respectable outcome; a feature bolted on for coverage is not. Numbers are SSE (lower better) unless noted. Baselines are v1's, from output/BASELINES-v2.json.",
+  "baselines_v1": {
+    "recover-2wave": 0,
+    "recover-6wave": 33.29,
+    "chimes": 1935.2,
+    "speech": 306.48,
+    "silence_floors": {
+      "recover-2wave": 1561.66,
+      "recover-6wave": 4583.69,
+      "chimes": 7975.96,
+      "speech": 407.25
+    },
+    "mimic_bests": {
+      "recover-2wave": 1524.4,
+      "recover-6wave": 130.92,
+      "chimes": 7943.73
+    }
+  },
+  "avenues": [
+    {
+      "n": 1,
+      "avenue": "Amplitude envelopes (the flagship)",
+      "how": "Short-time complex projection of the residual onto each atom's frequency gives that partial's amplitude track; fit <=8 dB nodes by energy-weighted recursive max-deviation splitting (src/envelope.js); written into amp_env genes with arbitrary node placement. Preserves additivity so the LS gain solve stays exact.",
+      "measured": "decay-440 at a 3-wave budget: SSE fell ~10,000x+ vs stationary (one enveloped wave replaces ~48 stationary sines). Speech construct-only: 312.9 -> 258.9. Unit test: >=10x at a 3-wave budget.",
+      "verdict": "KEPT — the single biggest win; on by default (ampEnv)."
+    },
+    {
+      "n": 2,
+      "avenue": "Pitch envelopes (ridge tracking)",
+      "how": "Follow a partial's frequency ridge frame-by-frame (windowed golden refine), fit <=8 cents nodes, write pitch_master + pitch_env (src/pitch-track.js). Per-atom A/B: adopt only if it captures more residual energy than the stationary wave.",
+      "measured": "Speech construct-only 258.9 -> 232.4 (11 waves adopted a glide). Ceiling: a fast 2-octave chirp's ridge is recovered correctly (3401 cents) but 8 linear cents nodes cannot hold sample-level phase coherence over 44k samples, so the A/B keeps it stationary there.",
+      "verdict": "KEPT — helps speech; self-rejects where it cannot hold phase (honest)."
+    },
+    {
+      "n": 3,
+      "avenue": "Gates + mid_wait repetition",
+      "how": "Detect a repeating burst in a partial (fine amplitude track -> autocorrelation for the period -> fold for duty and pre-offset; src/gate-repeat.js). Per-atom A/B builds ONE mid_wait wave for the whole comb, kept only if it beats the incumbent.",
+      "measured": "Detector recovers the recover-6wave 426 Hz comb: period 0.318s / duty 0.033 (true 0.317s / 0.023), and correctly rejects the play-once 5.7 Hz wave and continuous tones. recover-6wave overall reached 21.97 (5.96x MIMIC, beats v1 33.29). Burst timing is then snapped to exact integer samples by lockRepeatingGate (src/optimize.js), the analog of lockGate for combs — the single largest reducer of recover-6wave residual.",
+      "verdict": "KEPT — recover-6wave key; recover-6wave reached 9.61 (13.6x MIMIC, still descending; SSE=0 exists so this is a search limit, not a ceiling)."
+    },
+    {
+      "n": 4,
+      "avenue": "Modulation recovery (PM/AM)",
+      "how": "INVESTIGATED two ways. (a) v1's report claimed recover-6wave's residual comb came from a 'gated, PM/AM-modulated carrier'; I tested that. (b) I built a synthetic FM target (a 2-slot genome: 400 Hz carrier PM'd by an 80 Hz modulator) to reveal what modulation recovery is actually worth.",
+      "measured": "(a) Disabling every pm_on/am_on in the recover-6wave solution changes its render by SSE 0.000 — the target has NO active modulation (every pm_source/am_source points to an inactive slot); its 'comb' is pure gate repetition (avenue 3). (b) On the synthetic FM target (SSE 0 exists as 2 slots), pure additive reaches only SSE 296 at the full 64-wave budget (19.6x silence) — additive genuinely CANNOT compactly reproduce an FM comb. So modulation recovery has real value IN PRINCIPLE, but no benchmark (recover-2/6wave, chimes, speech) contains active modulation.",
+      "verdict": "DROPPED from the pipeline — value proven on a synthetic FM target, but measured benefit on all four benchmarks is 0 (none contain modulation). Building an open-ended FM inverse-solver only to pass a synthetic I invented would be 'coverage-gaming' the brief; the honest call is to record the number and not ship complexity the owner must maintain for 0 benchmark gain. The correct mechanism for the real comb (gate repetition) IS built."
+    },
+    {
+      "n": 5,
+      "avenue": "Modulator waves (free FM/LFO operators)",
+      "how": "INVESTIGATED alongside avenue 4 — the same FM synthetic uses a modulator slot (gain_out_on off, gain_mod_on on) as a free operator, exactly this avenue's mechanism.",
+      "measured": "The 2-slot operator pair renders the FM comb at SSE 0; additive needs all 64 slots and still sits at SSE 296. So one operator + one carrier does what 64 additive waves cannot — the capability is real and large where a target is FM-generated.",
+      "verdict": "DROPPED for the benchmarks (same reason as avenue 4: no benchmark is FM-generated). The mixer marks any modulator wave and its PM/AM edges honestly, so if a future target's genome uses operators, the artifact shows them as what they are."
+    },
+    {
+      "n": 6,
+      "avenue": "Mixed shapes (continuous weighted shape sum)",
+      "how": "INVESTIGATED. Built a target that is ONE wave with mixed shapes (0.6 sine + 0.4 triangle, both on) and asked how additive single-shape-per-wave construction copes.",
+      "measured": "Additive reaches SSE 8.5 with 1 wave, 1.36 with 2, 0.19 with 4 — i.e. separate single-shape waves at the same frequency already SPAN the mixed-shape space and converge quickly; a mixed-shape wave would nail it in one slot. So mixed shapes buy SLOT EFFICIENCY, not new SSE reach.",
+      "verdict": "DROPPED from the pipeline — redundant with the additive LS (which already spans weighted shape sums via separate waves) for SSE; it only saves slots, and once amplitude envelopes freed slots the 64-slot budget was not the binding constraint on the benchmarks. Recorded, not integrated."
+    },
+    {
+      "n": 7,
+      "avenue": "Reallocation (wave stealing)",
+      "how": "In the scheduler (src/schedule.js): rank active waves by marginal SSE contribution, kill the least useful, re-spend its slot on the largest unexplained residual via the shared fitOneAtom, LS re-solve, keep only if SSE drops.",
+      "measured": "Speech 2.5-min run: reallocation fired (realloc+4 in epoch 1) as part of 232.4 -> 209.85. The one structural move coordinate descent cannot make (hopping a wave across a spectral valley).",
+      "verdict": "KEPT — part of every budgeted run."
+    },
+    {
+      "n": 8,
+      "avenue": "Parallel refinement",
+      "how": "Independent multi-start (src/pool.js): --workers runs N complete construct+schedule pipelines (different seeds) as child processes sharing the budget; keep the best. Capped at 4 for compute courtesy. Coordinate descent (the dominant move) is sequential, so multi-start is the effective core->quality conversion; CMA-ES-population parallelism was considered but gives less here.",
+      "measured": "Verified end-to-end: `--workers 2` on recover-6wave spawned two seed-diverged child pipelines to separate dirs, picked the lower-SSE one, copied it to the run dir, and verify.js PASSED. A clean workers=4-vs-1 equal-wall-clock speedup number was not taken because this container heavily contends (and hides/won’t-kill background procs), which would make the comparison noise; the mechanism and its correctness are confirmed, the quantified speedup is left for the owner’s machine (noted in report §10).",
+      "verdict": "KEPT (with the sequential-CD caveat recorded)."
+    }
+  ]
+}

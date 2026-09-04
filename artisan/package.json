@@ -1,0 +1,13 @@
+{
+  "name": "artisan",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "description": "ARTISAN — sighted design of Playing God genomes to match a target WAV sample-by-sample. Third program in the Playing God set. Zero external dependencies.",
+  "scripts": {
+    "test": "node test/all.js",
+    "demo": "node run.js --config configs/quick-demo.json"
+  },
+  "dependencies": {},
+  "engines": { "node": ">=18" }
+}

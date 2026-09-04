@@ -1,0 +1,46 @@
+{
+  "targetName": "SpeechSignalProcessing.wav",
+  "targetKind": "wav",
+  "sampleRate": 22050,
+  "renderLengthS": 1.8460770975056688,
+  "offsetSamples": 0,
+  "winLen": 40706,
+  "reportedSSE": 190.8119379786189,
+  "reportedSimilarity": 0.005240762242622646,
+  "silenceFloor": 407.24833568545836,
+  "wallMs": 1806477,
+  "config": {
+    "target": "../mimic/targets/SpeechSignalProcessing.wav",
+    "offset": 0,
+    "offsetSamples": null,
+    "renderLength": null,
+    "maxWaves": 64,
+    "maxMinutes": 30,
+    "workers": 1,
+    "run": "speech-final",
+    "seed": 1,
+    "maxAtoms": 64,
+    "shapeSearch": true,
+    "ampEnv": true,
+    "pitchEnv": true,
+    "gateRepeat": true,
+    "refineRounds": 6,
+    "cmaes": true,
+    "cmaesIters": 400,
+    "sampleRate": 22050,
+    "quiet": false
+  },
+  "source": {
+    "path": "../mimic/targets/SpeechSignalProcessing.wav",
+    "sourceRate": 44100,
+    "sourceChannels": 2,
+    "sourceBits": 24,
+    "durationS": 1.8460770975056688
+  },
+  "files": {
+    "genome": "genome.pg2.txt",
+    "finalWav": "final.wav",
+    "targetScoredWav": "target-scored.wav",
+    "targetRaw": "target-scored.f32"
+  }
+}

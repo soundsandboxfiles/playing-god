@@ -1,0 +1,11 @@
+{
+  "target": "recover-6wave",
+  "maxWaves": 56,
+  "shapeSearch": true,
+  "cmaes": true,
+  "cmaesIters": 120,
+  "refineRounds": 8,
+  "maxMinutes": 5,
+  "seed": 1,
+  "run": "recover-6wave"
+}

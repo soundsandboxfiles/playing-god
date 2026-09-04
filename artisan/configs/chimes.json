@@ -1,0 +1,12 @@
+{
+  "target": "../mimic/targets/westminster-chimes.wav",
+  "maxWaves": 64,
+  "shapeSearch": true,
+  "ampEnv": true,
+  "pitchEnv": true,
+  "gateRepeat": true,
+  "maxMinutes": 120,
+  "workers": 4,
+  "seed": 1,
+  "run": "chimes"
+}

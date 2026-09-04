@@ -1,0 +1,8 @@
+{
+  "target": "../mimic/targets/SpeechSignalProcessing.wav",
+  "maxWaves": 64,
+  "maxMinutes": 60,
+  "workers": 4,
+  "seed": 1,
+  "run": "speech"
+}

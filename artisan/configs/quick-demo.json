@@ -1,0 +1,9 @@
+{
+  "target": "recover-2wave",
+  "maxWaves": 24,
+  "shapeSearch": true,
+  "cmaes": false,
+  "refineRounds": 4,
+  "seed": 1,
+  "run": "quick-demo"
+}

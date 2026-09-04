@@ -1,0 +1,8 @@
+{
+  "target": "../mimic/targets/westminster-chimes.wav",
+  "maxWaves": 64,
+  "maxMinutes": 1440,
+  "workers": 4,
+  "seed": 1,
+  "run": "full-24h"
+}

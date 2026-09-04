@@ -1,0 +1,43 @@
+{
+  "targetName": "westminster-chimes.wav",
+  "targetKind": "wav",
+  "sampleRate": 22050,
+  "renderLengthS": 9.5,
+  "offsetSamples": 0,
+  "winLen": 209475,
+  "reportedSSE": 1935.2019618660165,
+  "reportedSimilarity": 0.0005167419316977909,
+  "silenceFloor": 7975.961637623608,
+  "wallMs": 473153,
+  "config": {
+    "target": "../mimic/targets/westminster-chimes.wav",
+    "offset": 0,
+    "offsetSamples": null,
+    "renderLength": null,
+    "maxWaves": 64,
+    "maxMinutes": 20,
+    "workers": null,
+    "run": "chimes",
+    "seed": 1,
+    "maxAtoms": 64,
+    "shapeSearch": false,
+    "refineRounds": 3,
+    "cmaes": false,
+    "cmaesIters": 400,
+    "sampleRate": 22050,
+    "quiet": false
+  },
+  "source": {
+    "path": "../mimic/targets/westminster-chimes.wav",
+    "sourceRate": 22050,
+    "sourceChannels": 1,
+    "sourceBits": 16,
+    "durationS": 9.5
+  },
+  "files": {
+    "genome": "genome.pg2.txt",
+    "finalWav": "final.wav",
+    "targetScoredWav": "target-scored.wav",
+    "targetRaw": "target-scored.f32"
+  }
+}
