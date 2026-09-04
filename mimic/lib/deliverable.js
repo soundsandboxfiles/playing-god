@@ -57,6 +57,7 @@ export function streamSavedGen(state, savedGen, meta) {
   state.gens.push({
     generation: savedGen.generation, file: wavName, genomeFile: pg2Name, sse: savedGen.sse,
     similarity: savedGen.similarity === Number.MAX_VALUE ? 'PERFECT' : savedGen.similarity, peak,
+    ...(savedGen.island !== undefined && { island: savedGen.island }),
   });
   const manifest = { run: state.runName, streaming: true, gain: 1,
     currentGeneration: meta.currentGeneration, generations: state.gens };
@@ -89,6 +90,7 @@ export function streamFinalize(state, result, extra = {}) {
     finalBestSSE: best.sse,
     finalBestSimilarity: best.similarity === Number.MAX_VALUE ? 'PERFECT (SSE=0)' : best.similarity,
     bestFoundAtGeneration: best.foundAtGeneration,
+    ...(best.island !== undefined && { bestIsland: best.island }),
     scoredWindowSamples: result.plan.winLen,
     genomeString, savedGenerations: state.gens.length,
     silenceFloorSSE: extra.silenceFloorSSE ?? null, notes: extra.notes || [],
@@ -141,6 +143,7 @@ export function writeRun(outDir, result, extra = {}) {
       sse: r.sg.sse,
       similarity: r.sg.similarity === Number.MAX_VALUE ? 'PERFECT' : r.sg.similarity,
       peak: r.peak,
+      ...(r.sg.island !== undefined && { island: r.sg.island }),
     });
   }
 
@@ -171,6 +174,7 @@ export function writeRun(outDir, result, extra = {}) {
     finalBestSSE: best.sse,
     finalBestSimilarity: best.similarity === Number.MAX_VALUE ? 'PERFECT (SSE=0)' : best.similarity,
     bestFoundAtGeneration: best.foundAtGeneration,
+    ...(best.island !== undefined && { bestIsland: best.island }),
     windowStartS: meta.windowStartS,
     scoredWindowSamples: plan.winLen,
     genomeString,

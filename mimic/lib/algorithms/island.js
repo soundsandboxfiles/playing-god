@@ -35,9 +35,12 @@ export class Island {
 
   static needsDescriptors = false;
 
-  _consider(member, gen) {
+  // `island` = the island the member lives on when considered. A migrant's clone
+  // keeps its origin island's record (equal SSE never displaces the best), and
+  // its DESCENDANTS count as the island they were bred on — the honest reading.
+  _consider(member, gen, island) {
     if (!this.best || member.sse < this.best.sse) {
-      this.best = { data: Float32Array.from(member.genome.data), sse: member.sse, similarity: member.similarity, generation: gen };
+      this.best = { data: Float32Array.from(member.genome.data), sse: member.sse, similarity: member.similarity, generation: gen, island };
     }
   }
 
@@ -61,7 +64,7 @@ export class Island {
       pop.sort((a, b) => a.sse - b.sse);
       return pop;
     });
-    for (const pop of this.islands) for (const m of pop) this._consider(m, 0);
+    for (let k = 0; k < this.nIslands; k++) for (const m of this.islands[k]) this._consider(m, 0, k);
     return this._stats();
   }
 
@@ -95,7 +98,7 @@ export class Island {
       const pool = this.islands[k].concat(childMembers);
       pool.sort((a, b) => a.sse - b.sse);
       this.islands[k] = pool.slice(0, this.sizes[k]);
-      for (const m of childMembers) this._consider(m, this.generation);
+      for (const m of childMembers) this._consider(m, this.generation, k);
     }
 
     // Ring migration.
@@ -138,6 +141,7 @@ export class Island {
       renders: this.renders,
       bestSSE: this.best.sse,
       bestSimilarity: this.best.similarity,
+      bestIsland: this.best.island,
       meanSSE: n ? sum / n : Infinity,
       popBestSSE: popBest,
     };

@@ -64,6 +64,7 @@ export async function runEvolution(opts) {
         sse: alg.best.sse,
         similarity: alg.best.similarity,
         foundAtGeneration: alg.best.generation,
+        island: alg.best.island,     // which island bred it (island algorithm only)
       };
       savedGens.push(entry);
       // Stream the snapshot out immediately so a crash mid-run keeps a playable
@@ -83,6 +84,7 @@ export async function runEvolution(opts) {
     const entry = {
       generation: gen, data: Float32Array.from(alg.best.data),
       sse: alg.best.sse, similarity: alg.best.similarity, foundAtGeneration: alg.best.generation,
+      island: alg.best.island,
     };
     savedGens.push(entry);
     if (onSaved) onSaved(entry, { plan, meta: liveMeta(gen) });
@@ -113,7 +115,7 @@ export async function runEvolution(opts) {
     plan,
     curve,
     savedGens,
-    best: { data: Float32Array.from(alg.best.data), sse: alg.best.sse, similarity: alg.best.similarity, foundAtGeneration: alg.best.generation },
+    best: { data: Float32Array.from(alg.best.data), sse: alg.best.sse, similarity: alg.best.similarity, foundAtGeneration: alg.best.generation, island: alg.best.island },
     meta: {
       algorithm, population, generations, elitism, mutationScale, crossoverRate,
       windowStartS, totalLengthS: plan.totalLengthS, requestedTotalLengthS: plan.requestedTotalLengthS,

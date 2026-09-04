@@ -249,7 +249,8 @@ async function main() {
     },
     onSaved: (savedGen, ctx) => {
       const peak = streamSavedGen(stream, savedGen, { ...ctx.meta, sampleRate: 22050, totalLengthS });
-      process.stdout.write(`    ↳ saved gen-${String(savedGen.generation).padStart(4)} WAV (peak ${peak.toFixed(3)})\n`);
+      const isl = savedGen.island !== undefined ? `, island ${savedGen.island}` : '';
+      process.stdout.write(`    ↳ saved gen-${String(savedGen.generation).padStart(4)} WAV (peak ${peak.toFixed(3)}${isl})\n`);
     },
     onGeneration: (stats) => {
       const now = Date.now();
