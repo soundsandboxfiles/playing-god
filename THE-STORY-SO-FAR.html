@@ -1,0 +1,622 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Playing God — Story So Far</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Spectral:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+  :root{
+    --paper:#F4F1EA; --panel:#FBF9F4; --ink:#1C1E1D; --ink-soft:#4A4E4B; --faint:#8A8D86;
+    --rule:#E0DBD0; --rule-soft:#EBE7DD;
+    --pg:#C4881E;     /* Playing God — amber, the origin/signal */
+    --mimic:#2C8C86;  /* MIMIC — teal, blind computation */
+    --artisan:#C85A34; /* ARTISAN — vermilion, sighted design */
+    --impr:#7B5FC0;   /* IMPRESSIONIST — violet, the ear */
+    --good:#3E8E5A; --run:#2C8C86; --wait:#A79B84;
+    --shadow:0 1px 2px rgba(28,30,29,.05), 0 6px 20px rgba(28,30,29,.06);
+    --grid:#EEEAE0;
+  }
+  :root:not([data-theme="light"]){ @media (prefers-color-scheme: dark){
+    --paper:#121513; --panel:#1A1E1B; --ink:#ECE9E1; --ink-soft:#B4B2A8; --faint:#7C807A;
+    --rule:#2A2F2A; --rule-soft:#232823;
+    --pg:#E7B04A; --mimic:#54C0B6; --artisan:#EC8258; --impr:#A78BE6;
+    --good:#5FB77D; --run:#54C0B6; --wait:#8A7F68;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 26px rgba(0,0,0,.35);
+    --grid:#242A24;
+  }}
+  :root[data-theme="dark"]{
+    --paper:#121513; --panel:#1A1E1B; --ink:#ECE9E1; --ink-soft:#B4B2A8; --faint:#7C807A;
+    --rule:#2A2F2A; --rule-soft:#232823;
+    --pg:#E7B04A; --mimic:#54C0B6; --artisan:#EC8258; --impr:#A78BE6;
+    --good:#5FB77D; --run:#54C0B6; --wait:#8A7F68;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 8px 26px rgba(0,0,0,.35);
+    --grid:#242A24;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Spectral',Georgia,serif;font-size:18px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  .wrap{max-width:720px;margin:0 auto;padding:0 22px 96px}
+  @media(max-width:520px){ body{font-size:17px} .wrap{padding:0 16px 72px} }
+
+  h1,h2,h3,.eyebrow{font-family:'Fraunces',Georgia,serif}
+  h2{font-size:1.78rem;line-height:1.12;font-weight:600;letter-spacing:-.01em;
+    text-wrap:balance;margin:0 0 .1em}
+  h3{font-size:1.24rem;line-height:1.2;font-weight:600;margin:1.9em 0 .3em;text-wrap:balance}
+  p{margin:.75em 0}
+  a{color:var(--artisan);text-underline-offset:2px}
+  strong{font-weight:600}
+  em{font-style:italic}
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+  .num{font-variant-numeric:tabular-nums}
+
+  .eyebrow{display:block;font-size:.74rem;font-weight:600;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--faint);margin:0 0 .5em}
+
+  /* HERO */
+  header.hero{padding:64px 0 26px;border-bottom:1px solid var(--rule)}
+  .hero h1{font-size:clamp(2.9rem,11vw,4.6rem);line-height:.98;font-weight:600;
+    letter-spacing:-.025em;margin:.24em 0 .18em;text-wrap:balance}
+  .hero .sub{font-size:1.14rem;color:var(--ink-soft);max-width:30em}
+  .kicker{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--faint)}
+  .scope-svg{display:block;width:100%;height:auto;margin:22px 0 6px}
+
+  section{padding:40px 0;border-bottom:1px solid var(--rule)}
+  section.narrative{border-bottom:none;padding-bottom:20px}
+
+  .lede{font-size:1.16rem;line-height:1.55}
+  .drop::first-letter{font-family:'Fraunces',serif;font-weight:600;float:left;
+    font-size:3.4rem;line-height:.78;padding:.06em .09em 0 0;color:var(--pg)}
+
+  /* program chips */
+  .chip{display:inline-flex;align-items:center;gap:.45em;font-family:'JetBrains Mono',monospace;
+    font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    padding:.28em .6em;border-radius:2px;border:1px solid;line-height:1}
+  .chip .dot{width:8px;height:8px;border-radius:50%}
+  .c-pg{color:var(--pg);border-color:color-mix(in srgb,var(--pg) 40%,transparent)}
+  .c-pg .dot{background:var(--pg)}
+  .c-mimic{color:var(--mimic);border-color:color-mix(in srgb,var(--mimic) 40%,transparent)}
+  .c-mimic .dot{background:var(--mimic)}
+  .c-artisan{color:var(--artisan);border-color:color-mix(in srgb,var(--artisan) 40%,transparent)}
+  .c-artisan .dot{background:var(--artisan)}
+  .c-impr{color:var(--impr);border-color:color-mix(in srgb,var(--impr) 40%,transparent)}
+  .c-impr .dot{background:var(--impr)}
+
+  /* pull quote */
+  blockquote{margin:1.4em 0;padding:.2em 0 .2em 1.1em;border-left:3px solid var(--pg);
+    font-family:'Fraunces',serif;font-size:1.3rem;line-height:1.34;font-weight:500;
+    font-style:italic;color:var(--ink)}
+  blockquote cite{display:block;margin-top:.5em;font-family:'JetBrains Mono',monospace;
+    font-style:normal;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+
+  /* generic panel */
+  .panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;
+    padding:20px 20px;margin:20px 0;box-shadow:var(--shadow)}
+  .panel .cap{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--faint);margin:0 0 .8em}
+
+  /* stat row */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);
+    border:1px solid var(--rule);border-radius:6px;overflow:hidden;margin:22px 0}
+  .stats.two{grid-template-columns:repeat(2,1fr)}
+  .stat{background:var(--panel);padding:16px 14px}
+  .stat .v{font-family:'Fraunces',serif;font-weight:600;font-size:1.7rem;line-height:1;
+    letter-spacing:-.02em}
+  .stat .k{font-family:'JetBrains Mono',monospace;font-size:.64rem;letter-spacing:.05em;
+    text-transform:uppercase;color:var(--faint);margin-top:.5em;line-height:1.3}
+  @media(max-width:520px){ .stat .v{font-size:1.4rem} }
+
+  /* the vastness figure */
+  .vast{text-align:center;padding:8px 0 2px}
+  .vast .big{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--pg);
+    font-size:clamp(1.5rem,7vw,2.4rem);letter-spacing:-.01em;line-height:1}
+  .vast .big sup{font-size:.55em}
+  .vast .row{display:flex;align-items:baseline;justify-content:center;gap:.5em;flex-wrap:wrap;margin:.3em 0}
+  .vast .lab{font-family:'JetBrains Mono',monospace;font-size:.7rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--faint)}
+
+  table{width:100%;border-collapse:collapse;margin:18px 0;font-size:.92rem}
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  th,td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--rule-soft);
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;white-space:normal}
+  thead th{font-family:'JetBrains Mono',monospace;font-size:.62rem;letter-spacing:.06em;
+    text-transform:uppercase;color:var(--faint);font-weight:700;border-bottom:1px solid var(--rule)}
+  tbody tr:last-child td{border-bottom:none}
+  td.mono,th.mono{font-family:'JetBrains Mono',monospace}
+
+  figure{margin:22px 0}
+  figcaption{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.04em;
+    color:var(--faint);margin-top:.7em;line-height:1.4}
+  svg{display:block;width:100%;height:auto}
+
+  .note{font-size:.9rem;color:var(--ink-soft)}
+  .divider-label{font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--faint)}
+
+  /* status board */
+  .board{display:flex;flex-direction:column;gap:10px;margin:20px 0}
+  .row-item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;
+    background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:13px 15px}
+  .row-item .name{font-family:'Fraunces',serif;font-weight:600;font-size:1.02rem}
+  .row-item .desc{font-size:.82rem;color:var(--ink-soft);line-height:1.35}
+  @media(max-width:520px){ .row-item{grid-template-columns:auto 1fr;gap:6px 12px}
+    .row-item .badge{grid-column:1/2;grid-row:2} .row-item .desc{grid-column:1/3} }
+  .badge{font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;padding:.32em .5em;border-radius:3px;white-space:nowrap}
+  .b-done{background:color-mix(in srgb,var(--good) 16%,transparent);color:var(--good)}
+  .b-run{background:color-mix(in srgb,var(--run) 16%,transparent);color:var(--run)}
+  .b-wait{background:color-mix(in srgb,var(--wait) 20%,transparent);color:var(--wait)}
+  .swatch{width:10px;height:26px;border-radius:2px;flex-shrink:0}
+
+  ul.clean{list-style:none;padding:0;margin:1em 0}
+  ul.clean li{position:relative;padding-left:1.3em;margin:.5em 0}
+  ul.clean li::before{content:"";position:absolute;left:0;top:.62em;width:6px;height:6px;
+    border-radius:50%;background:var(--pg)}
+
+  .live-pill{display:inline-flex;align-items:center;gap:.5em;font-family:'JetBrains Mono',monospace;
+    font-size:.66rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--run)}
+  .live-pill .beat{width:8px;height:8px;border-radius:50%;background:var(--run);
+    animation:beat 1.8s ease-in-out infinite}
+  @keyframes beat{0%,100%{opacity:1}50%{opacity:.25}}
+  @media(prefers-reduced-motion:reduce){ .live-pill .beat{animation:none} }
+
+  .foot{padding-top:34px;color:var(--faint);font-size:.82rem;font-family:'JetBrains Mono',monospace;
+    letter-spacing:.03em;line-height:1.7}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+
+<header class="hero">
+  <span class="kicker">Playing God · Primordial Jam — working title</span>
+  <h1>The Story<br>So Far</h1>
+  <p class="sub">One toy that evolves sound, and the three (soon four) instruments built to interrogate it. Where it started, what got made, what the numbers say, and where things stand as of 4 September 2026.</p>
+  <figure style="margin:26px 0 0">
+    <svg viewBox="0 0 720 90" role="img" aria-label="A stylised waveform settling from noise into signal">
+      <polyline fill="none" stroke="var(--faint)" stroke-width="1.5" stroke-linejoin="round"
+        points="0,45 12,20 24,70 36,15 48,72 60,30 72,66 84,22 96,60 108,35 120,58 132,40 144,54 156,44 168,50 180,46"/>
+      <polyline fill="none" stroke="var(--pg)" stroke-width="2" stroke-linejoin="round"
+        points="180,46 210,26 225,64 240,30 255,60 270,34 285,58 300,38 315,54 330,42 345,52 360,44 380,48 400,45 420,47 440,45.5 460,46.5 480,46 500,46 520,46 540,46 560,46 580,46 600,46 620,46 640,46 660,46 680,46 700,46 720,46"/>
+    </svg>
+    <figcaption>Random noise on the left; a signal that holds on the right. The whole project is about which of those a listener stays with — and why nobody gets to decide that in advance.</figcaption>
+  </figure>
+</header>
+
+<!-- ========== NARRATIVE ========== -->
+<section class="narrative">
+  <span class="eyebrow">The story</span>
+  <p class="lede drop">First was <strong>Playing God</strong> — a way to evolve your own sounds across a truly vast phase space, with the only fitness function being how long you chose to listen to a given sound, or creature. A listener presses a key; a clock runs; the next keypress stops it; that duration is the entire signal. No ratings, no rankings, no taste declared out loud. The system is agnostic as to <em>why</em> you kept listening — it only cares that you did.</p>
+
+  <p>To make that work we had to build a <strong>creature genome</strong>: 64 richly parameterised waves and a handful of meta-genes covering how it evolves. A genome is a bank of oscillators that can modulate one another; render it and you get a sound. Mutate it, breed it, and the sound drifts. The bet was that somewhere in that space are sounds nobody could have specified in advance — and that listening time, and only listening time, would find them.</p>
+
+  <p>Which raised the obvious, dangerous question. <strong>Is the instrument any good?</strong> Can 64 waves actually <em>say</em> anything — a bell, a voice, a train — or does the format quietly cap what can ever be discovered? You cannot answer that by listening to random creatures. You answer it by pointing the engine at a known sound and asking it to reproduce it. That gave the sound the target the discovery toy refuses to have, and it spawned a family of programs, each one a different way of asking the same question.</p>
+
+  <p>Second came <strong>MIMIC</strong> — the discovery toy run in reverse. Same genome, but now with a target and a merciless, computed fitness, so it can grind autonomously with no human in the loop. It <em>evolves</em> toward the target, still blind, still by trial and error. Third came <strong>ARTISAN</strong> — sighted where MIMIC gropes. It measures the target with an FFT, takes it apart, and builds a genome on purpose. Where MIMIC feels its way to the sound, ARTISAN looks. And now a fourth is being drawn up — <strong>IMPRESSIONIST</strong> — which keeps ARTISAN's method but stops chasing the exact waveform and chases what the <em>ear</em> hears instead.</p>
+
+  <p>Four programs, one engine, two axes. That is the map.</p>
+</section>
+
+<!-- ========== THE MAP: 2x2 ========== -->
+<section>
+  <span class="eyebrow">The map</span>
+  <h2>Four programs, one engine</h2>
+  <p>Everything hangs off two questions: does the program <strong>search blind or design sighted</strong>, and does it chase the <strong>exact waveform or the ear</strong>. Playing God sits outside the grid — its judge is a living listener, the thing every other program's metric is only a proxy for.</p>
+
+  <figure>
+    <svg viewBox="0 0 560 430" role="img" aria-label="A 2 by 2 grid of the four target-matching programs, with Playing God outside it">
+      <!-- axis labels -->
+      <text x="280" y="20" text-anchor="middle" class="axl" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="12" letter-spacing="1">HOW IT JUDGES A MATCH →</text>
+      <text x="150" y="46" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="12.5" font-weight="700">SAMPLE-EXACT (SSE)</text>
+      <text x="418" y="46" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="12.5" font-weight="700">PERCEPTUAL (THE EAR)</text>
+      <text x="20" y="250" text-anchor="middle" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="12" letter-spacing="1" transform="rotate(-90 20 250)">← HOW IT SEARCHES</text>
+
+      <text x="44" y="130" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="12.5" font-weight="700" transform="rotate(-90 44 130)">BLIND</text>
+      <text x="44" y="355" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="12.5" font-weight="700" transform="rotate(-90 44 355)">SIGHTED</text>
+
+      <!-- cells -->
+      <!-- MIMIC : blind x exact -->
+      <rect x="66" y="62" width="216" height="164" rx="7" fill="color-mix(in srgb,var(--mimic) 12%,var(--panel))" stroke="var(--mimic)" stroke-width="1.5"/>
+      <text x="82" y="92" fill="var(--mimic)" font-family="'JetBrains Mono',monospace" font-size="14" font-weight="700">MIMIC</text>
+      <text x="82" y="116" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">Evolves toward a</text>
+      <text x="82" y="136" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">known target. Blind,</text>
+      <text x="82" y="156" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">computed, autonomous.</text>
+      <text x="82" y="196" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="10.5">BUILT · racing now</text>
+
+      <!-- IMPRESSIONIST-MIMIC : blind x perceptual -->
+      <rect x="300" y="62" width="216" height="164" rx="7" fill="color-mix(in srgb,var(--impr) 9%,var(--panel))" stroke="var(--impr)" stroke-width="1.3" stroke-dasharray="5 4"/>
+      <text x="316" y="92" fill="var(--impr)" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">IMPRESSIONIST·MIMIC</text>
+      <text x="316" y="116" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">Blind evolution toward</text>
+      <text x="316" y="136" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">the ear. The metric's</text>
+      <text x="316" y="156" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">own red team.</text>
+      <text x="316" y="196" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="10.5">ON HOLD · 5th program</text>
+
+      <!-- ARTISAN : sighted x exact -->
+      <rect x="66" y="240" width="216" height="164" rx="7" fill="color-mix(in srgb,var(--artisan) 12%,var(--panel))" stroke="var(--artisan)" stroke-width="1.5"/>
+      <text x="82" y="270" fill="var(--artisan)" font-family="'JetBrains Mono',monospace" font-size="14" font-weight="700">ARTISAN</text>
+      <text x="82" y="294" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">Measures the target and</text>
+      <text x="82" y="314" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">builds the genome on</text>
+      <text x="82" y="334" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">purpose. The upper bound.</text>
+      <text x="82" y="374" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="10.5">BUILT · v2 shipped</text>
+
+      <!-- IMPRESSIONIST : sighted x perceptual -->
+      <rect x="300" y="240" width="216" height="164" rx="7" fill="color-mix(in srgb,var(--impr) 9%,var(--panel))" stroke="var(--impr)" stroke-width="1.3" stroke-dasharray="5 4"/>
+      <text x="316" y="270" fill="var(--impr)" font-family="'JetBrains Mono',monospace" font-size="14" font-weight="700">IMPRESSIONIST</text>
+      <text x="316" y="294" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">ARTISAN, aimed at what</text>
+      <text x="316" y="314" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">the ear hears, not the</text>
+      <text x="316" y="334" fill="var(--ink)" font-family="'Spectral',serif" font-size="14.5">exact waveform.</text>
+      <text x="316" y="374" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="10.5">PLANNED · notes only</text>
+    </svg>
+    <figcaption>The target-matching family. <span style="color:var(--pg)">Playing God</span> itself has no target and no computed fitness — it is judged only by a person choosing to keep listening, which is the ground truth all four boxes are trying to approximate.</figcaption>
+  </figure>
+</section>
+
+<!-- ========== PLAYING GOD ========== -->
+<section>
+  <span class="chip c-pg"><span class="dot"></span>Playing God</span>
+  <h2 style="margin-top:.5em">The toy that evolves sound</h2>
+  <p>The generator is the whole point; everything else exists to test it. It is a near-empty page driven by single keys. <span class="mono">SPACE</span> draws a new creature. <span class="mono">M</span> plays a mutated child of the current one. <span class="mono">B</span> steps back to its parent. You never rate anything — you just listen, or you don't, and the clock does the rest.</p>
+
+  <h3>The genome</h3>
+  <p>A creature is one genome: <strong>64 wave slots</strong>, each carrying <strong>95 genes</strong>, plus <strong>21 global genes</strong> that govern how the whole thing evolves. That is <strong>6,101 parameters</strong> in total. But most of them are silent at birth — only about <strong>162</strong> actually shape the sound of a fresh creature. The rest is dark material, mutating freely at no cost, waiting to be switched on if selection ever finds a use for it. Complexity is not granted by the designer; it is unmuted when it earns its keep.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 250" role="img" aria-label="Diagram of the genome: 64 wave slots, most muted, one exploded into its 95 genes">
+      <text x="0" y="16" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="11" letter-spacing="1">64 WAVE SLOTS — DARK ONES ARE MUTED AT BIRTH</text>
+      <!-- 64 slots grid 16x4 -->
+      <g>
+        <!-- generated rows -->
+        <!-- row logic: a few active (amber), rest muted (faint) -->
+        <!-- We'll place 64 rects, active indices: 3,11,19,27 (approx a couple of active waves worth of expressed) -->
+        <g>
+          <!-- draw via repeated rects -->
+          <!-- Row 1 -->
+          <rect x="0" y="28" width="40" height="16" rx="2" fill="var(--pg)"/>
+          <rect x="45" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="90" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="135" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="180" y="28" width="40" height="16" rx="2" fill="var(--pg)"/>
+          <rect x="225" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="270" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="315" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="360" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="405" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="450" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="495" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="540" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="585" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="630" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="675" y="28" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <!-- Row 2 -->
+          <rect x="0" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="45" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="90" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="135" y="49" width="40" height="16" rx="2" fill="var(--pg)"/>
+          <rect x="180" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="225" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="270" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="315" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="360" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="405" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="450" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="495" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="540" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="585" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="630" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="675" y="49" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <!-- Row 3 -->
+          <rect x="0" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="45" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="90" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="135" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="180" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="225" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="270" y="70" width="40" height="16" rx="2" fill="var(--pg)"/>
+          <rect x="315" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="360" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="405" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="450" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="495" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="540" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="585" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="630" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="675" y="70" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <!-- Row 4 -->
+          <rect x="0" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="45" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="90" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="135" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="180" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="225" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="270" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="315" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="360" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="405" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="450" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="495" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="540" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="585" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="630" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+          <rect x="675" y="91" width="40" height="16" rx="2" fill="var(--grid)"/>
+        </g>
+      </g>
+      <!-- one exploded wave -> its gene groups -->
+      <line x1="20" y1="44" x2="20" y2="140" stroke="var(--pg)" stroke-width="1.2" stroke-dasharray="3 3"/>
+      <text x="0" y="158" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="11" letter-spacing="1">ONE WAVE = 95 GENES</text>
+      <!-- proportional stacked bar of 95 genes -->
+      <!-- widths scaled: total 690 px for 95 genes => 7.26 px/gene -->
+      <g font-family="'JetBrains Mono',monospace" font-size="10">
+        <!-- amp env 34 -->
+        <rect x="0" y="168" width="247" height="26" fill="color-mix(in srgb,var(--pg) 78%,transparent)"/>
+        <text x="6" y="185" fill="#fff">amp env · 34</text>
+        <!-- pitch 35 -->
+        <rect x="249" y="168" width="254" height="26" fill="color-mix(in srgb,var(--pg) 55%,transparent)"/>
+        <text x="255" y="185" fill="var(--ink)">pitch env · 35</text>
+        <!-- shape 8 -->
+        <rect x="505" y="168" width="58" height="26" fill="color-mix(in srgb,var(--mimic) 55%,transparent)"/>
+        <text x="509" y="185" fill="var(--ink)" font-size="9">shp·8</text>
+        <!-- mod 6 -->
+        <rect x="565" y="168" width="44" height="26" fill="color-mix(in srgb,var(--artisan) 50%,transparent)"/>
+        <text x="569" y="185" fill="var(--ink)" font-size="9">mod·6</text>
+        <!-- timing 5 -->
+        <rect x="611" y="168" width="37" height="26" fill="color-mix(in srgb,var(--impr) 45%,transparent)"/>
+        <!-- struct 3 -->
+        <rect x="650" y="168" width="22" height="26" fill="var(--faint)"/>
+        <!-- gains 2 + meta 2 -->
+        <rect x="674" y="168" width="30" height="26" fill="var(--rule)"/>
+      </g>
+      <text x="0" y="214" fill="var(--ink-soft)" font-family="'Spectral',serif" font-size="12.5">Each wave can fade over time (amp envelope), glide in pitch (pitch envelope),</text>
+      <text x="0" y="231" fill="var(--ink-soft)" font-family="'Spectral',serif" font-size="12.5">blend four shapes, modulate another wave, and set its own mutation rate.</text>
+    </svg>
+    <figcaption>Two active waves and a scatter of live genes are enough to make a sound at birth (~162 expressed parameters). The other ~5,900 sit muted, free to mutate, ready to be switched on. A single wave holds 95 genes — most of them the two 8-node envelopes that let it move.</figcaption>
+  </figure>
+
+  <h3>Vastness is the point</h3>
+  <p>The governing rule of the whole project is a refusal. Priors are allowed to bias where the search looks first; they are never allowed to make any region <em>unreachable</em>. The space is an asset, not a cost — and it is difficult to overstate how large it is.</p>
+
+  <div class="panel vast">
+    <p class="cap" style="text-align:center">Distinct genomes in the space, at 8 bits per parameter</p>
+    <div class="big">≈ 10<sup>14,693</sup></div>
+    <div class="row"><span class="lab">for scale, atoms in the observable universe</span></div>
+    <div class="big" style="color:var(--ink-soft);font-size:clamp(1.1rem,5vw,1.6rem)">≈ 10<sup>80</sup></div>
+    <p class="note" style="margin-top:.9em">The genome space is larger by a factor of about 10<sup>14,613</sup>. Even the handful of <em>expressed</em> parameters in a newborn creature already spans ~10<sup>390</sup> possibilities. Nobody can specify what wins in a space like this. You can only maximise it and explore.</p>
+  </div>
+
+  <blockquote>We do not know what will score high. We can only discover that by maximising phase space and exploring it.
+    <cite>Jon · 2026-08-30, the founding instruction</cite></blockquote>
+
+  <p>That rule has teeth. Three separate times during design, an assumption about <em>what would score well</em> got quietly written into machinery that was supposed to be neutral — an archive axis, a health diagnostic, a breeding threshold. All three looked like reasonable engineering. All three were caught on review and torn out. Three instances is a pattern, not a slip, and it is why the fitness function, the descriptors and the diagnostics are all forbidden from encoding any guess about the answer.</p>
+
+  <h3>Where the toy stands</h3>
+  <p>The generator is built and its first gate is passed. Gate 1a asks the only question a proxy metric could never answer honestly — <em>is any of this worth hearing?</em> — so it needs human ears. On the first audition, <strong>13 of 38</strong> random creatures held a listener past five seconds. Jon called it a pass. Creature 016 was <em>"a beast"</em>; 034 <em>"magnificent."</em> A first real session ran ~213 listens and the evolution was audible in practice. A v2 followed the same evening; a v2.2 is in flight, racing two archive designs against each other so the choice gets made on numbers.</p>
+</section>
+
+<!-- ========== MIMIC ========== -->
+<section>
+  <span class="chip c-mimic"><span class="dot"></span>MIMIC</span>
+  <h2 style="margin-top:.5em">The discovery toy, run in reverse</h2>
+  <p>MIMIC gives the engine the one thing Playing God refuses it: a target, and a fitness function with an opinion. It renders a candidate genome, compares it to the target <strong>sample by sample</strong>, and scores the sum of squared error. Lower is better; zero is a flawless match. No human listens are spent — the whole thing computes, so it can run for a day unattended.</p>
+  <p>The metric is deliberately blunt. It punishes a sound that is right but quieter, or right but shifted by a fraction of a second, with no mercy and no re-alignment.</p>
+  <blockquote>I want a blunt tool — if I just wanted fidelity then mp3 coding already exists.
+    <cite>Jon · on why the fitness stays brutal</cite></blockquote>
+
+  <h3>The silence floor</h3>
+  <p>Here is the trap that makes this hard, and the reference bar printed in every run. A genome that renders pure silence scores a specific error — the target's own energy. Any sound that is <em>worse</em> than doing nothing scores above that floor. So "below silence" is the real bar: it means you are genuinely matching the sound, not just fading to quiet. On the hardest targets, blind search struggles to get meaningfully under it at all.</p>
+
+  <h3>The algorithm race</h3>
+  <p>Three search strategies were raced under an identical render budget — a textbook genetic algorithm, an island model with migrating sub-populations, and MAP-Elites repurposed as an optimiser. Decided by measurement, not argument. The plain <strong>GA won, five targets to one</strong>, and became the default. Its best result, on a known 6-wave sound, landed <strong>35× below the silence floor</strong>.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 210" role="img" aria-label="Bar chart of the algorithm race across six targets, GA winning five">
+      <!-- baseline -->
+      <line x1="0" y1="168" x2="720" y2="168" stroke="var(--rule)" stroke-width="1"/>
+      <text x="0" y="16" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="11" letter-spacing="1">WINS BY ALGORITHM · FULL RACE (6 TARGETS)</text>
+      <!-- GA 5 -->
+      <rect x="40" y="48" width="150" height="120" rx="3" fill="var(--mimic)"/>
+      <text x="115" y="40" text-anchor="middle" fill="var(--ink)" font-family="'Fraunces',serif" font-weight="600" font-size="30">5</text>
+      <text x="115" y="188" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700">GA</text>
+      <text x="115" y="204" text-anchor="middle" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="10">the default</text>
+      <!-- Island 1 -->
+      <rect x="285" y="144" width="150" height="24" rx="3" fill="color-mix(in srgb,var(--mimic) 55%,var(--panel))" stroke="var(--mimic)" stroke-width="1"/>
+      <text x="360" y="136" text-anchor="middle" fill="var(--ink)" font-family="'Fraunces',serif" font-weight="600" font-size="30">1</text>
+      <text x="360" y="188" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700">ISLAND</text>
+      <!-- MapElites 0 -->
+      <rect x="530" y="166" width="150" height="2" rx="1" fill="var(--faint)"/>
+      <text x="605" y="160" text-anchor="middle" fill="var(--ink)" font-family="'Fraunces',serif" font-weight="600" font-size="30">0</text>
+      <text x="605" y="188" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="12" font-weight="700">MAP-ELITES</text>
+    </svg>
+    <figcaption>Same seeds, same render budget, decided on wins. The island model and MAP-Elites hedge against deception; on these targets the straightforward GA simply searched better.</figcaption>
+  </figure>
+</section>
+
+<!-- ========== ARTISAN ========== -->
+<section>
+  <span class="chip c-artisan"><span class="dot"></span>ARTISAN</span>
+  <h2 style="margin-top:.5em">Sighted design: the upper bound</h2>
+  <p>MIMIC stays blind. ARTISAN doesn't. It measures the target with an FFT — reading off frequency, phase and amplitude directly — then constructs a genome on purpose, one wave at a time, re-solving all the volumes for the best fit after each. No evolution. This matters because it separates two very different failures: if ARTISAN can hit a sound that MIMIC can't, the gap is a <strong>search</strong> problem, not a limit of the format. ARTISAN is the expert upper bound on what 64 waves can actually express.</p>
+
+  <h3>v1 was too clever, too fast</h3>
+  <p>The first ARTISAN was asked: with 24 hours of compute, how close can one genome get to an arbitrary sound? It piled up its best ~64 near-stationary sine waves in under ten minutes and stopped — leaving <strong>23 hours 50 minutes of the budget unspent</strong> and almost every one of the genome's 95 genes-per-wave untouched. It never used the envelopes that let a wave move.</p>
+  <p>v2 fixed both gaps, and measured every change rather than asserting it. <strong>Waves now use their powers</strong> — each can fade, glide or repeat, kept only when it demonstrably lowers the error. On a clean decaying tone, that one change cut the error roughly <strong>18,000-fold</strong>: a struck note that v1 approximated with a pile of stationary sines became a single wave that decays. And <strong>the whole budget gets spent</strong> — an anytime optimiser polishes and reallocates waves, killing the least useful and re-spending its slot on the biggest thing still unexplained.</p>
+
+  <h3>The results</h3>
+  <p>The natural way to read these is "how many times better than doing nothing" — the silence floor divided by the error. Higher is better. Every target improved on v1 and beat MIMIC's blind search decisively.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 300" role="img" aria-label="Grouped bar chart, times below silence floor, MIMIC vs ARTISAN v1 vs ARTISAN v2, on three targets, log scale">
+      <text x="0" y="15" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="11" letter-spacing="1">× BELOW SILENCE FLOOR — HIGHER IS BETTER · LOG SCALE</text>
+      <!-- log scale: y for value v = 250 - (log10(v))*  (range 1..1000 -> 0..3 decades). base y=250 top y=40 => 70px/decade -->
+      <!-- gridlines at 1,10,100,1000 -->
+      <g font-family="'JetBrains Mono',monospace" font-size="10" fill="var(--faint)">
+        <line x1="46" y1="250" x2="720" y2="250" stroke="var(--rule)" stroke-width="1"/>
+        <text x="0" y="254">1×</text>
+        <line x1="46" y1="180" x2="720" y2="180" stroke="var(--rule-soft)" stroke-width="1" stroke-dasharray="2 3"/>
+        <text x="0" y="184">10×</text>
+        <line x1="46" y1="110" x2="720" y2="110" stroke="var(--rule-soft)" stroke-width="1" stroke-dasharray="2 3"/>
+        <text x="0" y="114">100×</text>
+        <line x1="46" y1="40" x2="720" y2="40" stroke="var(--rule-soft)" stroke-width="1" stroke-dasharray="2 3"/>
+        <text x="0" y="44">1000×</text>
+      </g>
+      <!-- silence line label -->
+      <text x="700" y="264" text-anchor="end" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="9.5">= doing nothing</text>
+
+      <!-- GROUP 1: recover-6wave  (MIMIC 35x -> y=250-1.544*70=142 ; v1 138x -> 250-2.14*70=100 ; v2 634x -> 250-2.802*70=54) -->
+      <g>
+        <rect x="70" y="142" width="42" height="108" rx="2" fill="var(--mimic)"/>
+        <rect x="116" y="100" width="42" height="150" rx="2" fill="color-mix(in srgb,var(--artisan) 45%,var(--panel))" stroke="var(--artisan)" stroke-width="1"/>
+        <rect x="162" y="54" width="42" height="196" rx="2" fill="var(--artisan)"/>
+        <text x="91"  y="136" text-anchor="middle" fill="var(--mimic)" font-family="'JetBrains Mono',monospace" font-size="10" font-weight="700">35×</text>
+        <text x="137" y="94"  text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="10">138×</text>
+        <text x="183" y="48"  text-anchor="middle" fill="var(--artisan)" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="700">634×</text>
+        <text x="137" y="272" text-anchor="middle" fill="var(--ink)" font-family="'Spectral',serif" font-size="13">recover-6wave</text>
+        <text x="137" y="288" text-anchor="middle" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="9">a known genome</text>
+      </g>
+      <!-- GROUP 2: chimes (MIMIC 1.004x -> ~250 ; v1 4.1x -> 250-0.613*70=207 ; v2 11.5x -> 250-1.06*70=176) -->
+      <g>
+        <rect x="300" y="248" width="42" height="2" rx="1" fill="var(--mimic)"/>
+        <rect x="346" y="207" width="42" height="43" rx="2" fill="color-mix(in srgb,var(--artisan) 45%,var(--panel))" stroke="var(--artisan)" stroke-width="1"/>
+        <rect x="392" y="176" width="42" height="74" rx="2" fill="var(--artisan)"/>
+        <text x="321" y="242" text-anchor="middle" fill="var(--mimic)" font-family="'JetBrains Mono',monospace" font-size="10" font-weight="700">1.0×</text>
+        <text x="367" y="201" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="10">4.1×</text>
+        <text x="413" y="170" text-anchor="middle" fill="var(--artisan)" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="700">11.5×</text>
+        <text x="367" y="272" text-anchor="middle" fill="var(--ink)" font-family="'Spectral',serif" font-size="13">westminster-chimes</text>
+        <text x="367" y="288" text-anchor="middle" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="9">Big Ben, 9.5s</text>
+      </g>
+      <!-- GROUP 3: speech (v1 1.33x -> 250-0.124*70=241 ; v2 2.13x -> 250-0.328*70=227) -->
+      <g>
+        <rect x="530" y="250" width="42" height="1" rx="1" fill="var(--mimic)" opacity=".4"/>
+        <rect x="576" y="241" width="42" height="9" rx="2" fill="color-mix(in srgb,var(--artisan) 45%,var(--panel))" stroke="var(--artisan)" stroke-width="1"/>
+        <rect x="622" y="227" width="42" height="23" rx="2" fill="var(--artisan)"/>
+        <text x="551" y="244" text-anchor="middle" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="9">n/a</text>
+        <text x="597" y="235" text-anchor="middle" fill="var(--ink-soft)" font-family="'JetBrains Mono',monospace" font-size="10">1.3×</text>
+        <text x="643" y="221" text-anchor="middle" fill="var(--artisan)" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="700">2.1×</text>
+        <text x="597" y="272" text-anchor="middle" fill="var(--ink)" font-family="'Spectral',serif" font-size="13">speech clip</text>
+        <text x="597" y="288" text-anchor="middle" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="9">1.8s</text>
+      </g>
+      <!-- legend -->
+      <g font-family="'JetBrains Mono',monospace" font-size="10">
+        <rect x="470" y="8" width="11" height="11" fill="var(--mimic)"/><text x="486" y="17" fill="var(--ink-soft)">MIMIC (blind)</text>
+        <rect x="470" y="24" width="11" height="11" fill="color-mix(in srgb,var(--artisan) 45%,var(--panel))" stroke="var(--artisan)" stroke-width="1"/><text x="486" y="33" fill="var(--ink-soft)">ARTISAN v1</text>
+        <rect x="600" y="24" width="11" height="11" fill="var(--artisan)"/><text x="616" y="33" fill="var(--ink-soft)">ARTISAN v2</text>
+      </g>
+    </svg>
+    <figcaption>On the chimes, MIMIC's blind search barely clears silence (1.0×) while sighted design reaches 11.5×. The 6-wave target — a known genome, so a perfect answer provably exists — is where ARTISAN pulls furthest ahead. The long runs were still improving when their budgets ran out.</figcaption>
+  </figure>
+
+  <div class="stats">
+    <div class="stat"><div class="v" style="color:var(--artisan)">SSE&nbsp;0</div><div class="k">recover-2wave · recovered exactly with one sawtooth wave. MIMIC stalls at the floor here</div></div>
+    <div class="stat"><div class="v">696</div><div class="k">chimes error after a 4-hour run — still descending, not converged</div></div>
+    <div class="stat"><div class="v">verify.js</div><div class="k">every result independently re-rendered and byte-checked before it counts</div></div>
+  </div>
+
+  <p>Not everything gets used. ARTISAN examined phase modulation, free modulator operators and mixed shapes, measured that none of them helped on the actual targets, and dropped each with a number attached. A capability tested and rejected on evidence is a job done — not a feature to bolt on because the brief mentions it. The one correction worth flagging: v1's report blamed a stubborn residual on hidden modulation; v2 <em>measured</em> that the target had no modulation at all — the structure v1 couldn't reach was a repeating gate, and naming it correctly is what let v2 recover it.</p>
+</section>
+
+<!-- ========== LIVE A/B ========== -->
+<section>
+  <span class="chip c-mimic"><span class="dot"></span>MIMIC</span> <span class="chip c-artisan" style="margin-left:.3em"><span class="dot"></span>ARTISAN</span>
+  <h2 style="margin-top:.5em">Running right now: does a head start help?</h2>
+  <p><span class="live-pill"><span class="beat"></span>Live as of 4 Sep, evening</span></p>
+  <p>The two families are being tested against each other this weekend. Two identical 24-hour MIMIC runs on the Westminster chimes, differing in one thing only: one starts from ARTISAN's hand-built genome, the other starts from random noise. The question is whether a good sighted starting point actually helps blind evolution, or whether random search catches up given enough generations.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 250" role="img" aria-label="Two runs matching the chimes: ARTISAN-seeded versus random, current standing">
+      <text x="0" y="15" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="11" letter-spacing="1">× BELOW SILENCE FLOOR — CURRENT STANDING</text>
+      <!-- axis 1x baseline at y=210, scale: 1x=210, 5x=40 => 42.5 px per x -->
+      <line x1="150" y1="210" x2="700" y2="210" stroke="var(--rule)" stroke-width="1"/>
+      <text x="705" y="214" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="9" text-anchor="end" transform="translate(0,18)"></text>
+      <!-- seeded: start 4.1x, now 4.47x  (x=1 ->210; value v -> 210-(v-1)*42.5) seeded now 4.47 ->210-147=63 ; start 4.1->210-131=79 -->
+      <text x="0" y="66" fill="var(--artisan)" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="700">ARTISAN</text>
+      <text x="0" y="82" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="10">seeded</text>
+      <rect x="150" y="52" width="410" height="34" rx="3" fill="var(--artisan)"/>
+      <text x="548" y="74" text-anchor="end" fill="#fff" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">4.5×</text>
+      <text x="150" y="102" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="9.5">started at 4.1× · gen ~240 · error 1,784</text>
+
+      <!-- random: start 1.0x (silence), now 1.43x -> 210-18=192 ; -->
+      <text x="0" y="156" fill="var(--mimic)" font-family="'JetBrains Mono',monospace" font-size="11" font-weight="700">RANDOM</text>
+      <text x="0" y="172" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="10">from noise</text>
+      <rect x="150" y="142" width="61" height="34" rx="3" fill="var(--mimic)"/>
+      <text x="220" y="164" fill="var(--mimic)" font-family="'JetBrains Mono',monospace" font-size="13" font-weight="700">1.4×</text>
+      <text x="150" y="192" fill="var(--faint)" font-family="'JetBrains Mono',monospace" font-size="9.5">started at 1.0× (silence) · gen ~550 · error 5,573</text>
+
+      <!-- scale ticks -->
+      <g font-family="'JetBrains Mono',monospace" font-size="9" fill="var(--faint)">
+        <line x1="150" y1="210" x2="150" y2="216" stroke="var(--rule)"/><text x="150" y="228" text-anchor="middle">1×</text>
+        <line x1="277" y1="210" x2="277" y2="216" stroke="var(--rule)"/><text x="277" y="228" text-anchor="middle">4×</text>
+        <line x1="362" y1="210" x2="362" y2="216" stroke="var(--rule)"/><text x="362" y="228" text-anchor="middle">5×</text>
+        <line x1="575" y1="210" x2="575" y2="216" stroke="var(--rule)"/><text x="575" y="228" text-anchor="middle">10×</text>
+      </g>
+    </svg>
+    <figcaption>The seeded run began already deep below the floor and is ~3× ahead on match quality. But it churns through generations far slower — its heavier genome is costlier to render — so it has reached gen ~240 against random's ~550 in the same wall-clock. Whether random's faster churn narrows the gap over the full day is exactly the open question. Neither has plateaued.</figcaption>
+  </figure>
+</section>
+
+<!-- ========== ROAD AHEAD ========== -->
+<section>
+  <span class="eyebrow">The road ahead</span>
+  <h2>What's drawn up but not yet built</h2>
+
+  <h3><span class="chip c-artisan"><span class="dot"></span>ARTISAN v3</span> — tracks and voices</h3>
+  <p>The next ARTISAN stops analysing frequency-first and starts analysing <strong>time-first</strong>: follow each partial as a track that is born, moves and dies, the way speech researchers have since the 1980s (McAulay–Quatieri sinusoidal modelling; Serra &amp; Smith's spectral modelling synthesis). And it lets one wave slot serve several sounds in sequence — a voice gliding silently from one note to the next — because on real audio, slots are the binding constraint. Jon proposed this <em>reluctantly</em>, worried that writing it down would turn it into "a method" and rob the tool of its generality. The brief honours the fear: nothing in the code may know what a "note" is. It has to work as well on birdsong and a train as on chimes.</p>
+
+  <h3><span class="chip c-impr"><span class="dot"></span>IMPRESSIONIST</span> — chasing the ear</h3>
+  <p>Every ARTISAN result hits a broadband floor — the strike transients, the reverb, the breath in a voice — that oscillators cannot match sample-by-sample. But that residual is exactly SSE's blind spot, not the ear's. A listener doesn't need the exact noise waveform, only noise with the right shape. IMPRESSIONIST keeps ARTISAN's sighted method but swaps the metric for a perceptual one (its nearest published cousin is DDSP, 2020). The catch is named up front — the metric is itself a proxy, so it must be validated against Jon's actual ears before it's trusted, or the whole thing just games a new number.</p>
+
+  <h3><span class="chip c-impr"><span class="dot"></span>IMPRESSIONIST·MIMIC</span> — on hold, by design</h3>
+  <p>The fifth program fills the last empty corner of the map: blind evolution judged by the ear. It is deliberately <strong>on hold</strong> until the perceptual metric exists and has passed its ears-test — and it comes <em>before</em> IMPRESSIONIST on purpose, because blind evolution is a relentless machine for finding whatever a metric rewards, which makes it the perfect red team for catching a bad metric cheaply.</p>
+</section>
+
+<!-- ========== STATE OF PLAY ========== -->
+<section>
+  <span class="eyebrow">Current state of play</span>
+  <h2>Where everything stands</h2>
+
+  <div class="board">
+    <div class="row-item">
+      <div class="swatch" style="background:var(--pg)"></div>
+      <div><div class="name">Playing God</div><div class="desc">The generator. Gate 1a passed on human ears; v2 auditioned; v2.2 in flight, racing two archive designs.</div></div>
+      <span class="badge b-done">Built · evolving</span>
+    </div>
+    <div class="row-item">
+      <div class="swatch" style="background:var(--mimic)"></div>
+      <div><div class="name">MIMIC</div><div class="desc">Target-matching by blind evolution. GA won the algorithm race. Two 24-hour A/B runs live this weekend.</div></div>
+      <span class="badge b-run">Built · running</span>
+    </div>
+    <div class="row-item">
+      <div class="swatch" style="background:var(--artisan)"></div>
+      <div><div class="name">ARTISAN</div><div class="desc">Sighted construction. v1 and v2 shipped and verified. v3 ("tracks and voices") briefed, not yet built.</div></div>
+      <span class="badge b-done">v2 shipped</span>
+    </div>
+    <div class="row-item">
+      <div class="swatch" style="background:var(--impr)"></div>
+      <div><div class="name">IMPRESSIONIST</div><div class="desc">Perceptual sighted design. Pre-brief notes only. Waits on a validated perceptual metric.</div></div>
+      <span class="badge b-wait">Planned</span>
+    </div>
+    <div class="row-item">
+      <div class="swatch" style="background:var(--impr)"></div>
+      <div><div class="name">IMPRESSIONIST·MIMIC</div><div class="desc">Perceptual blind evolution — the metric's red team. Held until the metric is built and ear-validated.</div></div>
+      <span class="badge b-wait">On hold</span>
+    </div>
+  </div>
+
+  <p>The through-line hasn't moved since the first day. Playing God is the point; MIMIC, ARTISAN and the two to come are all instruments for asking whether the toy's 64 waves are expressive enough to be worth pointing a listener at. So far the answer keeps coming back yes — sighted design can pull a bell, a voice, a known creature out of the format cleanly, which means the discovery toy is working with a rich enough vocabulary. The gap that remains between "sample-exact" and "sounds right" is not a flaw in the engine. It's the next program.</p>
+
+  <p class="foot">
+    Playing God · Primordial Jam (working title) — owner Jon Whitten (they/them)<br>
+    Concept 2026-05 · design settled 2026-08-30 · Gate 1a passed 2026-08-31 · MIMIC 2026-09-02 · ARTISAN v1 2026-09-03, v2 2026-09-04<br>
+    All figures verified against the run files. Live A/B numbers are a snapshot of runs still in progress.
+  </p>
+</section>
+
+</div>
+
+</body>
+</html>
