@@ -30,7 +30,7 @@ export async function runEvolution(opts) {
     algorithm = 'ga', population = 300, generations = 200,
     elitism = 2, mutationScale = 1, crossoverRate = 0.5,
     seed = 1, workers = 8, onGeneration = null, onSaved = null, algoConfig = {}, metric = 'sse',
-    maxWallMs = Infinity,
+    maxWallMs = Infinity, seedGenomes = [],
   } = opts;
 
   const plan = makeScorePlan({ target, totalLengthS, windowStartS, sampleRate });
@@ -43,7 +43,7 @@ export async function runEvolution(opts) {
 
   const rng = new RNG(seed >>> 0);
   const config = {
-    population, elitism, mutationScale, crossoverRate,
+    population, elitism, mutationScale, crossoverRate, seedGenomes,
     ...algoConfig,
   };
   const alg = makeAlgorithm(algorithm, { config, plan, rng, evaluate: evaluator.evaluate });

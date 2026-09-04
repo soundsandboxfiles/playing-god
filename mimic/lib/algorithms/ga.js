@@ -46,7 +46,7 @@ export class GA {
   }
 
   async init() {
-    const genomes = randomPopulation(this.mu, this.rng, this.config.priorsOpts || {});
+    const genomes = randomPopulation(this.mu, this.rng, this.config.priorsOpts || {}, this.config.seedGenomes || []);
     for (const g of genomes) applyMutationScale(g, this.mutationScale);
     const results = await this.evaluate(genomes);
     this.renders += genomes.length;

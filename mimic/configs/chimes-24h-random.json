@@ -1,0 +1,15 @@
+{
+  "targetName": "chimes",
+  "algorithm": "ga",
+  "population": 150,
+  "generations": 9999999,
+  "elitism": 2,
+  "mutationScale": 1.0,
+  "crossoverRate": 0.5,
+  "windowStart": 0,
+  "seed": 3,
+  "workers": 4,
+  "saveEvery": 150,
+  "maxMinutes": 1440,
+  "run": "chimes-24h-random"
+}

@@ -16,6 +16,7 @@ import { sine, chirp, decayingTone, benchmarkSuite } from './lib/targets.js';
 import { runEvolution } from './lib/run-core.js';
 import { streamStart, streamSavedGen, streamFinalize } from './lib/deliverable.js';
 import { METRICS } from './lib/fitness.js';
+import { decodeGenomeString } from './lib/genome-string.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -36,6 +37,8 @@ const DEFAULTS = {
   saveEvery: 0,            // 0 → auto (~60 files)
   maxMinutes: 0,           // 0 → no wall-clock cap; else stop cleanly after N minutes
   metric: 'sse',
+  seedGenome: null,        // path to a file holding a "PG2:" genome string; injected into gen 0
+  seedCopies: 1,           // how many copies of that genome to inject
   run: null,               // run label; null → auto from target + algorithm
   out: null,               // output dir; null → output/<run>/
   // algorithm extras
@@ -76,6 +79,13 @@ THE CONTROLS (all optional; sensible defaults shown)
   --window-start <sec>     Where in that length the target is matched; the rest is
                            free/unconstrained.               (default: ${DEFAULTS.windowStart})
   --seed <n>               Random seed (same seed = same run).(default: ${DEFAULTS.seed})
+  --seed-genome <path>     Start the search FROM a known sound instead of from
+                           noise: a file holding a "PG2:" genome string (e.g. a
+                           previous run's fittest.pg2.txt, or ARTISAN's
+                           genome.pg2.txt). It joins generation zero verbatim —
+                           elitism keeps it alive — and the rest of the herd is
+                           random. Works with ga and island (island 0 gets it).
+  --seed-copies <n>        Copies of that genome to inject.    (default: ${DEFAULTS.seedCopies})
   --workers <n>            CPU cores to use (1 = single core).(default: ${DEFAULTS.workers})
   --save-every <n>         Save a WAV every n generations.   (default: auto ~60 files)
   --max-minutes <m>        Stop cleanly after m minutes, keeping everything saved
@@ -162,13 +172,14 @@ async function main() {
     mutationScale: 'mutationScale', crossoverRate: 'crossoverRate',
     totalLength: 'totalLength', windowStart: 'windowStart', seed: 'seed',
     workers: 'workers', saveEvery: 'saveEvery', maxMinutes: 'maxMinutes', metric: 'metric', run: 'run', out: 'out',
+    seedGenome: 'seedGenome', seedCopies: 'seedCopies',
     islands: 'islands', migrationInterval: 'migrationInterval', migrants: 'migrants',
     tournamentK: 'tournamentK', mapNx: 'mapNx', mapNy: 'mapNy',
   };
   for (const k of Object.keys(map)) if (args[k] !== undefined) cfg[k] = args[k];
 
   // Coerce numerics.
-  for (const k of ['population', 'generations', 'elitism', 'seed', 'workers', 'saveEvery',
+  for (const k of ['population', 'generations', 'elitism', 'seed', 'workers', 'saveEvery', 'seedCopies',
     'islands', 'migrationInterval', 'migrants', 'tournamentK', 'mapNx', 'mapNy']) cfg[k] = Math.round(num(cfg[k], DEFAULTS[k]));
   for (const k of ['mutationScale', 'crossoverRate', 'windowStart', 'maxMinutes']) cfg[k] = num(cfg[k], DEFAULTS[k]);
   cfg.totalLength = cfg.totalLength == null || cfg.totalLength === '' ? null : num(cfg.totalLength, null);
@@ -177,6 +188,18 @@ async function main() {
   if (cfg.metric !== 'sse') {
     console.warn(`\n!! --metric ${cfg.metric} departs from the owner's fitness spec (SSE). ` +
       `This is a diagnostic; results are NOT the owner's blunt similarity. See docs/FITNESS.md.\n`);
+  }
+
+  // Optional seed genome: decoded here so a bad path/string fails BEFORE the run.
+  let seedGenomes = [];
+  if (cfg.seedGenome) {
+    const full = resolve(process.cwd(), cfg.seedGenome);
+    const text = readFileSync(full, 'utf8');
+    const m = text.match(/PG2:[A-Za-z0-9+/=]+/);
+    if (!m) { console.error(`--seed-genome ${cfg.seedGenome}: no "PG2:" genome string found in that file.`); process.exit(1); }
+    const g = decodeGenomeString(m[0]);
+    const n = Math.max(1, cfg.seedCopies || 1);
+    for (let i = 0; i < n; i++) seedGenomes.push(g);
   }
 
   const tgt = resolveTarget(cfg);
@@ -193,6 +216,7 @@ async function main() {
   console.log(`  algorithm:   ${cfg.algorithm}   population ${cfg.population} × generations ${cfg.generations}`);
   console.log(`  window:      score [${cfg.windowStart.toFixed(2)}s, ${(cfg.windowStart + targetLenS).toFixed(2)}s) of a ${totalLengthS.toFixed(2)}s render`);
   console.log(`  workers:     ${cfg.workers}   seed ${cfg.seed}   metric ${cfg.metric}`);
+  if (seedGenomes.length) console.log(`  seeded:      ${seedGenomes.length}× genome from ${cfg.seedGenome} (gen 0 starts from this sound)`);
   console.log(`  silence-floor SSE (reference): ${silenceFloor.toExponential(4)}`);
   console.log(`  output:      ${outDir}\n`);
 
@@ -215,6 +239,7 @@ async function main() {
     crossoverRate: cfg.crossoverRate,
     seed: cfg.seed,
     workers: cfg.workers,
+    seedGenomes,
     saveEvery: cfg.saveEvery || 0,
     metric: cfg.metric,
     maxWallMs: cfg.maxMinutes > 0 ? cfg.maxMinutes * 60000 : Infinity,

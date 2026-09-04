@@ -25,9 +25,18 @@ export function genomeFromData(data) {
 
 // Generation-zero population from the engine priors. `nActiveRange` is optional;
 // when absent the priors' F10 default (1..10 active waves) is used.
-export function randomPopulation(n, rng, opts = {}) {
+// `seeds` (optional): Genomes (or raw Float32Array gene arrays) injected VERBATIM
+// as the first members of generation zero; the rest are random. This is how
+// --seed-genome starts a run FROM a known sound (e.g. ARTISAN's best) instead of
+// from noise. Clones re-root provenance, so the seed reads as a fresh founder.
+export function randomPopulation(n, rng, opts = {}, seeds = []) {
   const pop = [];
-  for (let i = 0; i < n; i++) pop.push(randomGenome(rng, opts));
+  const nSeeds = Math.min(seeds.length, n);
+  for (let i = 0; i < nSeeds; i++) {
+    const s = seeds[i];
+    pop.push(genomeFromData(s instanceof Float32Array ? s : s.data));
+  }
+  for (let i = nSeeds; i < n; i++) pop.push(randomGenome(rng, opts));
   return pop;
 }
 

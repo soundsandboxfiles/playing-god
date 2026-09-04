@@ -46,7 +46,9 @@ export class Island {
     const all = [];
     const spans = [];
     for (let k = 0; k < this.nIslands; k++) {
-      const genomes = randomPopulation(this.sizes[k], this.rng, this.config.priorsOpts || {});
+      // Seed genomes (if any) all land on island 0; the other islands stay wild.
+      const genomes = randomPopulation(this.sizes[k], this.rng, this.config.priorsOpts || {},
+        k === 0 ? (this.config.seedGenomes || []) : []);
       for (const g of genomes) applyMutationScale(g, this.mutationScale);
       spans.push([all.length, all.length + genomes.length]);
       for (const g of genomes) all.push(g);
