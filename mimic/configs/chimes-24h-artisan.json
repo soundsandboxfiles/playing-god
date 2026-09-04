@@ -5,7 +5,7 @@
   "migrationInterval": 10,
   "migrants": 1,
   "population": 600,
-  "generations": 9999999,
+  "generations": 3614,
   "elitism": 2,
   "mutationScale": 1.0,
   "crossoverRate": 0.5,
@@ -13,7 +13,7 @@
   "seed": 904,
   "workers": 4,
   "saveEvery": 25,
-  "maxMinutes": 1440,
+  "maxMinutes": 2880,
   "seedGenome": "../artisan/output/chimes/genome.pg2.txt",
   "seedCopies": 1,
   "run": "chimes-24h-artisan"
