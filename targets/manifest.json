@@ -1,0 +1,897 @@
+{
+  "_readme": "Canonical machine-readable manifest for the Playing God target library. MANIFEST.md is generated from this file by tools/make-targets.mjs — edit HERE. House format for new targets: 22050 Hz, mono, 16-bit PCM WAV, peak-normalized to -1.0 dBFS after resampling, <=10 s. The two canonical targets are bit-identical copies of their historical files and are exempt from house format (their SSE numbers predate this library; converting them would silently change every existing result).",
+  "houseFormat": {
+    "sampleRate": 22050,
+    "channels": 1,
+    "bitDepth": 16,
+    "peakDbfs": -1,
+    "maxSeconds": 10
+  },
+  "tiers": {
+    "A": "Core set for expensive runs (full ARTISAN builds, 24-48h GA runs). Four maximally complementary corners; keep clips short (<=4 s new, canonical exempt) because GA generation pace scales with target length (measured: chimes 9.5 s ran ~5x slower than speech 1.8 s).",
+    "B": "Full bench: ARTISAN generality gates (BRIEF-3 §6.2) and the perceptual metric's ears-validation material (item 5). <=10 s per MUSHRA excerpt guidance.",
+    "M": "Micro targets (<=1.5 s): single events. Inverts the slot-starvation axis — all 64 waves available for ONE event — and isolates attack/transient fidelity; render cost is tiny so iteration is near-free (the opposite pole of voice-sung-complex on target length). Owner's question 2026-09-05: what accuracy is reachable on a short, specific target?"
+  },
+  "clips": [
+    {
+      "id": "chimes",
+      "file": "westminster-chimes.wav",
+      "tier": "A",
+      "status": "canonical",
+      "slot": "inharmonic pitched bells, sparse events, wet",
+      "source": {
+        "kind": "existing",
+        "path": "../mimic/targets/westminster-chimes.wav",
+        "note": "bit-identical copy; provenance predates this library"
+      },
+      "licence": "assumed cleared by owner (predates library)",
+      "axes": {
+        "harmonicity": "tonal-inharmonic",
+        "attack": "sharp",
+        "pitch": "steady",
+        "polyphony": "overlapping-decays",
+        "pulse": "free",
+        "stationarity": "sparse-events",
+        "reverb": "wet"
+      },
+      "engineStress": "slot budget (63/64 waves spent in ARTISAN v2); long decays; strike transients",
+      "metricDiagnosticity": "SSE-ear disagree on the strike/reverb residual (measured floor ~350-430 SSE); bell melody is the recognisable skeleton",
+      "dtwProbe": "reset (no pulse)"
+    },
+    {
+      "id": "speech-male-en",
+      "file": "SpeechSignalProcessing.wav",
+      "tier": "A",
+      "status": "canonical",
+      "slot": "voiced+unvoiced male English speech",
+      "source": {
+        "kind": "existing",
+        "path": "../mimic/targets/SpeechSignalProcessing.wav",
+        "note": "bit-identical copy; 44100 Hz stereo 24-bit — runtime loader downmixes/resamples; kept AS-IS for SSE continuity"
+      },
+      "licence": "assumed cleared by owner (predates library)",
+      "axes": {
+        "harmonicity": "mixed",
+        "attack": "mixed",
+        "pitch": "glide",
+        "polyphony": "mono",
+        "pulse": "free",
+        "stationarity": "evolving",
+        "reverb": "dry"
+      },
+      "engineStress": "unvoiced/broadband energy (no noise oscillator); rapid formant movement",
+      "metricDiagnosticity": "SSE-ear disagree on unvoiced consonants; voiced skeleton carries recognisability at SSE 191 (ARTISAN v2 finding)",
+      "dtwProbe": "reset (no pulse)"
+    },
+    {
+      "id": "birdsong-thrush",
+      "file": "birdsong-thrush.wav",
+      "tier": "A",
+      "status": "accepted",
+      "slot": "fast-FM biological melody, sparse over silence",
+      "source": {
+        "kind": "download",
+        "page": "https://www.nps.gov/subjects/sound/sounds-hermit-thrush.htm",
+        "direct": "https://www.nps.gov/nps-audiovideo/legacy/mp3/nri/avElement/nri-HermitThrushYOSE.mp3",
+        "raw": "_raw/birdsong-thrush-nps.mp3",
+        "md5": null
+      },
+      "licence": "Public domain (US federal work, NPS)",
+      "attribution": "National Park Service, Yosemite NP sound library (hermit thrush)",
+      "window": {
+        "strategy": "densest-song",
+        "seconds": 4,
+        "note": "accepted 2026-09-05; source has AGC pumping (ambient floor rises in song pauses) — noted, judged a feature not a flaw (couples FM song to a modulated noise bed); lossless nightingale alternate remains if purity ever needed"
+      },
+      "axes": {
+        "harmonicity": "tonal",
+        "attack": "soft",
+        "pitch": "fast-glide",
+        "polyphony": "mono",
+        "pulse": "free",
+        "stationarity": "sparse-events",
+        "reverb": "open-air"
+      },
+      "engineStress": "pitch-envelope node budget (<=8 nodes vs continuous fast glides); silence gaps invite the silence attractor in GA",
+      "metricDiagnosticity": "small timing jitter imperceptible -> timing-tolerance probe",
+      "dtwProbe": "reset (no pulse)",
+      "alternates": [
+        {
+          "page": "https://archive.org/details/aporee_68069_78822",
+          "direct": "https://archive.org/download/aporee_68069_78822/2505010314BraunschweigRiddagshausenNachtigall.flac",
+          "md5": "f1842998f8b93a58fa44744e7f7e2a0d",
+          "licence": "PD Mark 1.0 (recordist-applied)",
+          "note": "nightingale, lossless, near-continuous song; contains a distant train"
+        }
+      ],
+      "built": {
+        "startSec": 1.2,
+        "seconds": 4,
+        "peakDbfs": -1,
+        "rmsDbfs": -17.18,
+        "sha256": "513f60f2be84f9ed06b5058a499934b5250abe5c32f9bfc36116f3fcd6735964",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "applause",
+      "file": "applause.wav",
+      "tier": "A",
+      "status": "accepted",
+      "slot": "transient-dense broadband texture (canonical codec-killer)",
+      "source": {
+        "kind": "download",
+        "page": "https://archive.org/details/aporee_48779_55529",
+        "direct": "https://archive.org/download/aporee_48779_55529/STE00620200424201606.flac",
+        "raw": "_raw/applause-madrid.flac",
+        "md5": "0f934254eba327adb5d2f09de0275151"
+      },
+      "licence": "PD Mark 1.0 (recordist-applied, radio aporee)",
+      "attribution": "dario9752, radio aporee, Madrid pandemic applause 2020-04-24",
+      "window": {
+        "strategy": "densest-stationary",
+        "seconds": 4,
+        "note": "accepted 2026-09-05; contains an airhorn-like element — owner: interesting textural addition"
+      },
+      "axes": {
+        "harmonicity": "noise",
+        "attack": "micro-transients",
+        "pitch": "na",
+        "polyphony": "texture",
+        "pulse": "free",
+        "stationarity": "stationary-texture",
+        "reverb": "street"
+      },
+      "engineStress": "worst case for an oscillator bank: thousands of uncorrelated micro-transients; no noise oscillator",
+      "metricDiagnosticity": "maximal SSE-ear disagreement: any statistically-similar clapping sounds right, no sample alignment exists",
+      "dtwProbe": "reset (no pulse)",
+      "alternates": [
+        {
+          "page": "https://archive.org/details/aporee_48140_54930",
+          "direct": "https://archive.org/download/aporee_48140_54930/aplausospandemia2020.flac",
+          "md5": "bfbd12e285d47fa4a021d71bb6e1e3ad",
+          "licence": "PD Mark 1.0"
+        }
+      ],
+      "built": {
+        "startSec": 151.47,
+        "seconds": 4,
+        "peakDbfs": -1,
+        "rmsDbfs": -15.75,
+        "sha256": "b6f682b52aced0ef7cc0bae9446f90fb7fb9616081946cc4cc02565534c0086d",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "speech-female-en",
+      "file": "speech-female-en.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "clean female English speech",
+      "source": {
+        "kind": "download",
+        "page": "https://archive.org/details/pride_prejudice_krs_librivox",
+        "direct": "https://archive.org/download/pride_prejudice_krs_librivox/pride_and_prejudice_01_austen.mp3",
+        "raw": "_raw/speech-female-en.mp3",
+        "md5": "59aa81cfafdc7f8462ead8a3c2128236"
+      },
+      "licence": "Public domain (LibriVox)",
+      "attribution": "Karen Savage, LibriVox, Pride and Prejudice ch.1",
+      "window": {
+        "strategy": "first-clean-sentence",
+        "seconds": 6,
+        "note": "the LibriVox disclaimer sentence ~2-9 s is clean and complete; owner may prefer the famous opening sentence ~20-35 s"
+      },
+      "axes": {
+        "harmonicity": "mixed",
+        "attack": "mixed",
+        "pitch": "glide",
+        "polyphony": "mono",
+        "pulse": "free",
+        "stationarity": "evolving",
+        "reverb": "dry"
+      },
+      "engineStress": "different register/formants from canonical male clip",
+      "metricDiagnosticity": "voiced/unvoiced balance; intelligibility as the perceptual criterion",
+      "dtwProbe": "reset",
+      "built": {
+        "startSec": 0.8,
+        "seconds": 6,
+        "peakDbfs": -1,
+        "rmsDbfs": -23.22,
+        "sha256": "4ee144c33d8d4dfe88af45983141c0745ca7183d3fe1b2794ea13bb5f84366d7",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "speech-ja",
+      "file": "speech-ja.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "non-English speech (phonetically distant)",
+      "source": {
+        "kind": "download",
+        "page": "https://archive.org/details/gongitsune_um_librivox",
+        "direct": "https://archive.org/download/gongitsune_um_librivox/gongitsune_01_niimi.mp3",
+        "raw": "_raw/speech-ja.mp3",
+        "md5": "9c7f46fa01e8568cf0da058176d5d1e5"
+      },
+      "licence": "CC0 1.0 (explicit licenseurl on item)",
+      "attribution": "ekzemplaro, LibriVox, Gongitsune (Niimi Nankichi), Japanese",
+      "window": {
+        "strategy": "first-clean-sentence",
+        "seconds": 6,
+        "note": "scrub past any English disclaimer; Japanese narration dominates from ~15-20 s"
+      },
+      "axes": {
+        "harmonicity": "mixed",
+        "attack": "mixed",
+        "pitch": "glide",
+        "polyphony": "mono",
+        "pulse": "free",
+        "stationarity": "evolving",
+        "reverb": "room"
+      },
+      "engineStress": "generality: pitch-accent language, different phoneme inventory",
+      "metricDiagnosticity": "tests that the metric is not tuned to English phonology",
+      "dtwProbe": "reset",
+      "built": {
+        "startSec": 8.4,
+        "seconds": 6,
+        "peakDbfs": -1,
+        "rmsDbfs": -15.32,
+        "sha256": "dabd621b4e03b333aa46c23aeae601aac6f40c71b59962ece91243794bd125f7",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "whisper",
+      "file": "whisper.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "unvoiced whispered speech — pure noise-shaped-by-articulation",
+      "source": {
+        "kind": "self-record",
+        "raw": "_raw/whisper-jon.wav",
+        "note": "Jon whispering numbers 1-10, 2026-09-05, 44.1k stereo, 5.63 s. Replaces Freesound 489463 preview (audition finding: that clip was whispered SINGING, voiced). Old built file overwritten."
+      },
+      "licence": "owner's own recording",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 0,
+        "seconds": 5.5
+      },
+      "axes": {
+        "harmonicity": "noise",
+        "attack": "soft",
+        "pitch": "na",
+        "polyphony": "mono",
+        "pulse": "free",
+        "stationarity": "sparse-events",
+        "reverb": "dry"
+      },
+      "engineStress": "near-zero periodic energy: the engine's hardest class (modulation is its only route to broadband)",
+      "metricDiagnosticity": "the SSE-ear disagreement showcase (NOTES-FOR-BRIEF q4): SSE floor is nearly the whole signal",
+      "dtwProbe": "reset",
+      "built": {
+        "startSec": 0,
+        "seconds": 5.5,
+        "peakDbfs": -1,
+        "rmsDbfs": -25.77,
+        "sha256": "e5cc5432f8619118130e5019c86e71e59380133539d7789a3aab7d4190b5c3fe",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "voice-sung-simple",
+      "file": "voice-sung-simple.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "sustained sung melodic phrase with vibrato",
+      "source": {
+        "kind": "self-record",
+        "raw": "_raw/voice-sung-simple.wav",
+        "note": "Jon, 2026-09-05, 44.1k/24-bit stereo; audio ends 8.98s (measured), cut at 9.0"
+      },
+      "licence": "owner's own recording",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 0,
+        "seconds": 9
+      },
+      "axes": {
+        "harmonicity": "tonal",
+        "attack": "soft",
+        "pitch": "vibrato",
+        "polyphony": "mono",
+        "pulse": "free",
+        "stationarity": "evolving",
+        "reverb": "dry"
+      },
+      "engineStress": "continuous vibrato vs 8-node pitch envelopes; breath noise floor under a strong tone",
+      "metricDiagnosticity": "tuning-tolerance probe (a few cents imperceptible — Jon's constraint 4)",
+      "dtwProbe": "both (melodic logic without strict pulse)",
+      "alternates": [
+        {
+          "id-if-used": "violin-kreisler",
+          "page": "https://archive.org/details/78_andantino_fritz-kreisler-george-falkenstein-martini-kreisler_gbia0518214b",
+          "direct": "https://archive.org/download/78_andantino_fritz-kreisler-george-falkenstein-martini-kreisler_gbia0518214b/Andantino%20-%20Fritz%20Kreisler%20-%20George%20Falkenstein.flac",
+          "md5": "6583ae6573a2c20707f83fc13cb4aa5f",
+          "licence": "US PD (pre-1923 recording, Music Modernization Act; rec. 1912)",
+          "note": "Kreisler violin, singing vibrato — but 78rpm surface noise makes it a tone+crackle hybrid, which muddies this slot's axis; prefer the self-recording"
+        }
+      ],
+      "built": {
+        "startSec": 0,
+        "seconds": 9,
+        "peakDbfs": -1,
+        "rmsDbfs": -10.91,
+        "sha256": "f30afbbfabed3a36b39910e4d6d3d4e19c72dd81cbb6e32fcdf9799a0c28a9d3",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "voice-sung-complex",
+      "file": "voice-sung-complex.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "sung phrase, complex — full performance, LENGTH EXCEPTION",
+      "source": {
+        "kind": "self-record",
+        "raw": "_raw/voice-sung-complex.wav",
+        "note": "Jon, 2026-09-05, 44.1k/24-bit stereo; trailing silence from 14.03s (measured), cut at 14.1"
+      },
+      "licence": "owner's own recording",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 0,
+        "seconds": 14.1,
+        "note": "exceeds the 10s house cap at owner's request ('curious to see what happens at that length') — expect proportionally slower GA generations and more envelope nodes per wave-second; the one deliberate long-target probe"
+      },
+      "axes": {
+        "harmonicity": "tonal",
+        "attack": "soft",
+        "pitch": "vibrato",
+        "polyphony": "mono",
+        "pulse": "free",
+        "stationarity": "evolving",
+        "reverb": "room"
+      },
+      "engineStress": "continuous vibrato vs 8-node pitch envelopes; breath under tone; LENGTH (render cost, envelope resolution over 14s)",
+      "metricDiagnosticity": "tuning-tolerance probe; the ultimate known-reference for owner listening (their own voice)",
+      "dtwProbe": "both",
+      "built": {
+        "startSec": 0,
+        "seconds": 14.1,
+        "peakDbfs": -1,
+        "rmsDbfs": -17.32,
+        "sha256": "28d0f7d991aa919078aab056fd0d6362f13f1f15a054a875f9e697a2178ded67",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "piano-goldberg",
+      "file": "piano-goldberg.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "keyboard: distinct attacks over overlapping harmonic decays",
+      "source": {
+        "kind": "download",
+        "page": "https://archive.org/details/OpenGoldbergVariations",
+        "direct": "https://archive.org/download/OpenGoldbergVariations/Kimiko%20Ishizaka%20-%20J.S.%20Bach-%20-Open-%20Goldberg%20Variations%2C%20BWV%20988%20%28Piano%29%20-%2001%20Aria.flac",
+        "raw": "_raw/piano-goldberg.flac",
+        "md5": "ee58bd30c6276012808ece98dcdc1685"
+      },
+      "licence": "CC0 1.0 (Open Goldberg project, explicit licenseurl)",
+      "attribution": "Kimiko Ishizaka, Open Goldberg Variations, Aria",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 3,
+        "seconds": 7,
+        "note": "opening bars: ornamented melody, pedalled overlapping decays; studio Boesendorfer, lossless"
+      },
+      "axes": {
+        "harmonicity": "tonal",
+        "attack": "sharp",
+        "pitch": "steady",
+        "polyphony": "poly",
+        "pulse": "loose",
+        "stationarity": "evolving",
+        "reverb": "studio"
+      },
+      "engineStress": "many simultaneous decaying partial stacks -> slot budget; hammer transients",
+      "metricDiagnosticity": "SSE-ear mostly agree (tonal, dry) — an agreement anchor",
+      "dtwProbe": "accumulate (melodic/metric logic)",
+      "built": {
+        "startSec": 3,
+        "seconds": 7,
+        "peakDbfs": -1,
+        "rmsDbfs": -16.97,
+        "sha256": "72e1149a5a3003231dcc84c0f0885ee3031b8b983b61dbd12943fc930a495ced",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "castanets",
+      "file": "castanets.wav",
+      "tier": "B",
+      "status": "accepted",
+      "upgrade": "self-record: dry claves/woodblock/handclap burst — beats the MP3-preview pre-echo caveat",
+      "slot": "sharp dry repeated transients (SQAM's classic pre-echo item)",
+      "source": {
+        "kind": "download",
+        "page": "https://freesound.org/people/Satoration/sounds/57299/",
+        "direct": "https://cdn.freesound.org/previews/57/57299_170972-hq.mp3",
+        "fallback": "https://cdn.freesound.org/previews/57/57299_170972-lq.mp3",
+        "raw": "_raw/castanets.mp3",
+        "md5": null
+      },
+      "licence": "CC-BY 4.0 (verified on page). ATTRIBUTION REQUIRED",
+      "attribution": "'castanets dry.wav' by Satoration, Freesound #57299, CC-BY 4.0",
+      "window": {
+        "strategy": "densest-onsets",
+        "seconds": 4,
+        "note": "35 s of dry rolls/grooves; pick densest burst. CAVEAT: 128k MP3 preview already smears transients slightly — exactly this clip's axis; see upgrade"
+      },
+      "axes": {
+        "harmonicity": "noise-burst",
+        "attack": "sharp",
+        "pitch": "na",
+        "polyphony": "mono",
+        "pulse": "quasi-pulsed",
+        "stationarity": "event-train",
+        "reverb": "dry"
+      },
+      "engineStress": "phase/transient exactness; envelope attack-rate limits; event-train timing",
+      "metricDiagnosticity": "timing-tolerance probe at the perceptual edge (a few ms shifts audible as flams?)",
+      "dtwProbe": "both (quasi-rhythmic)",
+      "built": {
+        "startSec": 12.61,
+        "seconds": 4,
+        "peakDbfs": -1,
+        "rmsDbfs": -29.98,
+        "sha256": "05241a09277596655473c832e74a064f1668ba8c63474f5da0b6610a29047fe2",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "orchestra",
+      "file": "orchestra.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "dense polyphonic tutti with hall reverb",
+      "source": {
+        "kind": "download",
+        "page": "https://archive.org/details/SymphonyNo.5",
+        "direct": "https://archive.org/download/SymphonyNo.5/Ludwig_van_Beethoven_-_symphony_no._5_in_c_minor_op._67_-_i._allegro_con_brio.mp3",
+        "raw": "_raw/orchestra-beethoven5.mp3",
+        "md5": "5eb9d48434ae1a817837822f0d9edfd8"
+      },
+      "licence": "PD Mark 1.0 (Musopen provenance; performer attribution thin — flagged in rights ledger)",
+      "attribution": "Beethoven Symphony No.5 mvt I, Musopen PD recording",
+      "window": {
+        "strategy": "loudest-sustained",
+        "seconds": 8,
+        "note": "coda fortissimo tutti ~7:45, or recap climax ~5:50 — confirm by analysis+ear"
+      },
+      "axes": {
+        "harmonicity": "tonal-dense",
+        "attack": "mixed",
+        "pitch": "steady",
+        "polyphony": "dense-poly",
+        "pulse": "pulsed",
+        "stationarity": "evolving",
+        "reverb": "hall"
+      },
+      "engineStress": "slot starvation at its most extreme (symphonic partial count >> 64); hall reverb residual",
+      "metricDiagnosticity": "BRIEF-3 generality-gate item ('symphonies')",
+      "dtwProbe": "accumulate (strong metric pulse)",
+      "built": {
+        "startSec": 293.5,
+        "seconds": 8,
+        "peakDbfs": -1,
+        "rmsDbfs": -16.42,
+        "sha256": "319790c89e10ef0e39f7f84036729015a9e57352cddf89bd479f9c99e1f297ce",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "drumloop-120",
+      "file": "drumloop-120.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "strongly pulsed groove — the DTW 'accumulate' probe",
+      "source": {
+        "kind": "self-record",
+        "raw": "_raw/drumloop-jon.wav",
+        "note": "Jon's own 120 BPM loop (DAW stem export), 2026-09-05, exactly 4.000 s = 2 bars. Replaces vetoed looplicator preview AND the josefpres fallback (never fetched)."
+      },
+      "licence": "owner's own recording",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 0,
+        "seconds": 4,
+        "note": "whole loop, 2 bars at 120 BPM"
+      },
+      "axes": {
+        "harmonicity": "mixed",
+        "attack": "sharp",
+        "pitch": "na",
+        "polyphony": "kit",
+        "pulse": "strongly-pulsed",
+        "stationarity": "cyclic",
+        "reverb": "dry"
+      },
+      "engineStress": "cyclic structure the genome has no loop primitive for; broadband hits",
+      "metricDiagnosticity": "THE pulsed probe for Jon's reset-vs-accumulate question — pair against stream/birdsong (pulseless)",
+      "dtwProbe": "accumulate (this clip exists to test that)",
+      "built": {
+        "startSec": 0,
+        "seconds": 4,
+        "peakDbfs": -1,
+        "rmsDbfs": -15.64,
+        "sha256": "27db801fcdd8d031ebfaba960401cb9095a1b3bb8c1b6abc9701a5cb0b1535fe",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "train-steam",
+      "file": "train-steam.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "machine: tonal whistle + broadband chuff/rail (Jon's named generality case)",
+      "source": {
+        "kind": "download",
+        "page": "https://archive.org/details/aporee_58159_66684",
+        "direct": "https://archive.org/download/aporee_58159_66684/0011321steamtrainBranikStationedit.flac",
+        "raw": "_raw/train-steam.flac",
+        "md5": "ff7fa7efefb781e77d17836f778bfd7f",
+        "recordist": "Peter Cusack"
+      },
+      "licence": "PD Mark 1.0 (recordist-applied, radio aporee)",
+      "attribution": "Peter Cusack, radio aporee, steam train at Branik Station, Prague",
+      "window": {
+        "strategy": "mixed-tonal-broadband",
+        "seconds": 5,
+        "note": "owner round-2: lose the last second — trimmed 6->5 s; otherwise accepted"
+      },
+      "axes": {
+        "harmonicity": "mixed",
+        "attack": "mixed",
+        "pitch": "steady-or-glide",
+        "polyphony": "scene",
+        "pulse": "quasi-pulsed (chuff)",
+        "stationarity": "evolving",
+        "reverb": "open-air"
+      },
+      "engineStress": "simultaneous tonal + broadband — the two engine regimes at once",
+      "metricDiagnosticity": "auditory-scene case: multiple concurrent sources",
+      "dtwProbe": "reset",
+      "alternates": [
+        {
+          "page": "https://archive.org/details/aporee_53885_85003",
+          "direct": "https://archive.org/download/aporee_53885_85003/BigBoyNo4014.flac",
+          "md5": "213d47c45b23e6d365a1da9c21fb3e00",
+          "licence": "PD Mark 1.0",
+          "note": "Big Boy 4014 pass-by; possible crowd + helicopter contamination"
+        }
+      ],
+      "built": {
+        "startSec": 78.8,
+        "seconds": 5,
+        "peakDbfs": -1,
+        "rmsDbfs": -19.11,
+        "sha256": "33517be72c340281f0e72b3c74092b5771c5af0715e3734ead7f4490b029f828",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "stream",
+      "file": "stream.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "stationary broadband nature texture — the pure-noise anchor",
+      "source": {
+        "kind": "download",
+        "page": "https://www.nps.gov/subjects/sound/sounds-stream.htm",
+        "direct": "https://www.nps.gov/nps-audiovideo/legacy/mp3/nri/avElement/nri-StreamMUWO.mp3",
+        "raw": "_raw/stream-muirwoods.mp3",
+        "md5": null
+      },
+      "licence": "Public domain (US federal work, NPS)",
+      "attribution": "National Park Service, Muir Woods stream recording",
+      "window": {
+        "strategy": "most-stationary",
+        "seconds": 5,
+        "note": "NPS source is only 5.08 s long; whole-file minus edges"
+      },
+      "axes": {
+        "harmonicity": "noise",
+        "attack": "none",
+        "pitch": "na",
+        "polyphony": "texture",
+        "pulse": "free",
+        "stationarity": "stationary",
+        "reverb": "na"
+      },
+      "engineStress": "pure stationary broadband: statistically trivial, sample-exactly impossible",
+      "metricDiagnosticity": "Jon's constraint 1 verbatim: 'noise needs to be statistically similar, not SSE similar' — the cleanest possible test of it; pulseless partner of drumloop-120",
+      "dtwProbe": "reset (nothing to align)",
+      "alternates": [
+        {
+          "page": "https://www.nps.gov/subjects/sound/sounds-rain.htm",
+          "direct": "https://www.nps.gov/nps-audiovideo/legacy/mp3/nri/avElement/nri-RainDEPO.mp3",
+          "licence": "Public domain (NPS)",
+          "note": "light rain — sparser texture, drips over soft bed"
+        }
+      ],
+      "built": {
+        "startSec": 0,
+        "seconds": 5,
+        "peakDbfs": -1,
+        "rmsDbfs": -21.16,
+        "sha256": "f2e50b2825da34845de5e216bb154949b3684d124f3e9b3e0465653685dbf1ad",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "dtmf-modem",
+      "file": "dtmf-modem.wav",
+      "tier": "B",
+      "status": "accepted",
+      "slot": "protocol tones: Jon's named 'modem beeps' case + the in-domain calibration anchor",
+      "source": {
+        "kind": "synthesized",
+        "tool": "tools/synth-protocol.mjs",
+        "note": "deterministic, seeded, spec-cited (ITU-T Q.23 DTMF pairs; Bell-103/V.21-style 300-baud FSK). Rights-clean by construction. Deliberately includes trivially-engine-reachable material (steady sine pairs) so the library has a 'the engine CAN nail this' anchor — MUSHRA-style anchor logic.",
+        "raw": "_raw/dtmf-modem.wav"
+      },
+      "licence": "none needed (synthesized in-repo)",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 0,
+        "seconds": 6
+      },
+      "axes": {
+        "harmonicity": "tonal-pure",
+        "attack": "gated",
+        "pitch": "stepped",
+        "polyphony": "dyads",
+        "pulse": "gated-rhythm",
+        "stationarity": "piecewise-stationary",
+        "reverb": "none"
+      },
+      "engineStress": "none for DTMF (calibration anchor); FSK stresses instantaneous frequency stepping vs 8-node pitch envelopes",
+      "metricDiagnosticity": "agreement anchor: SSE and ear should both score near-perfect matches as near-perfect",
+      "dtwProbe": "accumulate (FSK bit clock is a pulse)",
+      "built": {
+        "startSec": 0,
+        "seconds": 6,
+        "peakDbfs": -1,
+        "rmsDbfs": -7.3,
+        "sha256": "a7300e428fcb7f449b18071e7192c29ad67dc453042fb3977af55423fafa9ea1",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "edison-1917",
+      "file": "edison-1917.wav",
+      "tier": "B-optional",
+      "status": "accepted",
+      "slot": "early-acoustic-era recording — melody + medium noise fused",
+      "source": {
+        "kind": "download",
+        "page": "https://archive.org/details/edison-50443_01_5659",
+        "direct": "https://archive.org/download/edison-50443_01_5659/cusb_ed_50443_01_5659_0c.flac",
+        "raw": "_raw/edison-1917.flac",
+        "md5": "4134a386fd5415e45ef9d5731e50ac98"
+      },
+      "licence": "US PD (recorded 1917-07-03, pre-1923, Music Modernization Act; UCSB transfer)",
+      "attribution": "Billy Murray, 'Over There' (Cohan), Edison 50443, 1917",
+      "window": {
+        "strategy": "manual",
+        "startSec": 45,
+        "seconds": 8,
+        "note": "first chorus ~0:45 — confirm by ear"
+      },
+      "axes": {
+        "harmonicity": "mixed",
+        "attack": "mixed",
+        "pitch": "melodic",
+        "polyphony": "voice+band",
+        "pulse": "pulsed",
+        "stationarity": "evolving",
+        "reverb": "horn"
+      },
+      "engineStress": "tonal skeleton under heavy correlated noise — the inverse of ARTISAN v2's own renders",
+      "metricDiagnosticity": "poetic + diagnostic: v2's speech render was described as 'a very early wax cylinder recording'; here the TARGET is one. Does the metric agree the renders and this class share character?",
+      "dtwProbe": "accumulate",
+      "built": {
+        "startSec": 45,
+        "seconds": 8,
+        "peakDbfs": -1,
+        "rmsDbfs": -19.75,
+        "sha256": "717323b18967ffc0cc838c6a4032b5fcff5c5683a86c223bdd095f9de0bce93e",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "micro-kick",
+      "file": "micro-kick.wav",
+      "tier": "M",
+      "status": "accepted",
+      "slot": "single kick drum hit (studio one-shot)",
+      "source": {
+        "kind": "download",
+        "page": "https://freesound.org/people/karolist/sounds/371192/",
+        "direct": "https://cdn.freesound.org/previews/371/371192_6399962-hq.mp3",
+        "fallback": "https://cdn.freesound.org/previews/371/371192_6399962-lq.mp3",
+        "raw": "_raw/micro-kick.mp3",
+        "md5": null,
+        "note": "karolist 'acoustic kick.wav', studio, 0.296 s, mono. Replaces the cut-from-loop attempt (owner round-2 veto: the loop window held three kicks — a dense loop is the wrong source for isolated hits)"
+      },
+      "licence": "CC0 (verified on Freesound page)",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 0,
+        "seconds": 0.35
+      },
+      "axes": {
+        "harmonicity": "noise-burst+low-tone",
+        "attack": "sharp",
+        "pitch": "na",
+        "polyphony": "mono-event",
+        "pulse": "na",
+        "stationarity": "single-event",
+        "reverb": "dry"
+      },
+      "engineStress": "attack fidelity with the WHOLE 64-slot budget free for one event; low-frequency pitch-ish thump + broadband click in one gesture",
+      "metricDiagnosticity": "micro-target accuracy question (owner, 2026-09-05): how close can a short specific target get?",
+      "dtwProbe": "na (single event)",
+      "attribution": "karolist, Freesound #371192, acoustic kick one-shot",
+      "built": {
+        "startSec": 0,
+        "seconds": 0.297,
+        "peakDbfs": -1,
+        "rmsDbfs": -15.7,
+        "sha256": "bed18379873a1b486872ae17badf7f52c195f6715f079c06f58914c3149a3ac1",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "micro-snare",
+      "file": "micro-snare.wav",
+      "tier": "M",
+      "status": "accepted",
+      "slot": "single snare hit (cut from owner's loop)",
+      "source": {
+        "kind": "derived",
+        "raw": "_raw/drumloop-jon.wav",
+        "note": "snare at 3.293 s — highest high-band onset (0.95 of energy above 3 kHz), 0.25 s clear before next onset"
+      },
+      "licence": "owner's own recording",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 3.285,
+        "seconds": 0.25
+      },
+      "axes": {
+        "harmonicity": "noise-burst",
+        "attack": "sharp",
+        "pitch": "na",
+        "polyphony": "mono-event",
+        "pulse": "na",
+        "stationarity": "single-event",
+        "reverb": "dry"
+      },
+      "engineStress": "the hardest micro case: almost pure broadband transient, no tonal handle at all",
+      "metricDiagnosticity": "micro accuracy question; also the smallest possible SSE-ear-disagreement specimen",
+      "dtwProbe": "na",
+      "built": {
+        "startSec": 3.29,
+        "seconds": 0.25,
+        "peakDbfs": -1,
+        "rmsDbfs": -13.62,
+        "sha256": "a4008573cca4a63438a4793c33c6f3a7fc5aaded7022bfea91a04e587dc659a0",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "micro-chime-strike",
+      "file": "micro-chime-strike.wav",
+      "tier": "M",
+      "status": "accepted",
+      "slot": "single tubular-bell strike with natural ring (one-shot)",
+      "source": {
+        "kind": "download",
+        "page": "https://freesound.org/people/sgossner/sounds/374273/",
+        "direct": "https://cdn.freesound.org/previews/374/374273_2475994-hq.mp3",
+        "fallback": "https://cdn.freesound.org/previews/374/374273_2475994-lq.mp3",
+        "raw": "_raw/micro-bell.mp3",
+        "md5": null,
+        "note": "sgossner VSCO2:CE tubular bell C4, one isolated strike + 19 s auditorium ring — cut to 3.5 s. Replaces the cut-from-canonical-chimes attempt (owner round-2 veto: window straddled two strikes). Trade recorded: we lose the direct link to the canonical chimes recording, gain true isolation; character stays bell-class (orchestral chimes ARE tubular bells)"
+      },
+      "licence": "CC0 (verified on Freesound page)",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 0,
+        "seconds": 3.5,
+        "note": "accepted 2026-09-05; the 3.5 s cut truncates a long remaining tail — deliberate per owner: \"we want to see how it does on short audio and the full tail would no longer be short\""
+      },
+      "axes": {
+        "harmonicity": "tonal-inharmonic",
+        "attack": "sharp",
+        "pitch": "steady",
+        "polyphony": "mono-event",
+        "pulse": "na",
+        "stationarity": "single-event",
+        "reverb": "auditorium"
+      },
+      "engineStress": "one inharmonic partial stack with a long real-room decay, all 64 slots free",
+      "metricDiagnosticity": "micro accuracy on the bell class; reverberant decay is the tiny SSE-floor component",
+      "dtwProbe": "na",
+      "attribution": "sgossner, Freesound #374273, VSCO2:CE tubular bell C4",
+      "built": {
+        "startSec": 0,
+        "seconds": 3.5,
+        "peakDbfs": -1,
+        "rmsDbfs": -20.79,
+        "sha256": "11037e61dcfbf2b7691da4a263fa739d56662912a1fce678ac36b73ece3a8b0c",
+        "builtAt": "2026-09-05"
+      }
+    },
+    {
+      "id": "micro-flute-staccato",
+      "file": "micro-flute-staccato.wav",
+      "tier": "M",
+      "status": "accepted",
+      "slot": "single staccato flute note",
+      "source": {
+        "kind": "download",
+        "page": "https://freesound.org/people/sgossner/sounds/373335/",
+        "direct": "https://cdn.freesound.org/previews/373/373335_2475994-hq.mp3",
+        "fallback": "https://cdn.freesound.org/previews/373/373335_2475994-lq.mp3",
+        "raw": "_raw/micro-flute.mp3",
+        "md5": null,
+        "note": "VSCO2 Community Edition (sgossner — same CC0 set as Sound Sandbox's marimba), 0.814 s staccato C, close-miked"
+      },
+      "licence": "CC0 (verified on Freesound page)",
+      "attribution": "sgossner, Freesound #373335, VSCO2:CE flute staccato",
+      "window": {
+        "strategy": "fixed",
+        "startSec": 0,
+        "seconds": 0.85
+      },
+      "axes": {
+        "harmonicity": "tonal",
+        "attack": "breath-chiff",
+        "pitch": "steady",
+        "polyphony": "mono-event",
+        "pulse": "na",
+        "stationarity": "single-event",
+        "reverb": "near-dry"
+      },
+      "engineStress": "tonal micro event with a noise chiff onset — the tonal counterpart to micro-snare",
+      "metricDiagnosticity": "micro accuracy on a harmonic event; chiff is the tiny SSE-floor component",
+      "dtwProbe": "na",
+      "built": {
+        "startSec": 0,
+        "seconds": 0.815,
+        "peakDbfs": -1,
+        "rmsDbfs": -17.19,
+        "sha256": "687b7779237eace36fd705c0221eb608b4bf9e274a0bb581be48c557dcea9c1d",
+        "builtAt": "2026-09-05"
+      }
+    }
+  ],
+  "rightsLedger": {
+    "bars": "PD/CC0 preferred; CC-BY 4.0 accepted with attribution recorded above; NC/ND/SA refused throughout.",
+    "flags": [
+      "radio aporee items carry recordist-applied PD Mark 1.0 (a 'no known copyright' label, not a formal CC0 waiver) — low practical risk for this repo, noted for honesty",
+      "Musopen-lineage orchestra item: PD Mark with thin performer attribution",
+      "Freesound items are 128k MP3 previews (originals login-gated); the two flagged clips have self-record upgrade paths",
+      "canonical two targets predate the library and are the owner's responsibility",
+      "pre-1923 US recordings are PD in the US under the MMA; UK term for pre-1957 published recordings has also expired"
+    ]
+  }
+}

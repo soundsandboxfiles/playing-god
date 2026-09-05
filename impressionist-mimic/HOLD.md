@@ -32,3 +32,4 @@ MIMIC's `--seed-genome` accepts ARTISAN's output. Seeding with the SSE-optimal g
 2. `../impressionist/NOTES-FOR-BRIEF.md` — lineage context, the Goodhart double-layer, why ARTISAN's technique-ledger verdicts are metric-relative.
 3. `../mimic/README.md`, `../mimic/docs/FITNESS.md`, and MIMIC's report — the harness this program inherits and the silence-attractor story it exists to escape.
 4. The house process stack, unchanged: Continuation System, untether conventions, technique-ledger discipline, anytime budget-filling, verify.js honesty (verify re-proves render identity; the score it recomputes becomes the perceptual metric).
+5. `../tools/structural-decomp.mjs` — the SSE-space cross-check (structure-vs-loudness + correlation ceiling) for any genome you evolve; a diagnostic foil to the perceptual objective, not the objective itself. See `../mimic/docs/FINDINGS.md`.

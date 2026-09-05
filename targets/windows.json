@@ -1,0 +1,138 @@
+{
+  "birdsong-thrush": {
+    "chosen": 1.2,
+    "seconds": 4,
+    "strategy": "densest-song",
+    "candidates": [
+      {
+        "startSec": 1.2,
+        "score": 4.734678870461806
+      }
+    ]
+  },
+  "applause": {
+    "chosen": 151.47,
+    "seconds": 4,
+    "strategy": "densest-stationary",
+    "candidates": [
+      {
+        "startSec": 151.47,
+        "score": 0.0383854321098495
+      },
+      {
+        "startSec": 153.67,
+        "score": 0.03620744729464961
+      },
+      {
+        "startSec": 155.87,
+        "score": 0.03534823108942856
+      }
+    ]
+  },
+  "speech-female-en": {
+    "chosen": 0.8,
+    "seconds": 6,
+    "strategy": "first-clean-sentence",
+    "candidates": [
+      {
+        "startSec": 0.8,
+        "score": 0.009514565959871888
+      },
+      {
+        "startSec": 11.81,
+        "score": -0.009987661545314669
+      },
+      {
+        "startSec": 19.21,
+        "score": -0.02796128348355323
+      }
+    ]
+  },
+  "speech-ja": {
+    "chosen": 8.4,
+    "seconds": 6,
+    "strategy": "first-clean-sentence",
+    "candidates": [
+      {
+        "startSec": 8.4,
+        "score": 0.016888594712072526
+      },
+      {
+        "startSec": 4.6,
+        "score": 0.016617421933197436
+      },
+      {
+        "startSec": 0.8,
+        "score": 0.012286565309782579
+      }
+    ]
+  },
+  "castanets": {
+    "chosen": 12.61,
+    "seconds": 4,
+    "strategy": "densest-onsets",
+    "candidates": [
+      {
+        "startSec": 12.61,
+        "score": 14.932763268327722
+      },
+      {
+        "startSec": 26.21,
+        "score": 11.66617788011677
+      },
+      {
+        "startSec": 10.4,
+        "score": 10.465918525553784
+      }
+    ]
+  },
+  "orchestra": {
+    "chosen": 293.5,
+    "seconds": 8,
+    "strategy": "loudest-sustained",
+    "candidates": [
+      {
+        "startSec": 290.53,
+        "score": 0.09804128516916233
+      },
+      {
+        "startSec": 294.13,
+        "score": 0.09443858378036618
+      },
+      {
+        "startSec": 474.21,
+        "score": 0.09386525748218481
+      }
+    ]
+  },
+  "train-steam": {
+    "chosen": 78.8,
+    "seconds": 5.0,
+    "strategy": "owner-directed",
+    "candidates": [
+      {
+        "startSec": 81.04,
+        "score": 0.9549482475617281
+      },
+      {
+        "startSec": 78.84,
+        "score": 0.7036923750883797
+      },
+      {
+        "startSec": 99.04,
+        "score": 0.5951274447873723
+      }
+    ]
+  },
+  "stream": {
+    "chosen": 0,
+    "seconds": 5,
+    "strategy": "most-stationary",
+    "candidates": [
+      {
+        "startSec": 0,
+        "score": 0.06389283128400344
+      }
+    ]
+  }
+}

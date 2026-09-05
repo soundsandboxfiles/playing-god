@@ -66,6 +66,21 @@ This is the practical form of the specification's representation discipline:
 everything up to the SAMPLES tier is testable headlessly. Only AUDIO needs
 a machine that can make a noise.
 
+## Analysis tools (across the lineage)
+
+Read-only probes that run on any result in the set — MIMIC, ARTISAN, or (once
+built) IMPRESSIONIST. They import the real engine and only print numbers.
+
+- **`tools/structural-decomp.mjs`** — splits a genome's SSE against its
+  target into *structure* (waveform correlation) vs *loudness*, and reports the
+  **correlation ceiling**: the honest "how hard is this target" signal the
+  scale-free %-of-floor curve hides. Point it at a MIMIC run dir, an ARTISAN
+  `output/<run>` dir (auto-reads `genome.pg2.txt` + `target-scored.wav`,
+  self-checks against its `meta.json`), or a lone `--genome <pg2> --target <wav>`;
+  `--curve` shows the per-generation climb. Write-up: `mimic/docs/FINDINGS.md`.
+  *For the perceptual programs it is an SSE-space diagnostic, not their objective.*
+- **`mimic/tools/gene-convergence.mjs`** — gene-fixation dynamics of a MIMIC run.
+
 ## Storage
 
 IndexedDB, not localStorage. A full genome is ~24 KB and a real run would

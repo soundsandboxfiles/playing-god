@@ -44,4 +44,4 @@ ARTISAN v2 measured, per target, a **broadband/aperiodic floor**: chimes SSE can
 
 ## Pointers on disk
 
-`code/playing-god/artisan/`: `BRIEF.md`, `BRIEF-2.md`, `BRIEF-3.md`, `output/ARTISAN-REPORT.md`, `output/ARTISAN-REPORT-v2.md`, `technique-ledger.json`, `CONTINUATION*.md`. MIMIC's report and `docs/FITNESS.md` for the SSE spec and the silence-attractor story. `../playing-god-spec.md` §3–4 for genome/synthesis.
+`code/playing-god/artisan/`: `BRIEF.md`, `BRIEF-2.md`, `BRIEF-3.md`, `output/ARTISAN-REPORT.md`, `output/ARTISAN-REPORT-v2.md`, `technique-ledger.json`, `CONTINUATION*.md`. MIMIC's report and `docs/FITNESS.md` for the SSE spec and the silence-attractor story. `../playing-god-spec.md` §3–4 for genome/synthesis. `../tools/structural-decomp.mjs` — SSE-space structural probe (structure-vs-loudness split + correlation ceiling), usable on any genome via `--genome <pg2> --target <wav>`; here it is the blunt-SSE baseline to hold the perceptual metric against, NOT the objective. Write-up in `../mimic/docs/FINDINGS.md`.

@@ -1,0 +1,137 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><title>Target library — audition</title>
+<style>body{font-family:system-ui;max-width:760px;margin:2rem auto;padding:0 1rem;background:#faf8f5;color:#222}
+h1{font-size:1.4rem} .clip{border:1px solid #ddd;border-radius:8px;padding:.8rem 1rem;margin:.8rem 0;background:#fff}
+.clip h3{margin:.1rem 0 .4rem;font-size:1.05rem} .tag{font-size:.7rem;background:#eee;border-radius:4px;padding:2px 6px;vertical-align:middle;color:#555}
+.slot{color:#666;font-size:.85rem;margin:.3rem 0} .small{font-size:.78rem;color:#888} audio{width:100%}
+p{margin:.3rem 0}</style></head><body>
+<h1>The target library</h1>
+<p>Complete 2026-09-05: 21 targets, all auditioned and accepted. This page is the library's
+listening reference — reopen any time. To change anything, see the pipeline in MANIFEST.md;
+completion report: REPORT-TARGET-LIBRARY-2026-09-05.md.</p>
+<div class='clip'>
+<h3>chimes <span class='tag'>canonical</span></h3>
+<audio controls preload='none' src='westminster-chimes.wav'></audio>
+<p class='slot'>inharmonic pitched bells, sparse events, wet &middot; window —</p>
+<p class='small'>Stresses: slot budget (63/64 waves spent in ARTISAN v2); long decays; strike transients &middot; SSE-ear disagree on the strike/reverb residual (measured floor ~350-430 SSE); bell melody is the recognisable skeleton</p>
+</div>
+<div class='clip'>
+<h3>speech-male-en <span class='tag'>canonical</span></h3>
+<audio controls preload='none' src='SpeechSignalProcessing.wav'></audio>
+<p class='slot'>voiced+unvoiced male English speech &middot; window —</p>
+<p class='small'>Stresses: unvoiced/broadband energy (no noise oscillator); rapid formant movement &middot; SSE-ear disagree on unvoiced consonants; voiced skeleton carries recognisability at SSE 191 (ARTISAN v2 finding)</p>
+</div>
+<div class='clip'>
+<h3>birdsong-thrush <span class='tag'>A · accepted</span></h3>
+<audio controls preload='none' src='birdsong-thrush.wav'></audio>
+<p class='slot'>fast-FM biological melody, sparse over silence &middot; window 1.2 s + 4 s</p>
+<p class='small'>Stresses: pitch-envelope node budget (&lt;=8 nodes vs continuous fast glides); silence gaps invite the silence attractor in GA &middot; small timing jitter imperceptible -&gt; timing-tolerance probe</p>
+</div>
+<div class='clip'>
+<h3>applause <span class='tag'>A · accepted</span></h3>
+<audio controls preload='none' src='applause.wav'></audio>
+<p class='slot'>transient-dense broadband texture (canonical codec-killer) &middot; window 151.47 s + 4 s</p>
+<p class='small'>Stresses: worst case for an oscillator bank: thousands of uncorrelated micro-transients; no noise oscillator &middot; maximal SSE-ear disagreement: any statistically-similar clapping sounds right, no sample alignment exists</p>
+</div>
+<div class='clip'>
+<h3>speech-female-en <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='speech-female-en.wav'></audio>
+<p class='slot'>clean female English speech &middot; window 0.8 s + 6 s</p>
+<p class='small'>Stresses: different register/formants from canonical male clip &middot; voiced/unvoiced balance; intelligibility as the perceptual criterion</p>
+</div>
+<div class='clip'>
+<h3>speech-ja <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='speech-ja.wav'></audio>
+<p class='slot'>non-English speech (phonetically distant) &middot; window 8.4 s + 6 s</p>
+<p class='small'>Stresses: generality: pitch-accent language, different phoneme inventory &middot; tests that the metric is not tuned to English phonology</p>
+</div>
+<div class='clip'>
+<h3>whisper <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='whisper.wav'></audio>
+<p class='slot'>unvoiced whispered speech — pure noise-shaped-by-articulation &middot; window 0 s + 5.5 s</p>
+<p class='small'>Stresses: near-zero periodic energy: the engine&#x27;s hardest class (modulation is its only route to broadband) &middot; the SSE-ear disagreement showcase (NOTES-FOR-BRIEF q4): SSE floor is nearly the whole signal</p>
+</div>
+<div class='clip'>
+<h3>voice-sung-simple <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='voice-sung-simple.wav'></audio>
+<p class='slot'>sustained sung melodic phrase with vibrato &middot; window 0 s + 9 s</p>
+<p class='small'>Stresses: continuous vibrato vs 8-node pitch envelopes; breath noise floor under a strong tone &middot; tuning-tolerance probe (a few cents imperceptible — Jon&#x27;s constraint 4)</p>
+</div>
+<div class='clip'>
+<h3>voice-sung-complex <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='voice-sung-complex.wav'></audio>
+<p class='slot'>sung phrase, complex — full performance, LENGTH EXCEPTION &middot; window 0 s + 14.1 s</p>
+<p class='small'>Stresses: continuous vibrato vs 8-node pitch envelopes; breath under tone; LENGTH (render cost, envelope resolution over 14s) &middot; tuning-tolerance probe; the ultimate known-reference for owner listening (their own voice)</p>
+</div>
+<div class='clip'>
+<h3>piano-goldberg <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='piano-goldberg.wav'></audio>
+<p class='slot'>keyboard: distinct attacks over overlapping harmonic decays &middot; window 3 s + 7 s</p>
+<p class='small'>Stresses: many simultaneous decaying partial stacks -&gt; slot budget; hammer transients &middot; SSE-ear mostly agree (tonal, dry) — an agreement anchor</p>
+</div>
+<div class='clip'>
+<h3>castanets <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='castanets.wav'></audio>
+<p class='slot'>sharp dry repeated transients (SQAM&#x27;s classic pre-echo item) &middot; window 12.61 s + 4 s</p>
+<p class='small'>Stresses: phase/transient exactness; envelope attack-rate limits; event-train timing &middot; timing-tolerance probe at the perceptual edge (a few ms shifts audible as flams?)</p>
+</div>
+<div class='clip'>
+<h3>orchestra <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='orchestra.wav'></audio>
+<p class='slot'>dense polyphonic tutti with hall reverb &middot; window 293.5 s + 8 s</p>
+<p class='small'>Stresses: slot starvation at its most extreme (symphonic partial count &gt;&gt; 64); hall reverb residual &middot; BRIEF-3 generality-gate item (&#x27;symphonies&#x27;)</p>
+</div>
+<div class='clip'>
+<h3>drumloop-120 <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='drumloop-120.wav'></audio>
+<p class='slot'>strongly pulsed groove — the DTW &#x27;accumulate&#x27; probe &middot; window 0 s + 4 s</p>
+<p class='small'>Stresses: cyclic structure the genome has no loop primitive for; broadband hits &middot; THE pulsed probe for Jon&#x27;s reset-vs-accumulate question — pair against stream/birdsong (pulseless)</p>
+</div>
+<div class='clip'>
+<h3>train-steam <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='train-steam.wav'></audio>
+<p class='slot'>machine: tonal whistle + broadband chuff/rail (Jon&#x27;s named generality case) &middot; window 78.8 s + 5 s</p>
+<p class='small'>Stresses: simultaneous tonal + broadband — the two engine regimes at once &middot; auditory-scene case: multiple concurrent sources</p>
+</div>
+<div class='clip'>
+<h3>stream <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='stream.wav'></audio>
+<p class='slot'>stationary broadband nature texture — the pure-noise anchor &middot; window 0 s + 5 s</p>
+<p class='small'>Stresses: pure stationary broadband: statistically trivial, sample-exactly impossible &middot; Jon&#x27;s constraint 1 verbatim: &#x27;noise needs to be statistically similar, not SSE similar&#x27; — the cleanest possible test of it; pulseless partner of drumloop-120</p>
+</div>
+<div class='clip'>
+<h3>dtmf-modem <span class='tag'>B · accepted</span></h3>
+<audio controls preload='none' src='dtmf-modem.wav'></audio>
+<p class='slot'>protocol tones: Jon&#x27;s named &#x27;modem beeps&#x27; case + the in-domain calibration anchor &middot; window 0 s + 6 s</p>
+<p class='small'>Stresses: none for DTMF (calibration anchor); FSK stresses instantaneous frequency stepping vs 8-node pitch envelopes &middot; agreement anchor: SSE and ear should both score near-perfect matches as near-perfect</p>
+</div>
+<div class='clip'>
+<h3>edison-1917 <span class='tag'>B-optional · accepted</span></h3>
+<audio controls preload='none' src='edison-1917.wav'></audio>
+<p class='slot'>early-acoustic-era recording — melody + medium noise fused &middot; window 45 s + 8 s</p>
+<p class='small'>Stresses: tonal skeleton under heavy correlated noise — the inverse of ARTISAN v2&#x27;s own renders &middot; poetic + diagnostic: v2&#x27;s speech render was described as &#x27;a very early wax cylinder recording&#x27;; here the TARGET is one. Does the metric agree the renders and this class share character?</p>
+</div>
+<div class='clip'>
+<h3>micro-kick <span class='tag'>M · accepted</span></h3>
+<audio controls preload='none' src='micro-kick.wav'></audio>
+<p class='slot'>single kick drum hit (studio one-shot) &middot; window 0 s + 0.297 s</p>
+<p class='small'>Stresses: attack fidelity with the WHOLE 64-slot budget free for one event; low-frequency pitch-ish thump + broadband click in one gesture &middot; micro-target accuracy question (owner, 2026-09-05): how close can a short specific target get?</p>
+</div>
+<div class='clip'>
+<h3>micro-snare <span class='tag'>M · accepted</span></h3>
+<audio controls preload='none' src='micro-snare.wav'></audio>
+<p class='slot'>single snare hit (cut from owner&#x27;s loop) &middot; window 3.29 s + 0.25 s</p>
+<p class='small'>Stresses: the hardest micro case: almost pure broadband transient, no tonal handle at all &middot; micro accuracy question; also the smallest possible SSE-ear-disagreement specimen</p>
+</div>
+<div class='clip'>
+<h3>micro-chime-strike <span class='tag'>M · accepted</span></h3>
+<audio controls preload='none' src='micro-chime-strike.wav'></audio>
+<p class='slot'>single tubular-bell strike with natural ring (one-shot) &middot; window 0 s + 3.5 s</p>
+<p class='small'>Stresses: one inharmonic partial stack with a long real-room decay, all 64 slots free &middot; micro accuracy on the bell class; reverberant decay is the tiny SSE-floor component</p>
+</div>
+<div class='clip'>
+<h3>micro-flute-staccato <span class='tag'>M · accepted</span></h3>
+<audio controls preload='none' src='micro-flute-staccato.wav'></audio>
+<p class='slot'>single staccato flute note &middot; window 0 s + 0.815 s</p>
+<p class='small'>Stresses: tonal micro event with a noise chiff onset — the tonal counterpart to micro-snare &middot; micro accuracy on a harmonic event; chiff is the tiny SSE-floor component</p>
+</div>
+</body></html>

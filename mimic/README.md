@@ -29,6 +29,10 @@ node run.js --config configs/chimes.json
 # Point it at any WAV:
 node run.js --target /path/to/your.wav --generations 200 --population 300
 
+# After a run — how hard was the target, really? (structure vs loudness,
+# and the correlation ceiling that the %-of-floor curve hides):
+node ../tools/structural-decomp.mjs output/<run> --curve
+
 # See every option in plain English:
 node run.js --help
 ```
@@ -46,3 +50,7 @@ convergence.
 - `app.html` — in-browser evolution (built blind; smoke-tested by the owner)
 - `docs/` — fitness spec, genome-string format, decisions
 - `targets/` — target WAVs (the owner's `westminster-chimes.wav` lives here)
+- `tools/` — MIMIC-specific analysis, read-only: `gene-convergence.mjs`
+  (gene-fixation dynamics). The lineage-wide `structural-decomp.mjs`
+  (structure-vs-loudness split + correlation-ceiling difficulty read) lives at the
+  project-level `../tools/` — see `docs/FINDINGS.md`.

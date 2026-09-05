@@ -27,3 +27,13 @@ node_modules/
 .venv/
 __pycache__/
 .DS_Store
+# Raw target sources: downloads are re-fetchable (ignored); the owner's own
+# recordings are NOT re-fetchable and are committed via the negations below.
+targets/_raw/*
+!targets/_raw/voice-sung-complex.wav
+!targets/_raw/voice-sung-simple.wav
+!targets/_raw/whisper-jon.wav
+!targets/_raw/drumloop-jon.wav
+
+# The target library IS source — its built WAVs are committed (raws in _raw/ stay ignored above)
+!targets/*.wav

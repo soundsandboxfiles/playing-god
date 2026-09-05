@@ -82,6 +82,8 @@ ARTISAN measures how close it got with one blunt number: **SSE** — add up, sam
 
 Every report also tells you how you did against **silence** (a silent render is the score to beat) and against **MIMIC's** best on the same sound.
 
+**Look deeper — structure vs loudness.** To split that SSE into how much is *structural* (waveform alignment) versus *loudness*, and to read the **correlation ceiling** — the honest "how hard was this sound" number a single score hides — run from the project root: `node tools/structural-decomp.mjs artisan/output/<run>`. It reads the run's `genome.pg2.txt` + `target-scored.wav`, self-checks against the report's SSE, and prints the split. See `mimic/docs/FINDINGS.md`.
+
 Some sounds can be matched *perfectly* (SSE = 0) — especially sounds that were themselves made by a genome. Real-world audio usually can't be perfect, because the engine only has 64 simple waves, tops out around 11 kHz, and delivers in 16-bit — so ARTISAN reports the real floor it reached and, honestly, what stopped it going lower.
 
 ---
